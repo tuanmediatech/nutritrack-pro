@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="description" content="Công cụ quản lý dinh dưỡng cá nhân - Theo dõi, nhắc nhở và giám sát chế độ ăn uống tăng cân sạch cho người vận động nhiều" />
+  <title>NutriTrack Pro | Quản lý Dinh Dưỡng Cá Nhân</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Ambient background -->
+  <div class="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Notification Container -->
+  <div id="notification-container"></div>
+
+  <!-- Side Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🥗</div>
+      <div class="logo-text">
+        <span class="logo-title">NutriTrack</span>
+        <span class="logo-sub">Pro</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-section-label">Tổng quan</span>
+      <a href="#" class="nav-item active" data-tab="dashboard" id="nav-dashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="schedule" id="nav-schedule">
+        <span class="nav-icon">⏰</span>
+        <span class="nav-label">Lịch hôm nay</span>
+        <span class="nav-badge" id="schedule-badge">0</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-section-label">Theo dõi</span>
+      <a href="#" class="nav-item" data-tab="log" id="nav-log">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">Nhật ký ăn uống</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="weight" id="nav-weight">
+        <span class="nav-icon">⚖️</span>
+        <span class="nav-label">Cân nặng</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="checklist" id="nav-checklist">
+        <span class="nav-icon">✅</span>
+        <span class="nav-label">Bảng kiểm</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-section-label">Thông tin</span>
+      <a href="#" class="nav-item" data-tab="meals" id="nav-meals">
+        <span class="nav-icon">🍽️</span>
+        <span class="nav-label">Thực đơn gợi ý</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="rules" id="nav-rules">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Nguyên tắc</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="reminders" id="nav-reminders">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Nhắc nhở</span>
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">TN</div>
+        <div class="user-info">
+          <span class="user-name">Tuấn Nguyễn</span>
+          <span class="user-goal">Mục tiêu: 78kg</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile hamburger -->
+  <button class="hamburger" id="hamburger" aria-label="Mở menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+
+    <!-- ===== DASHBOARD TAB ===== -->
+    <section class="tab-content active" id="tab-dashboard">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle" id="today-date"></p>
+        </div>
+        <div class="header-actions">
+          <div class="day-type-toggle">
+            <span class="toggle-label">Hôm nay:</span>
+            <button class="day-type-btn active" id="btn-heavy-day" onclick="setDayType('heavy')">Vận động nhiều</button>
+            <button class="day-type-btn" id="btn-light-day" onclick="setDayType('light')">Vận động nhẹ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card glass-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg,#10b981,#059669)">⚖️</div>
+          <div class="stat-body">
+            <span class="stat-label">Cân nặng hiện tại</span>
+            <div class="stat-value" id="current-weight-display">71.0 <span class="stat-unit">kg</span></div>
+            <div class="stat-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" id="weight-progress-bar" style="width:0%"></div>
+              </div>
+              <span class="progress-label" id="weight-progress-label">0% → 78kg</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg,#3b82f6,#2563eb)">💧</div>
+          <div class="stat-body">
+            <span class="stat-label">Nước uống hôm nay</span>
+            <div class="stat-value" id="water-display">0 <span class="stat-unit">ml</span></div>
+            <div class="stat-progress">
+              <div class="progress-bar">
+                <div class="progress-fill water-fill" id="water-progress-bar" style="width:0%"></div>
+              </div>
+              <span class="progress-label" id="water-progress-label">Mục tiêu: 2500ml</span>
+            </div>
+          </div>
+          <div class="water-buttons">
+            <button class="water-btn" onclick="addWater(200)">+200ml</button>
+            <button class="water-btn" onclick="addWater(300)">+300ml</button>
+            <button class="water-btn" onclick="addWater(500)">+500ml</button>
+          </div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg,#f59e0b,#d97706)">✅</div>
+          <div class="stat-body">
+            <span class="stat-label">Bảng kiểm hôm nay</span>
+            <div class="stat-value" id="checklist-display">0 <span class="stat-unit">/ 12</span></div>
+            <div class="stat-progress">
+              <div class="progress-bar">
+                <div class="progress-fill check-fill" id="check-progress-bar" style="width:0%"></div>
+              </div>
+              <span class="progress-label" id="check-progress-label">Hoàn thành 0%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg,#8b5cf6,#7c3aed)">🍚</div>
+          <div class="stat-body">
+            <span class="stat-label">Cơm hôm nay</span>
+            <div class="stat-value" id="rice-display">0 <span class="stat-unit">chén</span></div>
+            <div class="stat-progress">
+              <div class="progress-bar">
+                <div class="progress-fill rice-fill" id="rice-progress-bar" style="width:0%"></div>
+              </div>
+              <span class="progress-label" id="rice-progress-label">Mục tiêu: 4 chén</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meal Timeline -->
+      <div class="section-header">
+        <h2 class="section-title">⏱️ Lịch ăn hôm nay</h2>
+        <span class="section-badge" id="next-meal-badge">Bữa tiếp theo...</span>
+      </div>
+
+      <div class="timeline" id="meal-timeline">
+        <!-- Generated by JS -->
+      </div>
+
+      <!-- Quick log -->
+      <div class="section-header" style="margin-top:2rem">
+        <h2 class="section-title">⚡ Ghi nhanh</h2>
+      </div>
+      <div class="quick-log glass-card">
+        <div class="quick-inputs">
+          <select class="quick-select" id="quick-meal-type">
+            <option value="">Chọn bữa ăn</option>
+            <option value="4h30">4h30 - Trước dạy sáng</option>
+            <option value="6h15">6h15 - Ăn sáng chính</option>
+            <option value="9h30">9h30 - Bữa phụ sáng</option>
+            <option value="10h45">10h45 - Trước dạy trưa</option>
+            <option value="12h45">12h45 - Ăn trưa</option>
+            <option value="15h30">15h30 - Bữa phụ chiều</option>
+            <option value="16h30">16h30 - Thêm nếu chơi tối</option>
+            <option value="20h15">20h15 - Ăn tối</option>
+            <option value="22h00">22h00 - Trước ngủ</option>
+          </select>
+          <textarea class="quick-textarea" id="quick-food" placeholder="Ghi những gì bạn đã ăn... (vd: 2 chén cơm, cá kho, rau luộc, canh xương)" rows="2"></textarea>
+        </div>
+        <div class="quick-extras">
+          <div class="quick-extra-item">
+            <label>Cơm (chén):</label>
+            <input type="number" id="quick-rice" min="0" max="5" step="0.5" value="0" class="quick-number" />
+          </div>
+          <div class="quick-extra-item">
+            <label>Nước (ml):</label>
+            <input type="number" id="quick-water-extra" min="0" max="2000" step="50" value="0" class="quick-number" />
+          </div>
+          <div class="quick-extra-item">
+            <label>Cảm giác:</label>
+            <select id="quick-feeling" class="quick-select-sm">
+              <option value="good">😊 Tốt</option>
+              <option value="ok">😐 Bình thường</option>
+              <option value="bad">😴 Mệt</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="quickLog()">💾 Lưu bữa ăn</button>
+      </div>
+    </section>
+
+    <!-- ===== SCHEDULE TAB ===== -->
+    <section class="tab-content" id="tab-schedule">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">⏰ Lịch hôm nay</h1>
+          <p class="page-subtitle">Theo dõi chi tiết từng khung giờ</p>
+        </div>
+      </div>
+
+      <div class="schedule-grid" id="schedule-grid">
+        <!-- Generated by JS -->
+      </div>
+    </section>
+
+    <!-- ===== LOG TAB ===== -->
+    <section class="tab-content" id="tab-log">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">📝 Nhật ký ăn uống</h1>
+          <p class="page-subtitle">Lịch sử các bữa ăn đã ghi</p>
+        </div>
+        <button class="btn-secondary" onclick="exportLog()">📥 Xuất dữ liệu</button>
+      </div>
+
+      <div class="log-filter">
+        <input type="date" id="log-date-filter" class="date-input" />
+        <button class="btn-secondary" onclick="filterLog()">Lọc</button>
+        <button class="btn-ghost" onclick="clearLogFilter()">Tất cả</button>
+      </div>
+
+      <div class="log-list" id="log-list">
+        <!-- Generated by JS -->
+      </div>
+    </section>
+
+    <!-- ===== WEIGHT TAB ===== -->
+    <section class="tab-content" id="tab-weight">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">⚖️ Theo dõi cân nặng</h1>
+          <p class="page-subtitle">71kg → 78kg | Mục tiêu tăng sạch, kiểm soát</p>
+        </div>
+      </div>
+
+      <!-- Weight Input -->
+      <div class="weight-input-card glass-card">
+        <h3 class="card-title">Ghi cân nặng mới</h3>
+        <div class="weight-form">
+          <div class="weight-form-group">
+            <label>Ngày cân</label>
+            <input type="date" id="weight-date" class="date-input" />
+          </div>
+          <div class="weight-form-group">
+            <label>Cân nặng (kg)</label>
+            <input type="number" id="weight-input" step="0.1" min="60" max="100" placeholder="71.0" class="number-input" />
+          </div>
+          <div class="weight-form-group">
+            <label>Ghi chú</label>
+            <input type="text" id="weight-note" placeholder="VD: Sáng sau vệ sinh" class="text-input" />
+          </div>
+          <button class="btn-primary" onclick="saveWeight()">💾 Lưu</button>
+        </div>
+      </div>
+
+      <!-- Weight Stats -->
+      <div class="weight-stats-row">
+        <div class="weight-stat glass-card">
+          <span class="wstat-label">Cân nặng ban đầu</span>
+          <span class="wstat-value">71.0 kg</span>
+        </div>
+        <div class="weight-stat glass-card">
+          <span class="wstat-label">Cân nặng hiện tại</span>
+          <span class="wstat-value accent" id="wstat-current">71.0 kg</span>
+        </div>
+        <div class="weight-stat glass-card">
+          <span class="wstat-label">Đã tăng</span>
+          <span class="wstat-value positive" id="wstat-gained">+0.0 kg</span>
+        </div>
+        <div class="weight-stat glass-card">
+          <span class="wstat-label">Còn cần tăng</span>
+          <span class="wstat-value" id="wstat-remaining">7.0 kg</span>
+        </div>
+      </div>
+
+      <!-- Roadmap -->
+      <div class="roadmap-section glass-card">
+        <h3 class="card-title">🗺️ Lộ trình tăng cân</h3>
+        <div class="roadmap">
+          <div class="roadmap-item" id="roadmap-2w">
+            <div class="roadmap-dot"></div>
+            <div class="roadmap-content">
+              <span class="roadmap-phase">2 tuần đầu</span>
+              <span class="roadmap-target">+0.3–0.7kg</span>
+              <span class="roadmap-note">Kiểm tra hấp thu, sức tập, giấc ngủ</span>
+            </div>
+          </div>
+          <div class="roadmap-item" id="roadmap-1m">
+            <div class="roadmap-dot"></div>
+            <div class="roadmap-content">
+              <span class="roadmap-phase">1 tháng</span>
+              <span class="roadmap-target">+0.5–1kg</span>
+              <span class="roadmap-note">Không cần tăng quá nhanh</span>
+            </div>
+          </div>
+          <div class="roadmap-item" id="roadmap-3m">
+            <div class="roadmap-dot"></div>
+            <div class="roadmap-content">
+              <span class="roadmap-phase">3 tháng</span>
+              <span class="roadmap-target">+2–3kg</span>
+              <span class="roadmap-note">Ưu tiên người đầy hơn</span>
+            </div>
+          </div>
+          <div class="roadmap-item" id="roadmap-6m">
+            <div class="roadmap-dot"></div>
+            <div class="roadmap-content">
+              <span class="roadmap-phase">6 tháng</span>
+              <span class="roadmap-target">+5–7kg</span>
+              <span class="roadmap-note">Tiến gần mục tiêu 78kg</span>
+            </div>
+          </div>
+          <div class="roadmap-item" id="roadmap-done">
+            <div class="roadmap-dot goal-dot"></div>
+            <div class="roadmap-content">
+              <span class="roadmap-phase">🎯 Mục tiêu</span>
+              <span class="roadmap-target">78kg</span>
+              <span class="roadmap-note">Giữ cân, điều chỉnh nếu tăng mỡ bụng</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weight History -->
+      <div class="weight-history glass-card">
+        <h3 class="card-title">📈 Lịch sử cân nặng</h3>
+        <div id="weight-chart-container">
+          <canvas id="weight-chart"></canvas>
+        </div>
+        <div class="weight-table-wrapper">
+          <table class="weight-table" id="weight-table">
+            <thead>
+              <tr>
+                <th>Ngày</th>
+                <th>Cân nặng</th>
+                <th>Thay đổi</th>
+                <th>Ghi chú</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="weight-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CHECKLIST TAB ===== -->
+    <section class="tab-content" id="tab-checklist">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">✅ Bảng kiểm hằng ngày</h1>
+          <p class="page-subtitle">Kiểm tra việc đã hoàn thành trong ngày</p>
+        </div>
+        <button class="btn-secondary" onclick="resetChecklist()">🔄 Reset ngày mới</button>
+      </div>
+
+      <div class="checklist-progress glass-card">
+        <div class="checklist-circle">
+          <svg viewBox="0 0 120 120" class="progress-circle">
+            <circle cx="60" cy="60" r="54" class="circle-bg"/>
+            <circle cx="60" cy="60" r="54" class="circle-fill" id="circle-fill" style="stroke-dasharray: 339.3; stroke-dashoffset: 339.3;"/>
+          </svg>
+          <div class="circle-center">
+            <span id="circle-count">0/12</span>
+            <span>hoàn thành</span>
+          </div>
+        </div>
+        <div class="checklist-summary">
+          <p id="checklist-message">Hãy bắt đầu ngày mới với năng lượng tích cực! 💪</p>
+        </div>
+      </div>
+
+      <div class="checklist-items" id="checklist-items">
+        <!-- Generated by JS -->
+      </div>
+    </section>
+
+    <!-- ===== MEALS TAB ===== -->
+    <section class="tab-content" id="tab-meals">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">🍽️ Thực đơn gợi ý</h1>
+          <p class="page-subtitle">Xoay vòng món ăn theo từng khung giờ</p>
+        </div>
+      </div>
+
+      <div class="meals-filter">
+        <button class="meal-filter-btn active" onclick="filterMeals('all', this)">Tất cả</button>
+        <button class="meal-filter-btn" onclick="filterMeals('morning', this)">Buổi sáng</button>
+        <button class="meal-filter-btn" onclick="filterMeals('noon', this)">Buổi trưa</button>
+        <button class="meal-filter-btn" onclick="filterMeals('afternoon', this)">Buổi chiều</button>
+        <button class="meal-filter-btn" onclick="filterMeals('evening', this)">Buổi tối</button>
+      </div>
+
+      <div class="meals-grid" id="meals-grid">
+        <!-- Generated by JS -->
+      </div>
+    </section>
+
+    <!-- ===== RULES TAB ===== -->
+    <section class="tab-content" id="tab-rules">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">📋 Nguyên tắc dinh dưỡng</h1>
+          <p class="page-subtitle">Quy tắc cốt lõi cho hành trình tăng cân sạch</p>
+        </div>
+      </div>
+
+      <div class="rules-grid" id="rules-grid">
+        <!-- Generated by JS -->
+      </div>
+
+      <div class="adjust-section glass-card">
+        <h3 class="card-title">🔄 Quy tắc điều chỉnh sau 2 tuần</h3>
+        <div class="adjust-grid" id="adjust-grid"></div>
+      </div>
+
+      <div class="foods-section">
+        <div class="food-list-card glass-card good-food">
+          <h3 class="card-title">✅ Nên ăn</h3>
+          <div id="good-foods-list"></div>
+        </div>
+        <div class="food-list-card glass-card bad-food">
+          <h3 class="card-title">❌ Nên hạn chế</h3>
+          <div id="bad-foods-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== REMINDERS TAB ===== -->
+    <section class="tab-content" id="tab-reminders">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">🔔 Nhắc nhở</h1>
+          <p class="page-subtitle">Cài đặt thông báo cho từng bữa ăn</p>
+        </div>
+      </div>
+
+      <div class="reminder-permission-card glass-card" id="notification-permission-card">
+        <div class="permission-icon">🔔</div>
+        <h3>Bật thông báo nhắc nhở</h3>
+        <p>Cho phép ứng dụng gửi thông báo để nhắc bạn đúng giờ ăn uống</p>
+        <button class="btn-primary" onclick="requestNotificationPermission()">Bật thông báo</button>
+      </div>
+
+      <div class="reminders-list glass-card">
+        <h3 class="card-title">⏰ Lịch nhắc nhở trong ngày</h3>
+        <div id="reminders-grid"></div>
+      </div>
+
+      <div class="reminder-settings glass-card">
+        <h3 class="card-title">⚙️ Cài đặt nhắc nhở</h3>
+        <div class="settings-row">
+          <label class="settings-label">
+            <span>Bật/tắt nhắc nhở</span>
+            <span class="toggle-switch">
+              <input type="checkbox" id="reminder-toggle" checked onchange="toggleReminders()" />
+              <span class="toggle-slider"></span>
+            </span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">
+            <span>Nhắc trước (phút)</span>
+            <select id="reminder-advance" class="settings-select" onchange="saveReminderSettings()">
+              <option value="0">Đúng giờ</option>
+              <option value="5" selected>5 phút trước</option>
+              <option value="10">10 phút trước</option>
+              <option value="15">15 phút trước</option>
+            </select>
+          </label>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">
+            <span>Bật nhắc uống nước</span>
+            <span class="toggle-switch">
+              <input type="checkbox" id="water-reminder-toggle" checked onchange="saveReminderSettings()" />
+              <span class="toggle-slider"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

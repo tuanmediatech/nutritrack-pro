@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="apple-mobile-web-app-title" content="NutriTrack"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0a0e1a"/>
+<title>NutriTrack Pro</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{overscroll-behavior:none}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  background:#0a0e1a;color:#f1f5f9;min-height:100vh;
+  overflow-x:hidden;
+  padding-bottom:calc(72px + env(safe-area-inset-bottom));
+  padding-top:env(safe-area-inset-top);
+  -webkit-overflow-scrolling:touch;
+}
+:root{
+  --g:#10b981;--gd:#059669;--glow:rgba(16,185,129,0.25);
+  --b:#3b82f6;--p:#8b5cf6;--a:#f59e0b;--r:#f43f5e;--t:#14b8a6;
+  --bg1:#0a0e1a;--bg2:#0f1629;--bg3:#161d35;
+  --gl:rgba(255,255,255,0.05);--gl2:rgba(255,255,255,0.09);
+  --bd:rgba(255,255,255,0.08);--bd2:rgba(255,255,255,0.16);
+  --t1:#f1f5f9;--t2:#94a3b8;--t3:#64748b;
+  --r8:8px;--r12:12px;--r16:16px;--r20:20px;--rpill:99px;
+}
+/* ===== AMBIENT ===== */
+.amb{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:0.1;animation:fl 20s infinite ease-in-out}
+.o1{width:450px;height:450px;background:radial-gradient(#10b981,transparent);top:-150px;left:-150px}
+.o2{width:350px;height:350px;background:radial-gradient(#3b82f6,transparent);top:35%;right:-100px;animation-delay:-8s}
+.o3{width:280px;height:280px;background:radial-gradient(#8b5cf6,transparent);bottom:-80px;left:30%;animation-delay:-15s}
+@keyframes fl{0%,100%{transform:translate(0,0)}50%{transform:translate(15px,-25px)}}
+
+/* ===== TOAST ===== */
+#toasts{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:12px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{
+  padding:12px 14px;border-radius:var(--r12);
+  background:var(--bg3);border:1px solid var(--bd);border-left:3px solid var(--g);
+  display:flex;align-items:center;gap:10px;font-size:13px;
+  animation:tsi .3s ease;pointer-events:auto;backdrop-filter:blur(20px);
+}
+.toast.warn{border-left-color:var(--a)}.toast.err{border-left-color:var(--r)}
+.ticon{font-size:18px;flex-shrink:0}.tbody{flex:1}
+.ttitle{font-weight:700;font-size:13px}.ttext{color:var(--t2);font-size:12px}
+@keyframes tsi{from{transform:translateY(-16px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ===== BOTTOM NAV ===== */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(9,13,24,0.95);backdrop-filter:blur(24px);
+  border-top:1px solid var(--bd);
+  display:flex;align-items:stretch;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.bni{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:10px 4px 8px;
+  font-size:10px;font-weight:600;color:var(--t3);
+  background:none;border:none;cursor:pointer;position:relative;
+  transition:color .2s;
+}
+.bni.act{color:var(--g)}
+.bni-ico{font-size:22px;line-height:1;transition:transform .2s}
+.bni.act .bni-ico{transform:scale(1.1)}
+.bni-dot{
+  position:absolute;top:6px;right:calc(50% - 18px);
+  width:7px;height:7px;border-radius:50%;background:var(--g);
+  box-shadow:0 0 6px var(--g);display:none;
+}
+
+/* ===== BOTTOM SHEET ===== */
+.bsheet-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+  display:none;align-items:flex-end;
+}
+.bsheet-overlay.open{display:flex}
+.bsheet{
+  width:100%;background:var(--bg2);
+  border-radius:20px 20px 0 0;border:1px solid var(--bd);border-bottom:none;
+  padding:0 0 calc(env(safe-area-inset-bottom) + 8px);
+  max-height:85vh;overflow-y:auto;
+  animation:bsup .3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes bsup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.bsheet-handle{width:40px;height:4px;background:var(--bd2);border-radius:2px;margin:12px auto 4px}
+.bsheet-title{font-size:15px;font-weight:700;padding:8px 20px 12px;color:var(--t1)}
+.bsheet-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.04);
+  cursor:pointer;font-size:14px;color:var(--t1);
+  transition:background .15s;
+}
+.bsheet-item:active{background:var(--gl2)}
+.bsheet-item:last-child{border-bottom:none}
+.bsi-ico{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+.bsi-lbl{flex:1}
+.bsi-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.bsi-check{color:var(--g);font-size:16px;flex-shrink:0}
+.bsheet-cancel{
+  margin:8px 16px 0;padding:14px;text-align:center;
+  background:var(--gl);border:1px solid var(--bd);border-radius:var(--r12);
+  font-weight:700;font-size:14px;color:var(--t2);cursor:pointer;
+}
+.bsheet-cancel:active{background:var(--gl2)}
+
+/* ===== MAIN ===== */
+.main{padding:16px 14px;position:relative;z-index:1}
+.tab{display:none;animation:fi .28s ease}
+.tab.act{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== PAGE HEADER ===== */
+.ph{margin-bottom:18px}
+.ptitle{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.2}
+.psub{color:var(--t2);font-size:13px;margin-top:3px}
+.ph-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+
+/* ===== CARD ===== */
+.card{
+  background:var(--gl);border:1px solid var(--bd);
+  border-radius:var(--r20);padding:16px;margin-bottom:12px;
+  backdrop-filter:blur(12px);
+}
+.ctitle{font-size:15px;font-weight:700;margin-bottom:14px}
+
+/* ===== DAY TYPE ===== */
+.dtt{display:flex;gap:6px;background:var(--gl);border:1px solid var(--bd);border-radius:var(--rpill);padding:4px}
+.dtb{
+  padding:8px 14px;border-radius:var(--rpill);font-size:12px;font-weight:700;
+  color:var(--t2);background:none;border:none;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.dtb.act{background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;box-shadow:0 0 12px var(--glow)}
+
+/* ===== STATS 2x2 ===== */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.sc{border-radius:var(--r16)!important;padding:14px!important}
+.sico{font-size:28px;margin-bottom:8px}
+.slbl{font-size:11px;color:var(--t2);display:block;margin-bottom:4px;font-weight:600}
+.sval{font-size:24px;font-weight:800;line-height:1;color:var(--t1)}
+.su{font-size:12px;color:var(--t2);font-weight:500}
+.pb{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin:8px 0 4px}
+.pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g),var(--gd));transition:width .7s ease}
+.pfw{background:linear-gradient(90deg,#3b82f6,#2563eb)}
+.pfck{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.pfr{background:linear-gradient(90deg,#8b5cf6,#7c3aed)}
+.plbl{font-size:11px;color:var(--t3)}
+
+/* water buttons */
+.wbtns{display:flex;gap:6px;margin-top:8px}
+.wbtn{
+  flex:1;padding:8px 4px;text-align:center;
+  background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);
+  color:var(--b);border-radius:var(--r8);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+}
+.wbtn:active{background:rgba(59,130,246,.3);transform:scale(.96)}
+
+/* ===== SECTION HEADER ===== */
+.sh2{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.st2{font-size:15px;font-weight:700}
+.sbadge{padding:4px 10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--g);border-radius:var(--rpill);font-size:11px;font-weight:700}
+
+/* ===== TIMELINE ===== */
+.tl{display:flex;flex-direction:column;gap:8px}
+.tli{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  background:var(--gl);border:1px solid var(--bd);border-radius:var(--r12);
+  position:relative;overflow:hidden;
+}
+.tli.done{border-color:rgba(16,185,129,.2);background:rgba(16,185,129,.04)}
+.tli.now{border-color:rgba(59,130,246,.45);background:rgba(59,130,246,.07)}
+.tli.now::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--b);border-radius:3px 0 0 3px}
+.tt{min-width:46px;font-size:12px;font-weight:700;color:var(--t2);flex-shrink:0}
+.tic{font-size:22px;flex-shrink:0}
+.tc{flex:1;min-width:0}
+.tn{font-weight:700;font-size:13px;color:var(--t1)}
+.td{font-size:11px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbg{padding:3px 8px;border-radius:var(--rpill);font-size:10px;font-weight:700;flex-shrink:0}
+.done-b{background:rgba(16,185,129,.2);color:var(--g)}
+.now-b{background:rgba(59,130,246,.2);color:var(--b);animation:pu 2s infinite}
+.up-b{background:rgba(100,116,139,.12);color:var(--t3)}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ===== CUSTOM PICKER BUTTON ===== */
+.pick-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:13px 14px;
+  background:rgba(255,255,255,.04);border:1px solid var(--bd);
+  border-radius:var(--r12);cursor:pointer;transition:all .2s;
+  font-size:14px;color:var(--t2);
+}
+.pick-btn.selected{color:var(--t1);border-color:var(--bd2)}
+.pick-btn:active{background:rgba(255,255,255,.08)}
+.pick-arrow{font-size:11px;color:var(--t3)}
+
+/* ===== SPINNER (number input) ===== */
+.spinner{display:flex;align-items:center;gap:0;background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:var(--r12);overflow:hidden}
+.spin-btn{
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:700;color:var(--g);cursor:pointer;
+  background:none;border:none;flex-shrink:0;transition:background .15s;
+}
+.spin-btn:active{background:rgba(16,185,129,.15)}
+.spin-val{flex:1;text-align:center;font-size:18px;font-weight:800;color:var(--t1)}
+.spin-unit{font-size:11px;color:var(--t3);font-weight:500}
+
+/* ===== FEELING TOGGLE ===== */
+.feel-row{display:flex;gap:8px}
+.feel-btn{
+  flex:1;padding:10px 6px;text-align:center;
+  background:rgba(255,255,255,.04);border:1px solid var(--bd);
+  border-radius:var(--r12);cursor:pointer;font-size:13px;font-weight:700;color:var(--t2);
+  transition:all .2s;
+}
+.feel-btn.act{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:var(--g)}
+.feel-btn:active{transform:scale(.96)}
+
+/* ===== TEXT INPUT ===== */
+.tinp{
+  width:100%;padding:13px 14px;min-height:80px;
+  background:rgba(255,255,255,.04);border:1px solid var(--bd);
+  border-radius:var(--r12);color:var(--t1);font-size:14px;
+  resize:none;outline:none;font-family:inherit;
+  transition:border-color .2s;
+  -webkit-appearance:none;
+}
+.tinp:focus{border-color:var(--g);box-shadow:0 0 0 2px rgba(16,185,129,.12)}
+.sinp{
+  width:100%;padding:13px 14px;
+  background:rgba(255,255,255,.04);border:1px solid var(--bd);
+  border-radius:var(--r12);color:var(--t1);font-size:14px;
+  outline:none;font-family:inherit;-webkit-appearance:none;
+}
+.sinp:focus{border-color:var(--g)}
+.forml{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:6px;display:block}
+
+/* ===== DATE NAV ===== */
+.datepick{
+  display:flex;align-items:center;gap:0;
+  background:rgba(255,255,255,.04);border:1px solid var(--bd);
+  border-radius:var(--r12);overflow:hidden;
+}
+.dpbtn{
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--g);cursor:pointer;background:none;border:none;
+  flex-shrink:0;transition:background .15s;
+}
+.dpbtn:active{background:rgba(16,185,129,.15)}
+.dpval{flex:1;text-align:center;font-size:13px;font-weight:700;color:var(--t1)}
+
+/* ===== BUTTONS ===== */
+.btnp{
+  display:block;width:100%;padding:14px;text-align:center;
+  background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;
+  font-weight:700;font-size:15px;border-radius:var(--r12);border:none;cursor:pointer;
+  box-shadow:0 4px 16px var(--glow);transition:all .2s;
+}
+.btnp:active{transform:scale(.98);opacity:.9}
+.btns{
+  padding:10px 16px;background:rgba(255,255,255,.06);border:1px solid var(--bd);
+  color:var(--t1);font-weight:600;font-size:13px;border-radius:var(--r12);cursor:pointer;
+  transition:all .2s;
+}
+.btns:active{background:rgba(255,255,255,.12)}
+.btnd{
+  padding:7px 12px;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25);
+  color:var(--r);font-size:12px;font-weight:600;border-radius:var(--r8);cursor:pointer;
+}
+.btnd:active{background:rgba(244,63,94,.25)}
+
+/* ===== LOG ===== */
+.lentry{padding:12px 14px;background:var(--gl);border:1px solid var(--bd);border-radius:var(--r12);margin-bottom:8px}
+.ltime{font-weight:700;color:var(--g);font-size:12px;margin-bottom:4px}
+.lfood{font-size:13px;color:var(--t1);margin-bottom:6px}
+.lmeta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.ltag{padding:2px 8px;background:rgba(255,255,255,.06);border-radius:var(--rpill);font-size:11px;color:var(--t2)}
+.empty{text-align:center;padding:48px 20px;color:var(--t3)}
+.eico{font-size:40px;margin-bottom:12px}
+
+/* ===== WEIGHT ===== */
+.wsr{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ws{text-align:center;padding:14px 10px;border-radius:var(--r16)}
+.wsl{display:block;font-size:11px;color:var(--t2);margin-bottom:4px}
+.wsv{font-size:20px;font-weight:800;color:var(--t1)}
+.wsv.ac{color:var(--g)}.wsv.po{color:var(--t)}
+/* roadmap */
+.rm{position:relative;padding:4px 0}
+.rm::before{content:'';position:absolute;left:10px;top:10px;bottom:10px;width:2px;background:linear-gradient(180deg,var(--g),rgba(16,185,129,.1))}
+.rmi{display:flex;gap:14px;padding:8px 0;position:relative}
+.rmd{width:22px;height:22px;border-radius:50%;background:var(--bg2);border:2px solid var(--g);flex-shrink:0;position:relative;z-index:1}
+.rmd.goal{background:linear-gradient(135deg,var(--g),var(--gd));border-color:transparent;box-shadow:0 0 10px var(--glow)}
+.rmph{display:block;font-weight:700;color:var(--t1);font-size:13px}
+.rmtg{display:inline-block;font-size:15px;font-weight:800;color:var(--g);margin:.1rem 0}
+.rmnote{display:block;font-size:11px;color:var(--t2)}
+/* chart */
+#wchartc{margin-bottom:14px;background:rgba(0,0,0,.2);border-radius:var(--r12);overflow:hidden}
+#wchart{width:100%;height:160px;display:block}
+.wtw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.wtbl{width:100%;border-collapse:collapse;font-size:12px}
+.wtbl th{text-align:left;padding:8px 10px;color:var(--t3);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--bd)}
+.wtbl td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--t1)}
+.wtbl tr:last-child td{border-bottom:none}
+.wup{color:var(--t)}.wdn{color:var(--r)}
+
+/* ===== CHECKLIST ===== */
+.clprog{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 16px}
+.clcirc{position:relative}
+.psvg{width:100px;height:100px;transform:rotate(-90deg)}
+.cbg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:8}
+.cfl{fill:none;stroke:var(--g);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .7s ease}
+.ccc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ccc span:first-child{font-size:17px;font-weight:800}
+.ccc span:last-child{font-size:10px;color:var(--t3)}
+.clmsg{text-align:center;color:var(--t2);font-size:13px;line-height:1.5}
+.clitem{
+  display:flex;align-items:center;gap:12px;padding:13px 14px;
+  background:var(--gl);border:1px solid var(--bd);border-radius:var(--r12);
+  margin-bottom:8px;cursor:pointer;user-select:none;-webkit-user-select:none;
+  transition:all .15s;
+}
+.clitem.chk{border-color:rgba(16,185,129,.28);background:rgba(16,185,129,.06)}
+.clitem.chk .itext{text-decoration:line-through;color:var(--t3)}
+.clitem:active{transform:scale(.99)}
+.cbox{
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--bd2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;transition:all .2s;
+}
+.clitem.chk .cbox{background:var(--g);border-color:var(--g);box-shadow:0 0 8px var(--glow);color:#fff}
+.itext{font-size:13px;color:var(--t1);flex:1}
+.itm{font-size:11px;color:var(--g);font-weight:700;flex-shrink:0}
+
+/* ===== MEALS ===== */
+.mfilt{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.mfilt::-webkit-scrollbar{display:none}
+.mfb{
+  padding:7px 14px;white-space:nowrap;flex-shrink:0;
+  background:var(--gl);border:1px solid var(--bd);color:var(--t2);
+  border-radius:var(--rpill);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;
+}
+.mfb.act{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3);color:var(--g)}
+.mcard{background:var(--gl);border:1px solid var(--bd);border-radius:var(--r16);padding:14px;margin-bottom:10px}
+.mch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.mtag{font-size:15px;font-weight:800;color:var(--g)}
+.mcat{padding:2px 8px;border-radius:var(--rpill);font-size:11px;font-weight:700}
+.cm{background:rgba(245,158,11,.15);color:var(--a)}
+.cn{background:rgba(16,185,129,.15);color:var(--g)}
+.ca{background:rgba(139,92,246,.15);color:var(--p)}
+.ce{background:rgba(59,130,246,.15);color:var(--b)}
+.mname{font-weight:700;color:var(--t1);font-size:14px;margin-bottom:4px}
+.mgoal{font-size:11px;color:var(--t3);margin-bottom:10px}
+.moptsl{list-style:none}
+.moptsl li{font-size:12px;color:var(--t2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);display:flex;align-items:flex-start;gap:6px}
+.moptsl li:last-child{border-bottom:none}
+.moptsl li::before{content:'•';color:var(--g);flex-shrink:0}
+
+/* ===== RULES ===== */
+.rcard{background:var(--gl);border:1px solid var(--bd);border-radius:var(--r16);padding:14px;margin-bottom:10px}
+.rico{font-size:28px;margin-bottom:8px}
+.rtitle{font-weight:700;font-size:14px;color:var(--t1);margin-bottom:4px}
+.rtext{font-size:12px;color:var(--t2);line-height:1.6}
+.adji{padding:12px;background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:var(--r12);margin-bottom:8px}
+.adjc{font-weight:700;color:var(--a);font-size:12px;margin-bottom:4px}
+.adja{font-size:12px;color:var(--t2);line-height:1.5}
+.foodsec{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.foodcard{border-radius:var(--r16);padding:14px}
+.fgood{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2)}
+.fbad{background:rgba(244,63,94,.05);border:1px solid rgba(244,63,94,.2)}
+.fitem{display:flex;align-items:flex-start;gap:6px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;color:var(--t2)}
+.fitem:last-child{border-bottom:none}
+
+/* ===== REMINDERS ===== */
+.rperm{text-align:center;padding:24px 16px;margin-bottom:12px}
+.rpi{font-size:44px;margin-bottom:12px}
+.rperm h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.rperm p{color:var(--t2);margin-bottom:18px;font-size:13px}
+.ritem{display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:var(--r12);margin-bottom:6px;border:1px solid rgba(255,255,255,.04)}
+.rtime{font-size:15px;font-weight:800;color:var(--g);min-width:54px}
+.rtext{flex:1;font-size:13px;color:var(--t1)}
+/* toggle switch */
+.tog{position:relative;width:40px;height:22px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.tsl{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border-radius:22px;transition:all .2s}
+.tsl::before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:all .2s}
+.tog input:checked + .tsl{background:var(--g)}
+.tog input:checked + .tsl::before{transform:translateX(18px)}
+.setrow{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.setrow:last-child{border-bottom:none;padding-bottom:0}
+.setlbl{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--t1)}
+
+/* ===== FORM GROUPS ===== */
+.fg{margin-bottom:14px}
+
+/* ===== SCHEDULE ===== */
+.schedc{background:var(--gl);border:1px solid var(--bd);border-radius:var(--r16);padding:14px;margin-bottom:10px}
+.schedc.ac{border-color:rgba(59,130,246,.45);box-shadow:0 0 14px rgba(59,130,246,.1)}
+.sct{font-size:22px;font-weight:800;color:var(--g);margin-bottom:4px;line-height:1}
+.sca{font-size:12px;color:var(--t2);margin-bottom:8px}
+.scmn{font-weight:700;color:var(--t1);margin-bottom:8px;font-size:13px}
+.scopt{display:flex;align-items:flex-start;gap:6px;padding:5px 8px;background:rgba(255,255,255,.03);border-radius:var(--r8);margin-bottom:4px;font-size:12px;color:var(--t2)}
+.odot{width:5px;height:5px;border-radius:50%;background:var(--g);margin-top:6px;flex-shrink:0}
+
+/* ===== PERMISSION CARD ===== */
+#perm-card{display:block}
+
+@media(min-width:600px){
+  .sg{grid-template-columns:repeat(4,1fr)}
+  .wsr{grid-template-columns:repeat(4,1fr)}
+  .foodsec{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="amb"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div id="toasts"></div>
+
+<!-- Bottom Nav -->
+<nav class="bnav">
+  <button class="bni act" onclick="sw('dashboard',this)" type="button">
+    <span class="bni-ico">📊</span><span>Dashboard</span>
+  </button>
+  <button class="bni" onclick="sw('schedule',this)" type="button">
+    <span class="bni-ico">⏰</span><span>Lịch</span>
+  </button>
+  <button class="bni" onclick="sw('checklist',this)" type="button">
+    <span class="bni-dot" id="cl-dot"></span>
+    <span class="bni-ico">✅</span><span>Kiểm</span>
+  </button>
+  <button class="bni" onclick="sw('weight',this)" type="button">
+    <span class="bni-ico">⚖️</span><span>Cân</span>
+  </button>
+  <button class="bni" onclick="toggleMore(this)" type="button" id="more-btn">
+    <span class="bni-ico">⋯</span><span>Thêm</span>
+  </button>
+</nav>
+
+<!-- More Bottom Sheet -->
+<div class="bsheet-overlay" id="more-sheet" onclick="closeMoreSheet(event)">
+  <div class="bsheet">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-title">Thêm tính năng</div>
+    <div class="bsheet-item" onclick="sw('log',null);closeMoreSheet()"><span class="bsi-ico">📝</span><div><div class="bsi-lbl">Nhật ký ăn uống</div><div class="bsi-sub">Xem lịch sử các bữa đã ghi</div></div></div>
+    <div class="bsheet-item" onclick="sw('meals',null);closeMoreSheet()"><span class="bsi-ico">🍽️</span><div><div class="bsi-lbl">Thực đơn gợi ý</div><div class="bsi-sub">Gợi ý món xoay vòng theo giờ</div></div></div>
+    <div class="bsheet-item" onclick="sw('rules',null);closeMoreSheet()"><span class="bsi-ico">📋</span><div><div class="bsi-lbl">Nguyên tắc dinh dưỡng</div><div class="bsi-sub">8 quy tắc cốt lõi</div></div></div>
+    <div class="bsheet-item" onclick="sw('reminders',null);closeMoreSheet()"><span class="bsi-ico">🔔</span><div><div class="bsi-lbl">Nhắc nhở</div><div class="bsi-sub">Cài đặt thông báo giờ ăn</div></div></div>
+    <div class="bsheet-cancel" onclick="closeMoreSheet()">Đóng</div>
+  </div>
+</div>
+
+<!-- Meal Picker Sheet -->
+<div class="bsheet-overlay" id="meal-sheet" onclick="closeMealSheet(event)">
+  <div class="bsheet">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-title">Chọn bữa ăn</div>
+    <div id="meal-sheet-items"></div>
+    <div class="bsheet-cancel" onclick="closeMealSheet()">Đóng</div>
+  </div>
+</div>
+
+<main class="main">
+
+<!-- ===== DASHBOARD ===== -->
+<div class="tab act" id="tab-dashboard">
+  <div class="ph">
+    <div class="ph-row">
+      <div><h1 class="ptitle">🥗 NutriTrack</h1><p class="psub" id="today-txt"></p></div>
+    </div>
+    <div style="margin-top:10px">
+      <div class="dtt">
+        <button type="button" class="dtb act" id="b-hvy" onclick="setDay('heavy')">⚡ Vận động nhiều</button>
+        <button type="button" class="dtb" id="b-lgt" onclick="setDay('light')">🌤 Vận động nhẹ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sg">
+    <div class="card sc">
+      <div class="sico">⚖️</div>
+      <span class="slbl">Cân nặng</span>
+      <div class="sval" id="sw-v">71.0 <span class="su">kg</span></div>
+      <div class="pb"><div class="pf" id="sw-b" style="width:0"></div></div>
+      <span class="plbl" id="sw-l">0% → 78kg</span>
+    </div>
+    <div class="card sc">
+      <div class="sico">💧</div>
+      <span class="slbl">Nước uống</span>
+      <div class="sval" id="wa-v">0 <span class="su">ml</span></div>
+      <div class="pb"><div class="pf pfw" id="wa-b" style="width:0"></div></div>
+      <span class="plbl" id="wa-l">Mục tiêu: 2500ml</span>
+      <div class="wbtns">
+        <button type="button" class="wbtn" onclick="addW(200)">+200</button>
+        <button type="button" class="wbtn" onclick="addW(300)">+300</button>
+        <button type="button" class="wbtn" onclick="addW(500)">+500ml</button>
+      </div>
+    </div>
+    <div class="card sc">
+      <div class="sico">✅</div>
+      <span class="slbl">Bảng kiểm</span>
+      <div class="sval" id="ck-v">0 <span class="su">/ 12</span></div>
+      <div class="pb"><div class="pf pfck" id="ck-b" style="width:0"></div></div>
+      <span class="plbl" id="ck-l">0% hoàn thành</span>
+    </div>
+    <div class="card sc">
+      <div class="sico">🍚</div>
+      <span class="slbl">Cơm hôm nay</span>
+      <div class="sval" id="ri-v">0 <span class="su">chén</span></div>
+      <div class="pb"><div class="pf pfr" id="ri-b" style="width:0"></div></div>
+      <span class="plbl" id="ri-l">Mục tiêu: 4 chén</span>
+    </div>
+  </div>
+
+  <div class="sh2">
+    <h2 class="st2">⏱️ Lịch ăn hôm nay</h2>
+    <span class="sbadge" id="next-b">...</span>
+  </div>
+  <div class="tl" id="tl-c"></div>
+
+  <div class="sh2" style="margin-top:20px"><h2 class="st2">⚡ Ghi nhanh bữa ăn</h2></div>
+  <div class="card">
+    <!-- Meal picker -->
+    <div class="fg">
+      <span class="forml">Chọn bữa ăn</span>
+      <button type="button" class="pick-btn" id="q-meal-btn" onclick="openMealSheet()">
+        <span id="q-meal-lbl">Nhấn để chọn bữa ăn...</span>
+        <span class="pick-arrow">▼</span>
+      </button>
+      <input type="hidden" id="q-meal-val"/>
+    </div>
+    <!-- Food text -->
+    <div class="fg">
+      <span class="forml">Đã ăn gì?</span>
+      <textarea class="tinp" id="q-food" placeholder="VD: 2 chén cơm, cá kho, rau luộc, canh xương..." rows="3"></textarea>
+    </div>
+    <!-- Rice spinner -->
+    <div class="fg">
+      <span class="forml">🍚 Cơm (chén)</span>
+      <div class="spinner">
+        <button type="button" class="spin-btn" onclick="spin('q-rice',-0.5)">−</button>
+        <div class="spin-val" id="q-rice-d">0 <span class="spin-unit">chén</span></div>
+        <button type="button" class="spin-btn" onclick="spin('q-rice',0.5)">+</button>
+      </div>
+      <input type="hidden" id="q-rice" value="0"/>
+    </div>
+    <!-- Water spinner -->
+    <div class="fg">
+      <span class="forml">💧 Nước uống (ml)</span>
+      <div class="spinner">
+        <button type="button" class="spin-btn" onclick="spin('q-water',-100)">−</button>
+        <div class="spin-val" id="q-water-d">0 <span class="spin-unit">ml</span></div>
+        <button type="button" class="spin-btn" onclick="spin('q-water',100)">+</button>
+      </div>
+      <input type="hidden" id="q-water" value="0"/>
+    </div>
+    <!-- Feeling -->
+    <div class="fg">
+      <span class="forml">Cảm giác</span>
+      <div class="feel-row">
+        <button type="button" class="feel-btn act" id="feel-good" onclick="setFeel('good')">😊 Tốt</button>
+        <button type="button" class="feel-btn" id="feel-ok" onclick="setFeel('ok')">😐 Bình thường</button>
+        <button type="button" class="feel-btn" id="feel-bad" onclick="setFeel('bad')">😴 Mệt</button>
+      </div>
+      <input type="hidden" id="q-feel" value="good"/>
+    </div>
+    <button type="button" class="btnp" onclick="qlog()">💾 Lưu bữa ăn</button>
+  </div>
+</div>
+
+<!-- ===== SCHEDULE ===== -->
+<div class="tab" id="tab-schedule">
+  <div class="ph"><h1 class="ptitle">⏰ Lịch hôm nay</h1><p class="psub">Chi tiết từng khung giờ</p></div>
+  <div id="sched-c"></div>
+</div>
+
+<!-- ===== LOG ===== -->
+<div class="tab" id="tab-log">
+  <div class="ph">
+    <div class="ph-row">
+      <div><h1 class="ptitle">📝 Nhật ký</h1><p class="psub">Lịch sử bữa ăn đã ghi</p></div>
+      <button type="button" class="btns" onclick="exportLog()">📥 Xuất</button>
+    </div>
+  </div>
+  <!-- Date nav instead of date input -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="fg" style="margin-bottom:0">
+      <span class="forml">Lọc theo ngày</span>
+      <div class="datepick">
+        <button type="button" class="dpbtn" onclick="navLogDate(-1)">◀</button>
+        <div class="dpval" id="log-date-d">Tất cả</div>
+        <button type="button" class="dpbtn" onclick="navLogDate(1)">▶</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button type="button" class="btns" style="flex:1" onclick="filtLog()">Lọc ngày này</button>
+      <button type="button" class="btns" style="flex:1" onclick="clearFilt()">Xem tất cả</button>
+    </div>
+  </div>
+  <div id="log-list"></div>
+</div>
+
+<!-- ===== WEIGHT ===== -->
+<div class="tab" id="tab-weight">
+  <div class="ph"><h1 class="ptitle">⚖️ Cân nặng</h1><p class="psub">71kg → 78kg | Tăng sạch có kiểm soát</p></div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="ctitle">Ghi cân nặng mới</div>
+    <!-- Date nav -->
+    <div class="fg">
+      <span class="forml">Ngày cân</span>
+      <div class="datepick">
+        <button type="button" class="dpbtn" onclick="navWDate(-1)">◀</button>
+        <div class="dpval" id="w-date-d">Hôm nay</div>
+        <button type="button" class="dpbtn" onclick="navWDate(1)">▶</button>
+      </div>
+      <input type="hidden" id="w-date"/>
+    </div>
+    <!-- Weight spinner -->
+    <div class="fg">
+      <span class="forml">Cân nặng (kg)</span>
+      <div class="spinner">
+        <button type="button" class="spin-btn" onclick="spinW(-0.1)">−</button>
+        <div class="spin-val" id="w-kg-d">71.0 <span class="spin-unit">kg</span></div>
+        <button type="button" class="spin-btn" onclick="spinW(0.1)">+</button>
+      </div>
+      <input type="hidden" id="w-kg" value="71.0"/>
+    </div>
+    <!-- Note -->
+    <div class="fg">
+      <span class="forml">Ghi chú (tùy chọn)</span>
+      <input type="text" class="sinp" id="w-note" placeholder="VD: Sáng sau vệ sinh" autocomplete="off" autocorrect="off"/>
+    </div>
+    <button type="button" class="btnp" onclick="saveW()">💾 Lưu cân nặng</button>
+  </div>
+
+  <div class="wsr">
+    <div class="ws card"><span class="wsl">Ban đầu</span><span class="wsv">71.0 kg</span></div>
+    <div class="ws card"><span class="wsl">Hiện tại</span><span class="wsv ac" id="ws-c">71.0 kg</span></div>
+    <div class="ws card"><span class="wsl">Đã tăng</span><span class="wsv po" id="ws-g">+0.0 kg</span></div>
+    <div class="ws card"><span class="wsl">Còn cần</span><span class="wsv" id="ws-r">7.0 kg</span></div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="ctitle">🗺️ Lộ trình</div>
+    <div class="rm">
+      <div class="rmi"><div class="rmd"></div><div><span class="rmph">2 tuần đầu</span><span class="rmtg">+0.3–0.7kg</span><span class="rmnote">Kiểm tra hấp thu, sức tập, giấc ngủ</span></div></div>
+      <div class="rmi"><div class="rmd"></div><div><span class="rmph">1 tháng</span><span class="rmtg">+0.5–1kg</span><span class="rmnote">Không cần tăng quá nhanh</span></div></div>
+      <div class="rmi"><div class="rmd"></div><div><span class="rmph">3 tháng</span><span class="rmtg">+2–3kg</span><span class="rmnote">Ưu tiên người đầy hơn</span></div></div>
+      <div class="rmi"><div class="rmd"></div><div><span class="rmph">6 tháng</span><span class="rmtg">+5–7kg</span><span class="rmnote">Tiến gần mục tiêu 78kg</span></div></div>
+      <div class="rmi"><div class="rmd goal"></div><div><span class="rmph">🎯 Mục tiêu</span><span class="rmtg">78kg</span><span class="rmnote">Giữ cân, điều chỉnh nếu tăng mỡ</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle">📈 Biểu đồ & Lịch sử</div>
+    <div id="wchartc"><canvas id="wchart"></canvas></div>
+    <div class="wtw"><table class="wtbl"><thead><tr><th>Ngày</th><th>Cân</th><th>+/-</th><th>Ghi chú</th><th></th></tr></thead><tbody id="wtbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ===== CHECKLIST ===== -->
+<div class="tab" id="tab-checklist">
+  <div class="ph">
+    <div class="ph-row">
+      <div><h1 class="ptitle">✅ Bảng kiểm</h1><p class="psub">12 việc cần làm mỗi ngày</p></div>
+      <button type="button" class="btns" onclick="resetCL()">🔄</button>
+    </div>
+  </div>
+  <div class="card clprog">
+    <div class="clcirc">
+      <svg class="psvg" viewBox="0 0 100 100">
+        <circle class="cbg" cx="50" cy="50" r="44"/>
+        <circle class="cfl" id="cfl" cx="50" cy="50" r="44" style="stroke-dasharray:276.5;stroke-dashoffset:276.5"/>
+      </svg>
+      <div class="ccc"><span id="cc-c">0/12</span><span>hoàn thành</span></div>
+    </div>
+    <p class="clmsg" id="cl-msg">Bắt đầu ngày mới nào! 💪</p>
+  </div>
+  <div id="cl-items"></div>
+</div>
+
+<!-- ===== MEALS ===== -->
+<div class="tab" id="tab-meals">
+  <div class="ph"><h1 class="ptitle">🍽️ Thực đơn</h1><p class="psub">Gợi ý món xoay vòng</p></div>
+  <div class="mfilt">
+    <button type="button" class="mfb act" onclick="filtM('all',this)">Tất cả</button>
+    <button type="button" class="mfb" onclick="filtM('morning',this)">☀️ Sáng</button>
+    <button type="button" class="mfb" onclick="filtM('noon',this)">🌤 Trưa</button>
+    <button type="button" class="mfb" onclick="filtM('afternoon',this)">🌅 Chiều</button>
+    <button type="button" class="mfb" onclick="filtM('evening',this)">🌙 Tối</button>
+  </div>
+  <div id="m-grid"></div>
+</div>
+
+<!-- ===== RULES ===== -->
+<div class="tab" id="tab-rules">
+  <div class="ph"><h1 class="ptitle">📋 Nguyên tắc</h1><p class="psub">Quy tắc cốt lõi tăng cân sạch</p></div>
+  <div id="r-grid"></div>
+  <div class="card" style="margin-bottom:12px"><div class="ctitle">🔄 Điều chỉnh sau 2 tuần</div><div id="adj-g"></div></div>
+  <div class="foodsec">
+    <div class="foodcard fgood"><div class="ctitle" style="color:var(--g);font-size:13px;margin-bottom:10px">✅ Nên ăn</div><div id="gf"></div></div>
+    <div class="foodcard fbad"><div class="ctitle" style="color:var(--r);font-size:13px;margin-bottom:10px">❌ Hạn chế</div><div id="bf"></div></div>
+  </div>
+</div>
+
+<!-- ===== REMINDERS ===== -->
+<div class="tab" id="tab-reminders">
+  <div class="ph"><h1 class="ptitle">🔔 Nhắc nhở</h1><p class="psub">Thông báo đúng giờ ăn</p></div>
+  <div class="card rperm" id="perm-card">
+    <div class="rpi">🔔</div>
+    <h3>Bật thông báo</h3>
+    <p>Cho phép nhận nhắc nhở đúng giờ ăn</p>
+    <button type="button" class="btnp" onclick="reqNotif()" style="max-width:200px;margin:0 auto">Bật thông báo</button>
+  </div>
+  <div class="card" style="margin-bottom:12px"><div class="ctitle">⏰ Lịch nhắc</div><div id="r-list"></div></div>
+  <div class="card">
+    <div class="ctitle">⚙️ Cài đặt</div>
+    <div class="setrow"><label class="setlbl"><span>Bật nhắc nhở</span><label class="tog"><input type="checkbox" id="rem-t" checked onchange="saveSets()"/><span class="tsl"></span></label></label></div>
+    <div class="setrow">
+      <div class="setlbl"><span>Nhắc trước</span></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button type="button" class="mfb" id="adv-0" onclick="setAdv(0,this)">Đúng giờ</button>
+        <button type="button" class="mfb act" id="adv-5" onclick="setAdv(5,this)">5 phút</button>
+        <button type="button" class="mfb" id="adv-10" onclick="setAdv(10,this)">10 phút</button>
+        <button type="button" class="mfb" id="adv-15" onclick="setAdv(15,this)">15 phút</button>
+      </div>
+    </div>
+    <div class="setrow"><label class="setlbl"><span>Nhắc uống nước</span><label class="tog"><input type="checkbox" id="wa-t" checked onchange="saveSets()"/><span class="tsl"></span></label></label></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+'use strict';
+
+// ======= DATA =======
+const MEALS=[
+  {id:'pre_am',t:'04:30',d:'4h30',n:'Ăn nhẹ trước dạy sáng',i:'🌅',act:'Trước pickleball sáng',g:'Năng lượng nhẹ, không nặng bụng',cat:'morning',opts:['1 quả chuối nhỏ','1 lát bánh mì / ½ ổ','½ củ khoai lang','1 ly sữa tươi không đường','300–500ml nước lọc']},
+  {id:'pk_am',t:'05:00',d:'5h–6h',n:'Dạy Pickleball sáng',i:'🏸',act:'Tập luyện',g:'Duy trì nước',cat:'morning',opts:['Nước lọc từng ngụm nhỏ','Điện giải loãng nếu nóng/mồ hôi nhiều']},
+  {id:'bfast',t:'06:15',d:'6h15–6h45',n:'Ăn sáng chính',i:'🍜',act:'Bữa sáng',g:'Bù năng lượng sau dạy sáng',cat:'morning',opts:['Phở/bún bò/bún chả cá/mì quảng + thịt/trứng + sữa','Bánh mì thịt/trứng + sữa không đường','1.5 chén cơm + cá/thịt + canh + sữa KĐ','Bánh mì + 2 trứng luộc + sữa (khi bận)']},
+  {id:'work_am',t:'07:00',d:'7h–9h',n:'Làm việc',i:'💼',act:'Giờ hành chính',g:'Giữ tỉnh táo',cat:'morning',opts:['Nước lọc đều đặn','Không cà phê sữa quá ngọt']},
+  {id:'snk_am',t:'09:30',d:'9h30',n:'Bữa phụ tại cơ quan',i:'🥛',act:'Bữa phụ sáng',g:'Tránh tụt năng lượng',cat:'morning',opts:['Sữa chua KĐ + trái cây (ưu tiên)','Sữa tươi KĐ + đậu phộng/hạnh nhân','Trái cây + 1 trứng luộc','Bánh mì nhỏ + sữa KĐ','Bắp luộc hoặc khoai lang']},
+  {id:'pre_noon',t:'10:45',d:'10h45–11h',n:'Lót năng lượng trước dạy trưa',i:'⚡',act:'Trước pickleball trưa',g:'Không để cơ thể rỗng năng lượng',cat:'noon',opts:['1 quả chuối','1 khúc bắp luộc','1 lát bánh mì','1 hộp sữa tươi KĐ','1 củ khoai nhỏ']},
+  {id:'pk_noon',t:'11:30',d:'11h30–12h30',n:'Dạy Pickleball trưa',i:'🏸',act:'Tập luyện',g:'Bù nước khi dạy',cat:'noon',opts:['Nước lọc thường xuyên','Điện giải loãng nếu nắng/mồ hôi nhiều']},
+  {id:'lunch',t:'12:45',d:'12h45–13h15',n:'Ăn trưa chính',i:'🍚',act:'Bữa phục hồi',g:'2 chén cơm + đạm + rau + canh',cat:'noon',opts:['2 chén cơm','Đạm: cá kho/hấp, gà, heo nạc, bò, tôm, trứng, đậu phụ','Rau luộc hoặc rau xào ít dầu','1 chén canh','Trái cây nhỏ tráng miệng']},
+  {id:'rest',t:'13:20',d:'13h20–13h40',n:'Nghỉ phục hồi',i:'😴',act:'Nghỉ trưa',g:'Giảm mệt, hỗ trợ tăng cân',cat:'noon',opts:['Chợp mắt 15–20 phút nếu được','Quan trọng nếu ngủ đêm ít']},
+  {id:'snk_pm',t:'15:30',d:'15h30–16h',n:'Bữa phụ chiều',i:'🍌',act:'Bữa phụ chiều',g:'Chuẩn bị năng lượng chiều/tối',cat:'afternoon',opts:['Sữa tươi KĐ + chuối (ưu tiên)','Sữa tươi KĐ + bắp luộc','Sữa chua KĐ + trái cây','Bánh mì nhỏ + sữa (nếu chiều chơi)','Khoai + sữa']},
+  {id:'ext',t:'16:30',d:'16h30',n:'Ăn thêm nếu chơi tới 20h',i:'🥖',act:'Nếu chiều chơi thể thao',g:'Tăng năng lượng',cat:'afternoon',opts:['1 lát bánh mì / ½ ổ','1 củ khoai nhỏ','1 quả trứng luộc','1 khúc bắp','1 phần cơm nắm nhỏ'],opt:true},
+  {id:'sport',t:'17:00',d:'17h–20h',n:'Bóng bàn / Pickleball social',i:'🏓',act:'Nếu có chơi',g:'Duy trì nước',cat:'afternoon',opts:['< 60 phút: nước lọc là đủ','90–180 phút: nước + điện giải loãng','Hụt sức: chuối hoặc bánh mì nhỏ'],opt:true},
+  {id:'dinner',t:'20:15',d:'20h15–20h45',n:'Ăn tối chính',i:'🌙',act:'Bữa phục hồi tối',g:'Có chơi: 2 chén | Không: 1.5 chén',cat:'evening',opts:['Cơm + cá + rau + canh (ưu tiên)','Cơm + gà + rau','Cơm + thịt bò + canh','Cơm + đậu phụ + cá','Bún/phở/mì quảng']},
+  {id:'work_eve',t:'21:00',d:'21h–22h30',n:'Làm việc tối',i:'💻',act:'Làm việc',g:'Không kích thích thần kinh',cat:'evening',opts:['Nước lọc','Tránh cà phê/trà đặc sau chiều']},
+  {id:'preslp',t:'22:00',d:'22h–22h30',n:'Trước khi ngủ (nếu đói)',i:'🌛',act:'Bữa trước ngủ',g:'Bổ sung nhẹ',cat:'evening',opts:['1 ly sữa tươi KĐ ấm','Sữa tươi KĐ + 1 trứng luộc','1 hũ sữa chua KĐ','Sữa + ½ khoai (ngày vận động nặng)']},
+  {id:'sleep',t:'22:30',d:'22h30',n:'Ngủ',i:'💤',act:'Ngủ phục hồi',g:'Cố định giờ ngủ',cat:'evening',opts:['Ngủ trước 23h','7–8 tiếng/đêm','Ngủ đều → tăng cân sạch']}
+];
+const MEAL_OPTS=[
+  {v:'4h30',l:'4h30 — Trước dạy sáng',i:'🌅'},
+  {v:'6h15',l:'6h15 — Ăn sáng chính',i:'🍜'},
+  {v:'9h30',l:'9h30 — Bữa phụ sáng',i:'🥛'},
+  {v:'10h45',l:'10h45 — Trước dạy trưa',i:'⚡'},
+  {v:'12h45',l:'12h45 — Ăn trưa',i:'🍚'},
+  {v:'15h30',l:'15h30 — Bữa phụ chiều',i:'🍌'},
+  {v:'16h30',l:'16h30 — Ăn thêm (chơi tối)',i:'🥖'},
+  {v:'20h15',l:'20h15 — Ăn tối',i:'🌙'},
+  {v:'22h00',l:'22h00 — Trước ngủ',i:'🌛'}
+];
+const CL=[
+  {id:'c1',t:'🌅 Ăn nhẹ trước dạy sáng',tm:'4h30'},
+  {id:'c2',t:'🍜 Ăn sáng có tinh bột + đạm',tm:'6h15'},
+  {id:'c3',t:'🥛 Uống ≥2 bịch sữa/sữa chua KĐ',tm:'Cả ngày'},
+  {id:'c4',t:'🥗 Ăn bữa phụ 9h30',tm:'9h30'},
+  {id:'c5',t:'⚡ Ăn nhẹ trước dạy trưa',tm:'10h45'},
+  {id:'c6',t:'🍚 Ăn trưa: 2 chén + đạm + rau + canh',tm:'12h45'},
+  {id:'c7',t:'😴 Nghỉ trưa 15–20 phút',tm:'13h20'},
+  {id:'c8',t:'🍌 Ăn bữa phụ chiều',tm:'15h30'},
+  {id:'c9',t:'🥖 Nếu chơi tới 20h: ăn thêm 16h30',tm:'16h30'},
+  {id:'c10',t:'🌙 Ăn tối đủ đạm, không bỏ cơm',tm:'20h15'},
+  {id:'c11',t:'💧 Uống đủ nước (2–3 lít)',tm:'Cả ngày'},
+  {id:'c12',t:'🚫 Không sữa đặc/nước ngọt/trà sữa',tm:'Cả ngày'}
+];
+const RULES=[
+  {i:'⏰',t:'Khung giờ cố định',d:'Ăn đúng các mốc trong ngày để không bị rỗng năng lượng. Cơ thể quen giờ ăn sẽ hấp thu tốt hơn.'},
+  {i:'🔄',t:'Món ăn xoay vòng',d:'Không ăn mãi trứng, bánh mì, khoai lang. Dùng nhiều nguồn đạm và tinh bột khác nhau.'},
+  {i:'🚫',t:'Không tăng cân bằng đường ngọt',d:'Tránh sữa đặc, nước ngọt, trà sữa, bánh ngọt. Dễ tăng glucose và tích mỡ bụng.'},
+  {i:'🍚',t:'Tăng cân bằng thực phẩm thật',d:'Cơm, bún, phở, cá, thịt, gà, trứng, đậu phụ, sữa không đường là nền tảng.'},
+  {i:'🍽️',t:'Ưu tiên bữa trưa và tối',d:'2 bữa phục hồi chính. Không thay bằng trái cây hay sữa.'},
+  {i:'🥗',t:'Bữa phụ là bắt buộc',d:'Vận động nhiều, không để khoảng cách bữa quá dài.'},
+  {i:'📊',t:'Theo dõi glucose',d:'Nếu glucose tăng, giảm đồ ngọt và tinh chỉnh tinh bột tối.'},
+  {i:'😴',t:'Ngủ đủ giấc',d:'Mục tiêu ngủ trước 23h, 7–8 tiếng. Ngủ đều giúp tăng cân sạch.'}
+];
+const ADJ=[
+  {c:'⚖️ Cân không tăng',a:'Thêm ½ chén cơm tối hoặc 1 trứng/ngày hoặc 1 lát bánh mì 16h30'},
+  {c:'⚡ Chiều vẫn hụt sức',a:'Thêm bữa 16h30: sữa + chuối + bánh mì'},
+  {c:'✅ Tăng 0.3–0.7kg/2 tuần',a:'Giữ nguyên lịch, đang đúng hướng! 🎉'},
+  {c:'😟 Bụng to nhanh',a:'Giảm ½ chén cơm tối, giữ đạm và rau'},
+  {c:'📈 Glucose tăng',a:'Bỏ hoàn toàn đồ ngọt, giảm tinh bột tối nhẹ'},
+  {c:'😟 Mặt vẫn hốc',a:'Tăng bữa phụ chiều hoặc thêm sữa + trứng trước ngủ'},
+  {c:'😴 Ngủ kém',a:'Không cà phê sau chiều, ăn tối không sát giờ ngủ'},
+  {c:'💪 Hay chuột rút',a:'Tăng nước, dùng điện giải loãng khi dạy/chơi lâu'}
+];
+const GF=[{i:'🍚',n:'Cơm, bún, phở, mì quảng'},{i:'🥖',n:'Bánh mì, khoai, bắp'},{i:'🐟',n:'Cá, tôm, mực'},{i:'🍗',n:'Gà, heo nạc, bò'},{i:'🥚',n:'Trứng (1–2/ngày)'},{i:'🥛',n:'Sữa & sữa chua KĐ'},{i:'🫘',n:'Đậu phụ'},{i:'🍌',n:'Chuối, ổi, đu đủ'},{i:'🥜',n:'Đậu phộng, hạt điều'}];
+const BF=[{i:'🍯',n:'Sữa đặc có đường'},{i:'🥤',n:'Nước ngọt, tăng lực'},{i:'🧋',n:'Trà sữa'},{i:'🍰',n:'Bánh ngọt'},{i:'🍹',n:'Nước ép trái cây nhiều'},{i:'☕',n:'Cà phê đặc sau chiều'}];
+const CCAT={morning:'cm',noon:'cn',afternoon:'ca',evening:'ce'};
+const CNAME={morning:'☀️ Sáng',noon:'🌤 Trưa',afternoon:'🌅 Chiều',evening:'🌙 Tối'};
+
+// ======= STATE =======
+let S={
+  tab:'dashboard',day:'heavy',
+  today:new Date().toISOString().split('T')[0],
+  water:0,waterT:2500,
+  logs:[],weights:[],checks:{},
+  remOn:true,waRemOn:true,remAdv:5,timers:[],
+  logDateOff:0,  // days offset from today for log filter
+  wDateOff:0,    // days offset from today for weight date
+  wKg:71.0
+};
+
+// ======= STORAGE =======
+function save(){
+  try{
+    localStorage.setItem('nt3',JSON.stringify({
+      day:S.day,water:S.water,logs:S.logs,weights:S.weights,checks:S.checks,
+      remOn:S.remOn,waRemOn:S.waRemOn,remAdv:S.remAdv,lastDay:S.today
+    }));
+  }catch(e){}
+}
+function load(){
+  try{
+    const r=JSON.parse(localStorage.getItem('nt3')||'null');
+    if(!r)return;
+    const td=new Date().toISOString().split('T')[0];
+    if(r.lastDay!==td){S.water=0;}
+    else{S.water=r.water||0;if(r.checks)S.checks=r.checks;}
+    S.logs=r.logs||[];S.weights=r.weights||[];S.day=r.day||'heavy';
+    S.remOn=r.remOn!==undefined?r.remOn:true;
+    S.waRemOn=r.waRemOn!==undefined?r.waRemOn:true;
+    S.remAdv=r.remAdv||5;
+  }catch(e){}
+}
+
+// ======= INIT =======
+document.addEventListener('DOMContentLoaded',()=>{
+  load();
+  // prevent back navigation on Android
+  history.pushState(null,null,location.href);
+  window.addEventListener('popstate',()=>history.pushState(null,null,location.href));
+  
+  initDate();
+  renderTL();renderSched();renderCL();renderMeals();renderRules();renderRems();renderLog();renderWH();
+  updStats();updWStats();initWDate();initLogDate();
+  if(S.day==='light')setDay('light',true);
+  tick();schedRems();
+  // update adv buttons
+  document.querySelectorAll('[id^="adv-"]').forEach(b=>b.classList.remove('act'));
+  const ab=document.getElementById('adv-'+S.remAdv);if(ab)ab.classList.add('act');
+  // update toggles
+  const rt=document.getElementById('rem-t');if(rt)rt.checked=S.remOn;
+  const wt=document.getElementById('wa-t');if(wt)wt.checked=S.waRemOn;
+});
+
+// ======= NAV =======
+function sw(tab,btn){
+  S.tab=tab;
+  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('act'));
+  if(btn)btn.classList.add('act');
+  else{
+    // find matching btn in bnav (for more menu items)
+  }
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+  document.getElementById('tab-'+tab).classList.add('act');
+  if(tab==='weight')drawChart();
+  window.scrollTo(0,0);
+}
+function toggleMore(btn){
+  document.getElementById('more-sheet').classList.toggle('open');
+}
+function closeMoreSheet(e){
+  if(!e||e.target===document.getElementById('more-sheet'))
+    document.getElementById('more-sheet').classList.remove('open');
+}
+
+// ======= MEAL PICKER SHEET =======
+function openMealSheet(){
+  const cur=document.getElementById('q-meal-val').value;
+  const c=document.getElementById('meal-sheet-items');
+  c.innerHTML=MEAL_OPTS.map(o=>`
+    <div class="bsheet-item" onclick="selectMeal('${o.v}','${o.l}')">
+      <span class="bsi-ico">${o.i}</span>
+      <span class="bsi-lbl">${o.l}</span>
+      ${cur===o.v?'<span class="bsi-check">✓</span>':''}
+    </div>`).join('');
+  document.getElementById('meal-sheet').classList.add('open');
+}
+function selectMeal(val,lbl){
+  document.getElementById('q-meal-val').value=val;
+  document.getElementById('q-meal-lbl').textContent=lbl;
+  document.getElementById('q-meal-btn').classList.add('selected');
+  document.getElementById('meal-sheet').classList.remove('open');
+}
+function closeMealSheet(e){
+  if(!e||e.target===document.getElementById('meal-sheet'))
+    document.getElementById('meal-sheet').classList.remove('open');
+}
+
+// ======= DATE =======
+function initDate(){
+  const n=new Date();
+  const days=['Chủ nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];
+  document.getElementById('today-txt').textContent=`${days[n.getDay()]}, ${n.getDate()}/${n.getMonth()+1}/${n.getFullYear()}`;
+}
+function dateFromOffset(off){
+  const d=new Date();d.setDate(d.getDate()+off);return d.toISOString().split('T')[0];
+}
+function fmtDateStr(iso){
+  const p=iso.split('-');return`${p[2]}/${p[1]}/${p[0]}`;
+}
+function fmtDateDisp(iso){
+  const p=iso.split('-');
+  const d=new Date(+p[0],+p[1]-1,+p[2]);
+  const days=['CN','T2','T3','T4','T5','T6','T7'];
+  return`${days[d.getDay()]} ${p[2]}/${p[1]}`;
+}
+
+// Weight date
+function initWDate(){
+  document.getElementById('w-date').value=S.today;
+  document.getElementById('w-date-d').textContent='Hôm nay ('+fmtDateStr(S.today)+')';
+  document.getElementById('w-kg').value=S.wKg;
+  document.getElementById('w-kg-d').innerHTML=S.wKg.toFixed(1)+' <span class="spin-unit">kg</span>';
+}
+function navWDate(dir){
+  S.wDateOff+=dir;
+  const d=dateFromOffset(S.wDateOff);
+  document.getElementById('w-date').value=d;
+  const lbl=S.wDateOff===0?`Hôm nay (${fmtDateStr(d)})`:S.wDateOff===-1?`Hôm qua (${fmtDateStr(d)})`:fmtDateStr(d);
+  document.getElementById('w-date-d').textContent=lbl;
+}
+function spinW(delta){
+  S.wKg=Math.max(50,Math.min(150,parseFloat((S.wKg+delta).toFixed(1))));
+  document.getElementById('w-kg').value=S.wKg;
+  document.getElementById('w-kg-d').innerHTML=S.wKg.toFixed(1)+' <span class="spin-unit">kg</span>';
+}
+
+// Log date
+let logDateIso='';
+function initLogDate(){ logDateIso=''; document.getElementById('log-date-d').textContent='Tất cả'; }
+function navLogDate(dir){
+  if(logDateIso===''){
+    // start from today
+    const today=new Date();today.setDate(today.getDate()+(dir<0?-1:0));
+    logDateIso=today.toISOString().split('T')[0];
+  } else {
+    const d=new Date(logDateIso);d.setDate(d.getDate()+dir);
+    logDateIso=d.toISOString().split('T')[0];
+  }
+  document.getElementById('log-date-d').textContent=fmtDateStr(logDateIso);
+}
+function filtLog(){if(logDateIso)renderLog(logDateIso);else renderLog();}
+function clearFilt(){logDateIso='';document.getElementById('log-date-d').textContent='Tất cả';renderLog();}
+
+// Time utils
+function nowMin(){const n=new Date();return n.getHours()*60+n.getMinutes()}
+function t2m(ts){const[h,m]=ts.split(':').map(Number);return h*60+m}
+
+function tick(){updTL();updNextB();setInterval(()=>{updTL();updNextB();},60000);}
+
+// ======= DAY TYPE =======
+function setDay(type,silent=false){
+  S.day=type;
+  document.getElementById('b-hvy').classList.toggle('act',type==='heavy');
+  document.getElementById('b-lgt').classList.toggle('act',type==='light');
+  S.waterT=type==='heavy'?2500:2000;
+  document.getElementById('wa-l').textContent=`Mục tiêu: ${S.waterT}ml`;
+  document.getElementById('ri-l').textContent=`Mục tiêu: ${type==='heavy'?4:3.5} chén`;
+  if(!silent){save();updStats();toast('✅ Đã cập nhật',`Chế độ: ${type==='heavy'?'Vận động nhiều':'Vận động nhẹ'}`);}
+}
+
+// ======= WATER =======
+function addW(ml){
+  S.water+=ml;updStats();save();
+  toast('💧 Đã thêm nước',`+${ml}ml | Tổng: ${S.water}ml`);
+}
+
+// ======= SPINNER =======
+function spin(id,delta){
+  const h=document.getElementById(id);
+  const dv=document.getElementById(id+'-d');
+  let v=parseFloat(h.value)+delta;
+  if(id==='q-rice'){v=Math.max(0,Math.min(8,parseFloat(v.toFixed(1))));dv.innerHTML=`${v} <span class="spin-unit">chén</span>`;}
+  else{v=Math.max(0,Math.min(3000,Math.round(v/10)*10));dv.innerHTML=`${v} <span class="spin-unit">ml</span>`;}
+  h.value=v;
+}
+
+// ======= FEELING =======
+function setFeel(f){
+  document.getElementById('q-feel').value=f;
+  ['good','ok','bad'].forEach(x=>{document.getElementById('feel-'+x).classList.toggle('act',x===f);});
+}
+
+// ======= STATS =======
+function updStats(){
+  const w=getCurW();
+  document.getElementById('sw-v').innerHTML=`${w.toFixed(1)} <span class="su">kg</span>`;
+  const wp=Math.max(Math.min(((w-71)/(78-71))*100,100),0);
+  document.getElementById('sw-b').style.width=wp+'%';
+  document.getElementById('sw-l').textContent=`${wp.toFixed(0)}% → 78kg`;
+
+  document.getElementById('wa-v').innerHTML=`${S.water} <span class="su">ml</span>`;
+  document.getElementById('wa-b').style.width=Math.min((S.water/S.waterT)*100,100)+'%';
+
+  const ch=S.checks[S.today]||{};
+  const done=Object.values(ch).filter(Boolean).length;
+  document.getElementById('ck-v').innerHTML=`${done} <span class="su">/ 12</span>`;
+  const ckp=(done/12)*100;
+  document.getElementById('ck-b').style.width=ckp+'%';
+  document.getElementById('ck-l').textContent=`${ckp.toFixed(0)}% hoàn thành`;
+  document.getElementById('cl-dot').style.display=done<12?'block':'none';
+
+  const todayR=S.logs.filter(l=>l.date===S.today).reduce((s,l)=>s+(l.rice||0),0);
+  const rt=S.day==='heavy'?4:3.5;
+  document.getElementById('ri-v').innerHTML=`${todayR} <span class="su">chén</span>`;
+  document.getElementById('ri-b').style.width=Math.min((todayR/rt)*100,100)+'%';
+}
+function getCurW(){
+  if(!S.weights.length)return 71;
+  return[...S.weights].sort((a,b)=>new Date(b.date)-new Date(a.date))[0].weight;
+}
+
+// ======= TIMELINE =======
+function renderTL(){
+  const c=document.getElementById('tl-c');
+  const now=nowMin();
+  c.innerHTML=MEALS.map(m=>{
+    const mm=t2m(m.t);
+    let cls='',badge='';
+    if(mm<now-30){cls='done';badge=`<span class="tbg done-b">✓</span>`;}
+    else if(mm<=now+30){cls='now';badge=`<span class="tbg now-b">●</span>`;}
+    else{badge=`<span class="tbg up-b">${m.d}</span>`;}
+    return`<div class="tli ${cls}" id="tl-${m.id}">
+      <span class="tt">${m.d}</span><span class="tic">${m.i}</span>
+      <div class="tc"><div class="tn">${m.n}</div><div class="td">${m.g}</div></div>
+      <div id="tb-${m.id}">${badge}</div>
+    </div>`;
+  }).join('');
+}
+function updTL(){
+  const now=nowMin();
+  MEALS.forEach(m=>{
+    const el=document.getElementById('tl-'+m.id);
+    const bd=document.getElementById('tb-'+m.id);
+    if(!el)return;
+    const mm=t2m(m.t);
+    el.className='tli';
+    if(mm<now-30){el.classList.add('done');if(bd)bd.innerHTML=`<span class="tbg done-b">✓</span>`;}
+    else if(mm<=now+30){el.classList.add('now');if(bd)bd.innerHTML=`<span class="tbg now-b">●</span>`;}
+    else{if(bd)bd.innerHTML=`<span class="tbg up-b">${m.d}</span>`;}
+  });
+}
+function updNextB(){
+  const now=nowMin();
+  const next=MEALS.find(m=>t2m(m.t)>now+30);
+  const el=document.getElementById('next-b');
+  if(el)el.textContent=next?`Tiếp: ${next.d} — ${next.n}`:'Xong hết bữa hôm nay 🎉';
+}
+
+// ======= SCHEDULE =======
+function renderSched(){
+  const c=document.getElementById('sched-c');
+  const now=nowMin();
+  c.innerHTML=MEALS.map(m=>{
+    const ac=t2m(m.t)<=now+30&&t2m(m.t)>now-60;
+    return`<div class="schedc ${ac?'ac':''}">
+      <div class="sct">${m.d}</div>
+      <div class="sca">${m.i} ${m.act}</div>
+      <div class="scmn">${m.n}</div>
+      <div>${m.opts.map(o=>`<div class="scopt"><div class="odot"></div><span>${o}</span></div>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ======= QUICK LOG =======
+function qlog(){
+  const meal=document.getElementById('q-meal-val').value;
+  const food=document.getElementById('q-food').value.trim();
+  const rice=parseFloat(document.getElementById('q-rice').value)||0;
+  const water=parseInt(document.getElementById('q-water').value)||0;
+  const feel=document.getElementById('q-feel').value;
+  if(!meal){toast('⚠️ Chưa chọn bữa','Hãy chọn bữa ăn trước','warn');return;}
+  if(!food){toast('⚠️ Chưa ghi thức ăn','Ghi những gì bạn đã ăn','warn');return;}
+  const e={id:Date.now()+'',date:S.today,time:new Date().toLocaleTimeString('vi',{hour:'2-digit',minute:'2-digit'}),meal,food,rice,water,feel,ts:Date.now()};
+  S.logs.unshift(e);
+  if(water>0)S.water+=water;
+  // reset form
+  document.getElementById('q-meal-val').value='';
+  document.getElementById('q-meal-lbl').textContent='Nhấn để chọn bữa ăn...';
+  document.getElementById('q-meal-btn').classList.remove('selected');
+  document.getElementById('q-food').value='';
+  document.getElementById('q-rice').value='0';
+  document.getElementById('q-rice-d').innerHTML='0 <span class="spin-unit">chén</span>';
+  document.getElementById('q-water').value='0';
+  document.getElementById('q-water-d').innerHTML='0 <span class="spin-unit">ml</span>';
+  setFeel('good');
+  save();updStats();renderLog();
+  toast('💾 Đã lưu bữa ăn',`${meal} — ${food.substring(0,40)}`);
+}
+
+// ======= LOG =======
+function renderLog(fd=null){
+  const c=document.getElementById('log-list');
+  let logs=[...S.logs];
+  if(fd)logs=logs.filter(l=>l.date===fd);
+  if(!logs.length){
+    c.innerHTML=`<div class="empty"><div class="eico">📝</div><p>Chưa có bữa nào được ghi${fd?' ngày này':''}</p></div>`;
+    return;
+  }
+  const fi={good:'😊',ok:'😐',bad:'😴'};
+  c.innerHTML=logs.map(l=>`
+    <div class="lentry">
+      <div class="ltime">${l.time} · ${fmtDateStr(l.date)}</div>
+      <div class="lfood">${l.meal?`<strong>${l.meal}</strong> — `:''}${l.food}</div>
+      <div class="lmeta">
+        ${l.rice>0?`<span class="ltag">🍚 ${l.rice}c</span>`:''}
+        ${l.water>0?`<span class="ltag">💧 +${l.water}ml</span>`:''}
+        ${l.feel?`<span class="ltag">${fi[l.feel]}</span>`:''}
+      </div>
+      <button type="button" class="btnd" onclick="delLog('${l.id}')">🗑️ Xóa</button>
+    </div>`).join('');
+}
+function delLog(id){
+  S.logs=S.logs.filter(l=>l.id!==id);save();renderLog(logDateIso||null);updStats();
+  toast('🗑️ Đã xóa','','warn');
+}
+function exportLog(){
+  const h='Ngày\tGiờ\tBữa\tThức ăn\tCơm\tNước\tCảm giác\n';
+  const d=S.logs.map(l=>`${l.date}\t${l.time}\t${l.meal}\t${l.food}\t${l.rice}c\t${l.water}ml\t${l.feel}`).join('\n');
+  const b=new Blob(['\uFEFF'+h+d],{type:'text/plain;charset=utf-8'});
+  const u=URL.createObjectURL(b),a=document.createElement('a');
+  a.href=u;a.download=`nhat-ky-${S.today}.txt`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);
+  toast('📥 Xuất OK','File nhật ký đã tải về');
+}
+
+// ======= WEIGHT =======
+function saveW(){
+  const date=document.getElementById('w-date').value||S.today;
+  const kg=S.wKg;
+  const note=document.getElementById('w-note').value.trim();
+  S.weights=S.weights.filter(w=>w.date!==date);
+  S.weights.push({date,weight:kg,note});
+  S.weights.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  document.getElementById('w-note').value='';
+  save();renderWH();updWStats();updStats();drawChart();
+  toast('⚖️ Đã lưu',`${fmtDateStr(date)}: ${kg.toFixed(1)}kg`);
+}
+function updWStats(){
+  const c=getCurW(),g=c-71,r=Math.max(78-c,0);
+  document.getElementById('ws-c').textContent=`${c.toFixed(1)} kg`;
+  document.getElementById('ws-g').textContent=`+${g.toFixed(1)} kg`;
+  document.getElementById('ws-r').textContent=`${r.toFixed(1)} kg`;
+}
+function renderWH(){
+  const tb=document.getElementById('wtbody');
+  if(!S.weights.length){tb.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:20px">Chưa có dữ liệu</td></tr>`;return;}
+  const s=[...S.weights].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  tb.innerHTML=s.map((e,i)=>{
+    const prev=s[i+1];
+    const diff=prev?(e.weight-prev.weight):null;
+    const ds=diff!==null?`<span class="${diff>=0?'wup':'wdn'}">${diff>=0?'+':''}${diff.toFixed(1)}</span>`:'—';
+    return`<tr>
+      <td>${fmtDateStr(e.date)}</td>
+      <td><b>${e.weight.toFixed(1)}</b></td>
+      <td>${ds}</td>
+      <td style="color:var(--t2);font-size:11px">${e.note||'—'}</td>
+      <td><button type="button" class="btnd" onclick="delW('${e.date}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+function delW(date){S.weights=S.weights.filter(w=>w.date!==date);save();renderWH();updWStats();updStats();drawChart();}
+function drawChart(){
+  const canvas=document.getElementById('wchart');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.parentElement.clientWidth||320,H=160;
+  canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
+  const data=[...S.weights].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(data.length<2){ctx.fillStyle='#64748b';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText('Cần ≥2 điểm dữ liệu để vẽ biểu đồ',W/2,H/2);return;}
+  const ws=data.map(d=>d.weight);
+  const mn=Math.min(...ws)-.5,mx=Math.max(...ws,78)+.5;
+  const p={t:14,r:10,b:30,l:36};
+  const cw=W-p.l-p.r,ch=H-p.t-p.b;
+  const xs=i=>p.l+(i/(data.length-1))*cw;
+  const ys=v=>p.t+ch-((v-mn)/(mx-mn))*ch;
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  for(let i=0;i<=3;i++){const y=p.t+(i/3)*ch;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(W-p.r,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font='10px system-ui';ctx.textAlign='right';ctx.fillText((mx-(i/3)*(mx-mn)).toFixed(1),p.l-3,y+4);}
+  // target line
+  const ty=ys(78);ctx.strokeStyle='rgba(16,185,129,.4)';ctx.setLineDash([3,3]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.l,ty);ctx.lineTo(W-p.r,ty);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#10b981';ctx.font='10px system-ui';ctx.textAlign='right';ctx.fillText('🎯78',W-p.r,ty-2);
+  // fill
+  const gr=ctx.createLinearGradient(0,p.t,0,p.t+ch);
+  gr.addColorStop(0,'rgba(16,185,129,.25)');gr.addColorStop(1,'rgba(16,185,129,0)');
+  ctx.beginPath();ctx.moveTo(xs(0),ys(ws[0]));data.forEach((d,i)=>{if(i>0)ctx.lineTo(xs(i),ys(d.weight));});
+  ctx.lineTo(xs(data.length-1),H-p.b);ctx.lineTo(xs(0),H-p.b);ctx.closePath();ctx.fillStyle=gr;ctx.fill();
+  // line
+  ctx.strokeStyle='#10b981';ctx.lineWidth=2;ctx.lineJoin='round';ctx.beginPath();
+  data.forEach((d,i)=>{const x=xs(i),y=ys(d.weight);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+  // dots
+  data.forEach((d,i)=>{const x=xs(i),y=ys(d.weight);ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#10b981';ctx.fill();ctx.strokeStyle='#0a0e1a';ctx.lineWidth=2;ctx.stroke();});
+  // x labels
+  ctx.fillStyle='#64748b';ctx.font='10px system-ui';ctx.textAlign='center';
+  const step=Math.max(1,Math.floor(data.length/4));
+  data.forEach((d,i)=>{if(i%step===0||i===data.length-1){const p2=d.date.split('-');ctx.fillText(`${p2[2]}/${p2[1]}`,xs(i),H-4);}});
+}
+
+// ======= CHECKLIST =======
+function renderCL(){
+  const c=document.getElementById('cl-items');
+  const ch=S.checks[S.today]||{};
+  c.innerHTML=CL.map(item=>{
+    const ck=!!ch[item.id];
+    return`<div class="clitem ${ck?'chk':''}" onclick="togCL('${item.id}')" id="cli-${item.id}">
+      <div class="cbox">${ck?'✓':''}</div>
+      <span class="itext">${item.t}</span>
+      <span class="itm">${item.tm}</span>
+    </div>`;
+  }).join('');
+  updCLProg();
+}
+function togCL(id){
+  if(!S.checks[S.today])S.checks[S.today]={};
+  S.checks[S.today][id]=!S.checks[S.today][id];
+  const el=document.getElementById('cli-'+id);
+  const bx=el.querySelector('.cbox');
+  const ck=S.checks[S.today][id];
+  el.classList.toggle('chk',ck);bx.textContent=ck?'✓':'';
+  save();updCLProg();updStats();
+}
+function updCLProg(){
+  const ch=S.checks[S.today]||{};
+  const done=Object.values(ch).filter(Boolean).length;
+  const circ=2*Math.PI*44;
+  document.getElementById('cc-c').textContent=`${done}/12`;
+  document.getElementById('cfl').style.strokeDashoffset=circ*(1-done/12);
+  const msgs=['Bắt đầu ngày mới nào! 💪','Tốt lắm! Tiếp tục! 🌟','Đang làm rất tốt! 🎯','Gần đến đích rồi! 🚀','Hoàn hảo! Đã làm đủ tất cả! 🎉'];
+  document.getElementById('cl-msg').textContent=msgs[done>=12?4:done>=9?3:done>=6?2:done>=3?1:0];
+}
+function resetCL(){
+  if(!confirm('Reset bảng kiểm hôm nay?'))return;
+  S.checks[S.today]={};renderCL();updStats();save();toast('🔄 Đã reset','','warn');
+}
+
+// ======= MEALS =======
+function renderMeals(f='all'){
+  const c=document.getElementById('m-grid');
+  const ms=MEALS.filter(m=>f==='all'||m.cat===f);
+  c.innerHTML=ms.map(m=>`
+    <div class="mcard">
+      <div class="mch"><span class="mtag">${m.i} ${m.d}</span><span class="mcat ${CCAT[m.cat]}">${CNAME[m.cat]}</span></div>
+      <div class="mname">${m.n}</div>
+      <div class="mgoal">🎯 ${m.g}</div>
+      <ul class="moptsl">${m.opts.map(o=>`<li>${o}</li>`).join('')}</ul>
+    </div>`).join('');
+}
+function filtM(f,btn){
+  document.querySelectorAll('.mfb').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');renderMeals(f);
+}
+
+// ======= RULES =======
+function renderRules(){
+  document.getElementById('r-grid').innerHTML=RULES.map(r=>`<div class="rcard"><div class="rico">${r.i}</div><div class="rtitle">${r.t}</div><div class="rtext">${r.d}</div></div>`).join('');
+  document.getElementById('adj-g').innerHTML=ADJ.map(a=>`<div class="adji"><div class="adjc">${a.c}</div><div class="adja">${a.a}</div></div>`).join('');
+  document.getElementById('gf').innerHTML=GF.map(f=>`<div class="fitem"><span>${f.i}</span><span>${f.n}</span></div>`).join('');
+  document.getElementById('bf').innerHTML=BF.map(f=>`<div class="fitem"><span>${f.i}</span><span>${f.n}</span></div>`).join('');
+}
+
+// ======= REMINDERS =======
+function renderRems(){
+  const remMs=MEALS.filter(m=>!['pk_am','pk_noon','sport','work_am','work_eve','rest','sleep'].includes(m.id));
+  document.getElementById('r-list').innerHTML=remMs.map(m=>`
+    <div class="ritem">
+      <span class="rtime">${m.d}</span>
+      <span class="rtext">${m.i} ${m.n}</span>
+      <label class="tog"><input type="checkbox" checked id="rem-${m.id}" onchange="saveSets()"/><span class="tsl"></span></label>
+    </div>`).join('');
+}
+async function reqNotif(){
+  if(!('Notification'in window)){toast('❌ Không hỗ trợ','Trình duyệt không hỗ trợ thông báo','err');return;}
+  const p=await Notification.requestPermission();
+  if(p==='granted'){
+    document.getElementById('perm-card').style.display='none';
+    schedRems();toast('🔔 Đã bật','Thông báo đã sẵn sàng!');
+    new Notification('🥗 NutriTrack Pro',{body:'Nhắc nhở dinh dưỡng đã sẵn sàng!'});
+  }else{toast('⚠️ Chưa cho phép','Hãy cho phép thông báo trong cài đặt trình duyệt','warn');}
+}
+function setAdv(v,btn){
+  S.remAdv=v;
+  document.querySelectorAll('[id^="adv-"]').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  saveSets();
+}
+function saveSets(){
+  S.remOn=document.getElementById('rem-t')?.checked??true;
+  S.waRemOn=document.getElementById('wa-t')?.checked??true;
+  save();
+}
+function schedRems(){
+  S.timers.forEach(t=>clearTimeout(t));S.timers=[];
+  if(!S.remOn||!('Notification'in window)||Notification.permission!=='granted')return;
+  const now=nowMin();
+  const remMs=MEALS.filter(m=>!['pk_am','pk_noon','sport','work_am','work_eve','rest','sleep'].includes(m.id));
+  remMs.forEach(m=>{
+    const mm=t2m(m.t)-S.remAdv;const mu=mm-now;
+    if(mu>0&&mu<24*60){
+      const tid=setTimeout(()=>{
+        if(Notification.permission==='granted'&&S.remOn){
+          new Notification(`${m.i} ${m.n}`,{body:`${m.d} — ${m.g}`,tag:m.id});
+          toast(`${m.i} ${m.n}`,m.d);
+        }
+      },mu*60000);S.timers.push(tid);
+    }
+  });
+}
+
+// ======= TOAST =======
+function toast(title,text,type='ok'){
+  const c=document.getElementById('toasts');
+  const icons={ok:'✅',warn:'⚠️',err:'❌'};
+  const el=document.createElement('div');
+  el.className=`toast${type==='warn'?' warn':type==='err'?' err':''}`;
+  el.innerHTML=`<span class="ticon">${icons[type]}</span><div class="tbody"><div class="ttitle">${title}</div>${text?`<div class="ttext">${text}</div>`:''}</div>`;
+  c.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(-8px)';el.style.transition='.3s';setTimeout(()=>el.remove(),300);},3500);
+}
+</script>
+</body>
+</html>
