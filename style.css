@@ -295,6 +295,7 @@ img { display: block; max-width: 100%; }
 .water-fill { background: linear-gradient(90deg, #3b82f6, #2563eb); }
 .check-fill { background: linear-gradient(90deg, #f59e0b, #d97706); }
 .rice-fill { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
+.calorie-fill { background: linear-gradient(90deg, #f97316, #ea580c); }
 .progress-label { font-size: 0.75rem; color: var(--text-muted); }
 .water-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .water-btn {

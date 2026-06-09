@@ -22,8 +22,8 @@ const MEAL_SCHEDULE = [
     displayTime: '4h30',
     name: 'Ăn nhẹ trước dạy sáng',
     icon: '🌅',
-    activity: 'Trước khi dạy pickleball sáng',
-    goal: 'Có năng lượng nhẹ, không nặng bụng',
+    activity: 'Trước khi dạy Pickleball sáng (thứ 2–6)',
+    goal: 'Có năng lượng nhẹ, không nặng bụng để bắt đầu ngày',
     category: 'morning',
     options: [
       '1 quả chuối nhỏ',
@@ -36,11 +36,11 @@ const MEAL_SCHEDULE = [
   {
     id: 'pickleball_morning',
     time: '05:00',
-    displayTime: '5h–6h',
+    displayTime: '5h–6h15',
     name: 'Dạy Pickleball sáng',
     icon: '🏸',
-    activity: 'Dạy pickleball',
-    goal: 'Duy trì nước',
+    activity: 'Dạy Pickleball 5h–6h15 (thứ 2–6)',
+    goal: 'Duy trì nước và năng lượng cho buổi sáng',
     category: 'morning',
     options: [
       'Nước lọc từng ngụm nhỏ',
@@ -69,8 +69,8 @@ const MEAL_SCHEDULE = [
     displayTime: '7h–9h',
     name: 'Làm việc',
     icon: '💼',
-    activity: 'Giờ hành chính',
-    goal: 'Giữ tỉnh táo, không dùng đường ngọt',
+    activity: 'Làm việc hành chính 7h–11h30 (thứ 2–6)',
+    goal: 'Giữ tỉnh táo, không dùng đường ngọt trong ca làm việc',
     category: 'morning',
     options: [
       'Nước lọc đều đặn',
@@ -100,8 +100,8 @@ const MEAL_SCHEDULE = [
     displayTime: '10h45–11h',
     name: 'Lót năng lượng trước dạy trưa',
     icon: '⚡',
-    activity: 'Trước khi về dạy trưa',
-    goal: 'Không để cơ thể rỗng năng lượng khi dạy',
+    activity: 'Lót năng lượng trước dạy Pickleball trưa (thứ 2–6)',
+    goal: 'Không để cơ thể rỗng năng lượng trước ca dạy trưa',
     category: 'noon',
     options: [
       '1 quả chuối',
@@ -117,8 +117,8 @@ const MEAL_SCHEDULE = [
     displayTime: '11h30–12h30',
     name: 'Dạy Pickleball trưa',
     icon: '🏸',
-    activity: 'Dạy pickleball',
-    goal: 'Bù nước trong khi dạy',
+    activity: 'Dạy Pickleball 11h30–12h30 (thứ 2–6)',
+    goal: 'Bù nước và năng lượng trong giờ dạy trưa',
     category: 'noon',
     options: [
       'Nước lọc thường xuyên',
@@ -127,12 +127,12 @@ const MEAL_SCHEDULE = [
   },
   {
     id: 'lunch',
-    time: '12:45',
-    displayTime: '12h45–13h15',
+    time: '12:30',
+    displayTime: '12h30–13h',
     name: 'Ăn trưa chính',
     icon: '🍚',
-    activity: 'Bữa phục hồi chính',
-    goal: '2 chén cơm + đạm + rau + canh',
+    activity: 'Ăn trưa chính sau ca dạy (thứ 2–6)',
+    goal: '2 chén cơm + đạm + rau + canh để phục hồi',
     category: 'noon',
     options: [
       '2 chén cơm',
@@ -144,12 +144,12 @@ const MEAL_SCHEDULE = [
   },
   {
     id: 'rest',
-    time: '13:20',
-    displayTime: '13h20–13h40',
+    time: '13:00',
+    displayTime: '13h–13h30',
     name: 'Nghỉ phục hồi',
     icon: '😴',
-    activity: 'Nghỉ trưa',
-    goal: 'Giảm mệt, hỗ trợ tăng cân',
+    activity: 'Nghỉ trưa rồi đi làm ở công ty 13h30–17h (thứ 2–6)',
+    goal: 'Giảm mệt và chuẩn bị cho ca làm việc chiều',
     category: 'noon',
     options: [
       'Chợp mắt 15–20 phút nếu được',
@@ -162,8 +162,8 @@ const MEAL_SCHEDULE = [
     displayTime: '15h30–16h',
     name: 'Bữa phụ chiều',
     icon: '🍌',
-    activity: 'Bữa phụ chiều',
-    goal: 'Chuẩn bị năng lượng cho chiều/tối',
+    activity: 'Bữa phụ chiều trong ca làm việc ở công ty (thứ 2–6)',
+    goal: 'Giữ năng lượng khi làm việc từ 13h30–17h',
     category: 'afternoon',
     options: [
       'Sữa tươi không đường + chuối (ưu tiên)',
@@ -179,8 +179,8 @@ const MEAL_SCHEDULE = [
     displayTime: '16h30',
     name: 'Ăn thêm nếu chơi đến 20h',
     icon: '🥖',
-    activity: 'Nếu chiều chơi thể thao đến tối',
-    goal: 'Tăng năng lượng trước vận động kéo dài',
+    activity: 'Sau ca công ty, trước khi chơi 17h–19h30 (thứ 2–6)',
+    goal: 'Tăng năng lượng trước buổi vận động kéo dài',
     category: 'afternoon',
     options: [
       '1 lát bánh mì hoặc ½ ổ nhỏ',
@@ -197,8 +197,8 @@ const MEAL_SCHEDULE = [
     displayTime: '17h–20h',
     name: 'Bóng bàn / Social Pickleball',
     icon: '🏓',
-    activity: 'Nếu có chơi thể thao chiều/tối',
-    goal: 'Duy trì nước và điện giải',
+    activity: 'Chơi bóng bàn / Pickleball 17h–19h30 (thứ 2–6)',
+    goal: 'Duy trì nước, điện giải và năng lượng khi chơi sau công ty',
     category: 'afternoon',
     options: [
       'Dưới 60 phút: nước lọc là đủ',
@@ -213,8 +213,8 @@ const MEAL_SCHEDULE = [
     displayTime: '20h15–20h45',
     name: 'Ăn tối chính',
     icon: '🌙',
-    activity: 'Bữa phục hồi sau ngày dài',
-    goal: 'Có chơi: 2 chén cơm | Không chơi: 1.5 chén',
+    activity: 'Ăn tối sau buổi làm việc và thể thao (thứ 2–6)',
+    goal: 'Có chơi 17h–19h30: 2 chén cơm | Không chơi: 1.5 chén',
     category: 'evening',
     options: [
       'Cơm + cá + rau + canh (ưu tiên thường xuyên)',
@@ -328,6 +328,45 @@ const BAD_FOODS = [
   { icon: '☕', name: 'Cà phê/trà đặc sau chiều' }
 ];
 
+const WATER_GUIDE = {
+  heavy: {
+    target: 2500,
+    summary: 'Đủ nước: 2500ml/ngày ≈ 13 ly 200ml, 9 ly 300ml hoặc 5 ly 500ml',
+    reminder: 'Nhắc uống nước mỗi 90 phút, 1 ly 200–300ml mỗi lần'
+  },
+  light: {
+    target: 2000,
+    summary: 'Đủ nước: 2000ml/ngày ≈ 10 ly 200ml, 7 ly 300ml hoặc 4 ly 500ml',
+    reminder: 'Nhắc uống nước mỗi 90 phút, 1 ly 200–300ml mỗi lần'
+  }
+};
+
+const CALORIE_KEYWORDS = [
+  { key: 'cơm', kcal: 180 },
+  { key: 'bún', kcal: 250 },
+  { key: 'phở', kcal: 320 },
+  { key: 'mì', kcal: 300 },
+  { key: 'miến', kcal: 220 },
+  { key: 'nui', kcal: 260 },
+  { key: 'cá', kcal: 150 },
+  { key: 'gà', kcal: 180 },
+  { key: 'thịt', kcal: 200 },
+  { key: 'trứng', kcal: 70 },
+  { key: 'đậu phụ', kcal: 90 },
+  { key: 'sữa', kcal: 120 },
+  { key: 'sữa chua', kcal: 100 },
+  { key: 'chuối', kcal: 90 },
+  { key: 'bánh mì', kcal: 180 },
+  { key: 'bắp', kcal: 120 },
+  { key: 'khoai', kcal: 130 },
+  { key: 'rau', kcal: 40 },
+  { key: 'canh', kcal: 35 },
+  { key: 'ổi', kcal: 65 },
+  { key: 'đu đủ', kcal: 70 },
+  { key: 'táo', kcal: 55 },
+  { key: 'thanh long', kcal: 60 }
+];
+
 // ==================== APP STATE ====================
 let state = {
   currentTab: 'dashboard',
@@ -350,12 +389,14 @@ function saveState() {
   const toSave = {
     dayType: state.dayType,
     water: state.water,
+    waterTarget: state.waterTarget,
     logs: state.logs,
     weights: state.weights,
     checklistData: state.checklistData,
     reminderEnabled: state.reminderEnabled,
     waterReminderEnabled: state.waterReminderEnabled,
     reminderAdvance: state.reminderAdvance,
+    notificationPermission: state.notificationPermission,
     lastReset: state.today
   };
   localStorage.setItem('nutritrack_state', JSON.stringify(toSave));
@@ -366,20 +407,16 @@ function loadState() {
     const raw = localStorage.getItem('nutritrack_state');
     if (!raw) return;
     const saved = JSON.parse(raw);
-    const today = new Date().toISOString().split('T')[0];
 
-    // Reset daily data if new day
-    if (saved.lastReset !== today) {
-      state.water = 0;
-      state.checklistData[today] = {};
-    } else {
-      state.water = saved.water || 0;
-      if (saved.checklistData) state.checklistData = saved.checklistData;
-    }
+    state.today = new Date().toISOString().split('T')[0];
+    state.water = saved.water || 0;
+    state.checklistData = saved.checklistData || {};
+    if (!state.checklistData[state.today]) state.checklistData[state.today] = {};
 
     state.logs = saved.logs || [];
     state.weights = saved.weights || [];
     state.dayType = saved.dayType || 'heavy';
+    state.waterTarget = saved.waterTarget || (state.dayType === 'light' ? 2000 : 2500);
     state.reminderEnabled = saved.reminderEnabled !== undefined ? saved.reminderEnabled : true;
     state.waterReminderEnabled = saved.waterReminderEnabled !== undefined ? saved.waterReminderEnabled : true;
     state.reminderAdvance = saved.reminderAdvance || 5;
@@ -496,17 +533,20 @@ function setDayType(type, silent = false) {
   state.dayType = type;
   const heavy = document.getElementById('btn-heavy-day');
   const light = document.getElementById('btn-light-day');
+  const guide = WATER_GUIDE[type];
   if (type === 'heavy') {
     heavy.classList.add('active'); light.classList.remove('active');
-    state.waterTarget = 2500;
-    document.getElementById('water-progress-label').textContent = 'Mục tiêu: 2500ml';
+    state.waterTarget = guide.target;
+    document.getElementById('water-progress-label').textContent = `Mục tiêu: ${guide.target}ml`;
     document.getElementById('rice-progress-label').textContent = 'Mục tiêu: 4 chén';
   } else {
     light.classList.add('active'); heavy.classList.remove('active');
-    state.waterTarget = 2000;
-    document.getElementById('water-progress-label').textContent = 'Mục tiêu: 2000ml';
+    state.waterTarget = guide.target;
+    document.getElementById('water-progress-label').textContent = `Mục tiêu: ${guide.target}ml`;
     document.getElementById('rice-progress-label').textContent = 'Mục tiêu: 3.5 chén';
   }
+  const guideText = document.getElementById('water-guide-text');
+  if (guideText) guideText.textContent = `${guide.summary} • ${guide.reminder}`;
   if (!silent) {
     saveState();
     updateDashboardStats();
@@ -523,7 +563,33 @@ function addWater(ml) {
 }
 
 // ==================== DASHBOARD STATS ====================
+function estimateCalories(entry) {
+  const foodText = (entry.food || '').toLowerCase();
+  const riceAmount = Number(entry.rice) || 0;
+  let total = riceAmount * 180;
+
+  CALORIE_KEYWORDS.forEach(item => {
+    if (foodText.includes(item.key)) total += item.kcal;
+  });
+
+  // Small boost for meal type to reflect typical meal size
+  if (/^6h15|^12h45|^20h15/.test(entry.mealType)) total += 120;
+  if (/^9h30|^15h30|^16h30|^22h00/.test(entry.mealType)) total += 60;
+
+  return Math.round(Math.max(total, 0));
+}
+
+function getTodayCalories(logs = state.logs) {
+  return logs
+    .filter(l => l.date === state.today)
+    .reduce((sum, entry) => sum + (entry.calories || estimateCalories(entry)), 0);
+}
+
 function updateDashboardStats() {
+  const guide = WATER_GUIDE[state.dayType || 'heavy'];
+  const guideText = document.getElementById('water-guide-text');
+  if (guideText) guideText.textContent = `${guide.summary} • ${guide.reminder}`;
+
   // Weight
   const currentW = getCurrentWeight();
   document.getElementById('current-weight-display').innerHTML = `${currentW.toFixed(1)} <span class="stat-unit">kg</span>`;
@@ -553,6 +619,14 @@ function updateDashboardStats() {
   document.getElementById('rice-display').innerHTML = `${totalRice} <span class="stat-unit">chén</span>`;
   const ricePct = Math.min((totalRice / riceTarget) * 100, 100);
   document.getElementById('rice-progress-bar').style.width = ricePct + '%';
+
+  // Calories estimate
+  const totalCalories = getTodayCalories();
+  const calorieTarget = state.dayType === 'heavy' ? 3000 : 2600;
+  document.getElementById('calorie-display').innerHTML = `${totalCalories} <span class="stat-unit">kcal</span>`;
+  const caloriePct = Math.min((totalCalories / calorieTarget) * 100, 100);
+  document.getElementById('calorie-progress-bar').style.width = caloriePct + '%';
+  document.getElementById('calorie-progress-label').textContent = `Mục tiêu ước tính: ${calorieTarget} kcal`;
 }
 
 function getCurrentWeight() {
@@ -664,6 +738,7 @@ function quickLog() {
     return;
   }
 
+  const estimatedCalories = estimateCalories({ food, rice, mealType });
   const entry = {
     id: Date.now().toString(),
     date: state.today,
@@ -673,6 +748,7 @@ function quickLog() {
     rice,
     water,
     feeling,
+    calories: estimatedCalories,
     timestamp: Date.now()
   };
 
@@ -722,6 +798,7 @@ function renderLog(filterDate = null) {
         <div class="log-food">${entry.mealType ? `<strong>${entry.mealType}</strong> — ` : ''}${entry.food}</div>
         <div class="log-meta">
           ${entry.rice > 0 ? `<span class="log-tag">🍚 ${entry.rice} chén</span>` : ''}
+          ${(entry.calories || estimateCalories(entry)) > 0 ? `<span class="log-tag">🔥 ${(entry.calories || estimateCalories(entry))} kcal</span>` : ''}
           ${entry.water > 0 ? `<span class="log-tag">💧 +${entry.water}ml</span>` : ''}
           ${entry.feeling ? `<span class="log-tag">${feelingIcons[entry.feeling]} ${entry.feeling === 'good' ? 'Tốt' : entry.feeling === 'ok' ? 'Bình thường' : 'Mệt'}</span>` : ''}
         </div>
@@ -753,15 +830,76 @@ function deleteLog(id) {
 
 function exportLog() {
   const data = state.logs.map(l =>
-    `${l.date}\t${l.time}\t${l.mealType}\t${l.food}\t${l.rice} chén\t${l.water}ml\t${l.feeling}`
+    `${l.date}\t${l.time}\t${l.mealType}\t${l.food}\t${l.rice} chén\t${l.water}ml\t${(l.calories || estimateCalories(l))} kcal\t${l.feeling}`
   ).join('\n');
-  const header = 'Ngày\tGiờ\tBữa\tThức ăn\tCơm\tNước\tCảm giác\n';
+  const header = 'Ngày\tGiờ\tBữa\tThức ăn\tCơm\tNước\tCalo\tCảm giác\n';
   const blob = new Blob([header + data], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = `nhat-ky-an-uong-${state.today}.txt`;
   a.click(); URL.revokeObjectURL(url);
   showNotification('📥 Xuất thành công', 'File nhật ký đã được tải về', 'success');
+}
+
+function exportBackup() {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    data: {
+      dayType: state.dayType,
+      water: state.water,
+      waterTarget: state.waterTarget,
+      logs: state.logs,
+      weights: state.weights,
+      checklistData: state.checklistData,
+      reminderEnabled: state.reminderEnabled,
+      waterReminderEnabled: state.waterReminderEnabled,
+      reminderAdvance: state.reminderAdvance
+    }
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `nutritrack-backup-${state.today}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotification('💾 Backup đã sẵn sàng', 'File JSON đã được tải về để lưu an toàn', 'success');
+}
+
+function importBackup(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      const data = parsed.data || parsed;
+      state = {
+        ...state,
+        dayType: data.dayType || state.dayType,
+        water: Number(data.water) || 0,
+        waterTarget: Number(data.waterTarget) || (data.dayType === 'light' ? 2000 : 2500),
+        logs: Array.isArray(data.logs) ? data.logs : [],
+        weights: Array.isArray(data.weights) ? data.weights : [],
+        checklistData: data.checklistData || {},
+        reminderEnabled: data.reminderEnabled !== undefined ? data.reminderEnabled : state.reminderEnabled,
+        waterReminderEnabled: data.waterReminderEnabled !== undefined ? data.waterReminderEnabled : state.waterReminderEnabled,
+        reminderAdvance: Number(data.reminderAdvance) || state.reminderAdvance
+      };
+      saveState();
+      updateDashboardStats();
+      renderLog();
+      renderWeightHistory();
+      updateWeightStats();
+      drawWeightChart();
+      renderChecklist();
+      setDayType(state.dayType, true);
+      showNotification('📥 Khôi phục thành công', 'Dữ liệu đã được tải từ file backup', 'success');
+    } catch (err) {
+      showNotification('❌ File không hợp lệ', 'Vui lòng chọn file backup JSON đúng định dạng', 'error');
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ==================== WEIGHT TAB ====================
@@ -1063,8 +1201,19 @@ function renderReminders() {
   const reminders = MEAL_SCHEDULE.filter(m =>
     !['pickleball_morning', 'pickleball_noon', 'sport_evening', 'work_morning', 'work_evening', 'rest', 'sleep'].includes(m.id)
   );
+  const waterGuide = WATER_GUIDE[state.dayType || 'heavy'];
 
-  container.innerHTML = reminders.map(meal => `
+  const waterSchedule = [
+    { time: '07:30', label: 'Uống 1 ly 200–300ml sau khi thức dậy' },
+    { time: '10:30', label: 'Uống 1 ly 200–300ml giữa buổi sáng' },
+    { time: '13:00', label: 'Uống 1 ly 300ml sau bữa trưa' },
+    { time: '15:30', label: 'Uống 1 ly 200–300ml lúc chiều' },
+    { time: '18:30', label: 'Uống 1 ly 300–500ml trước bữa tối' },
+    { time: '21:00', label: 'Uống thêm 1 ly 200–300ml trước khi ngủ' }
+  ];
+
+  container.innerHTML = [
+    ...reminders.map(meal => `
     <div class="reminder-item">
       <div class="reminder-time">${meal.displayTime}</div>
       <div class="reminder-text">${meal.icon} ${meal.name}</div>
@@ -1075,7 +1224,22 @@ function renderReminders() {
         </label>
       </div>
     </div>
-  `).join('');
+  `),
+    `
+    <div class="reminder-item" style="border-left:4px solid #38bdf8; background:rgba(56,189,248,0.08)">
+      <div class="reminder-time">💧 Mỗi 90 phút</div>
+      <div class="reminder-text">Nhắc uống nước: ${waterGuide.summary}</div>
+      <div class="reminder-text" style="font-size:0.82rem;color:var(--text-muted)">1 ly = 200ml / 300ml / 500ml • ${waterGuide.reminder}</div>
+    </div>
+    `,
+    ...waterSchedule.map(item => `
+    <div class="reminder-item">
+      <div class="reminder-time">${item.time}</div>
+      <div class="reminder-text">${item.label}</div>
+      <div class="reminder-text" style="font-size:0.82rem;color:var(--text-muted)">Đặt mục tiêu ${waterGuide.target}ml/ngày</div>
+    </div>
+    `)
+  ].join('');
 
   // Update UI from state
   const toggle = document.getElementById('reminder-toggle');
@@ -1156,12 +1320,16 @@ function scheduleReminders() {
 
 function checkWaterReminders() {
   if (!state.waterReminderEnabled) return;
-  // Remind every 1.5 hours if water < target
   setInterval(() => {
     if (state.water < state.waterTarget && Notification.permission === 'granted') {
-      showNotification('💧 Nhắc uống nước', `Bạn đã uống ${state.water}ml/${state.waterTarget}ml. Hãy uống thêm nước!`, 'warning');
+      const guide = WATER_GUIDE[state.dayType || 'heavy'];
+      showNotification(
+        '💧 Nhắc uống nước',
+        `Bạn đã uống ${state.water}ml/${state.waterTarget}ml. Hãy uống thêm 1 ly 200–300ml nhé! ${guide.summary}`,
+        'warning'
+      );
     }
-  }, 90 * 60 * 1000); // every 90 minutes
+  }, 90 * 60 * 1000);
 }
 
 // ==================== NOTIFICATIONS ====================

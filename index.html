@@ -104,6 +104,7 @@
           <p class="page-subtitle" id="today-date"></p>
         </div>
         <div class="header-actions">
+          <a class="btn-secondary" href="cai-app-ios.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.35rem;">📱 iPhone</a>
           <div class="day-type-toggle">
             <span class="toggle-label">Hôm nay:</span>
             <button class="day-type-btn active" id="btn-heavy-day" onclick="setDayType('heavy')">Vận động nhiều</button>
@@ -145,6 +146,7 @@
             <button class="water-btn" onclick="addWater(300)">+300ml</button>
             <button class="water-btn" onclick="addWater(500)">+500ml</button>
           </div>
+          <div class="progress-label" id="water-guide-text" style="margin-top:0.35rem;color:var(--text-muted);font-size:0.9rem;line-height:1.35;">Đủ nước: 2500ml/ngày ≈ 13 ly 200ml, 9 ly 300ml hoặc 5 ly 500ml • Nhắc uống nước mỗi 90 phút</div>
         </div>
 
         <div class="stat-card glass-card">
@@ -171,6 +173,20 @@
                 <div class="progress-fill rice-fill" id="rice-progress-bar" style="width:0%"></div>
               </div>
               <span class="progress-label" id="rice-progress-label">Mục tiêu: 4 chén</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg,#f97316,#ea580c)">🔥</div>
+          <div class="stat-body">
+            <span class="stat-label">Calo hôm nay (ước tính)</span>
+            <div class="stat-value" id="calorie-display">0 <span class="stat-unit">kcal</span></div>
+            <div class="stat-progress">
+              <div class="progress-bar">
+                <div class="progress-fill calorie-fill" id="calorie-progress-bar" style="width:0%"></div>
+              </div>
+              <span class="progress-label" id="calorie-progress-label">Ước tính năng lượng</span>
             </div>
           </div>
         </div>
@@ -249,7 +265,13 @@
           <h1 class="page-title">📝 Nhật ký ăn uống</h1>
           <p class="page-subtitle">Lịch sử các bữa ăn đã ghi</p>
         </div>
-        <button class="btn-secondary" onclick="exportLog()">📥 Xuất dữ liệu</button>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+          <button class="btn-secondary" onclick="exportLog()">📥 Xuất .txt</button>
+          <button class="btn-secondary" onclick="exportBackup()">💾 Backup JSON</button>
+          <label class="btn-secondary" style="cursor:pointer;">📥 Khôi phục
+            <input type="file" id="backup-file-input" accept="application/json" style="display:none" onchange="importBackup(this.files[0]); this.value='';" />
+          </label>
+        </div>
       </div>
 
       <div class="log-filter">

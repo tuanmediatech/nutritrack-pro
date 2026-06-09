@@ -4,9 +4,9 @@
 
 ## 🌐 Truy cập App
 
-👉 **[Mở NutriTrack Pro](https://YOUR_USERNAME.github.io/nutritrack-pro)**
+👉 **[Mở NutriTrack Pro](https://tuanmediatech.github.io/nutritrack-pro/)**
 
-*(Cài vào màn hình chính iPhone: Mở Safari → Share ⎙ → "Thêm vào Màn hình chính")*
+*(Cài vào màn hình chính iPhone: Mở Safari → Chia sẻ ⎙ → "Thêm vào Màn hình chính" → "Thêm")*
 
 ## ✨ Tính năng
 

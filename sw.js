@@ -1,7 +1,7 @@
-// NutriTrack Pro — Service Worker v2
+// NutriTrack Pro — Service Worker v3
 // Full offline support for iOS PWA
 
-const CACHE = 'nutritrack-v2';
+const CACHE = 'nutritrack-v3';
 const ASSETS = [
   '/',
   '/index.html',

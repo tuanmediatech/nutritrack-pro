@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Cài NutriTrack Pro trên iPhone</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  background:#0a0e1a;color:#f1f5f9;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;
+}
+.logo{font-size:64px;margin-bottom:16px}
+h1{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.sub{color:#94a3b8;margin-bottom:32px;font-size:15px;line-height:1.6}
+.qr-box{
+  background:white;border-radius:20px;padding:20px;
+  margin-bottom:28px;display:inline-block;
+  box-shadow:0 0 40px rgba(16,185,129,0.3);
+}
+.url-box{
+  background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);
+  border-radius:12px;padding:14px 20px;
+  font-size:18px;font-weight:800;color:#10b981;
+  margin-bottom:28px;letter-spacing:.01em;word-break:break-all;
+}
+.steps{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;padding:24px;text-align:left;
+  max-width:400px;width:100%;margin-bottom:24px;
+}
+.step{display:flex;gap:14px;margin-bottom:16px}
+.step:last-child{margin-bottom:0}
+.step-num{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#10b981,#059669);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:14px;flex-shrink:0;color:#fff;
+}
+.step-text{font-size:14px;color:#cbd5e1;line-height:1.6;padding-top:4px}
+.step-text strong{color:#f1f5f9}
+.note{
+  font-size:12px;color:#64748b;
+  max-width:360px;line-height:1.6;
+}
+.open-btn{
+  display:block;width:100%;max-width:340px;
+  padding:16px;border-radius:14px;margin-bottom:12px;
+  background:linear-gradient(135deg,#10b981,#059669);
+  color:#fff;font-weight:800;font-size:16px;
+  text-decoration:none;box-shadow:0 4px 20px rgba(16,185,129,.4);
+}
+</style>
+</head>
+<body>
+
+<div class="logo">🥗</div>
+<h1>NutriTrack Pro</h1>
+<p class="sub">Quét QR hoặc mở link bên dưới<br>bằng Safari trên iPhone của bạn</p>
+
+<!-- QR Code (generated via Google Chart API) -->
+<div class="qr-box">
+  <img id="qr-img" width="220" height="220" alt="QR Code"/>
+</div>
+
+<div class="url-box" id="app-url">http://10.121.4.12:3456/nutritrack-mobile.html</div>
+
+<a class="open-btn" href="/nutritrack-mobile.html">🚀 Mở app ngay (trên thiết bị này)</a>
+
+<div class="steps">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-text">Kết nối iPhone vào <strong>cùng WiFi</strong> với máy tính này</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-text">Mở <strong>Safari</strong> trên iPhone và quét QR code bên trên <em>(hoặc nhập thủ công địa chỉ)</em></div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-text">Sau khi app mở, nhấn nút <strong>Chia sẻ</strong> <span style="font-size:18px">⎙</span> ở thanh dưới Safari</div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-text">Chọn <strong>"Thêm vào Màn hình chính"</strong> → nhấn <strong>Thêm</strong></div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-text">Icon <strong>🥗 NutriTrack</strong> sẽ xuất hiện trên màn hình chính. Mở như app thật, hoạt động <strong>offline</strong> ✅</div>
+  </div>
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-text">Vào <strong>Cài đặt iPhone → Thông báo → NutriTrack</strong>, bật <strong>Cho phép Thông báo</strong> để nhận nhắc ăn, nhắc uống nước.</div>
+  </div>
+</div>
+
+<p class="note">
+  ⚠️ Máy tính phải đang bật và kết nối cùng mạng WiFi khi cài lần đầu.<br>
+  Sau khi đã cài, app hoạt động offline hoàn toàn.<br>
+  Dữ liệu lưu trên iPhone, không bị mất khi tắt máy tính.
+</p>
+
+<script>
+// Generate QR using qrserver.com (free, no account needed)
+const url = 'http://10.121.4.12:3456/nutritrack-mobile.html';
+const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(url) + '&color=0a0e1a&bgcolor=ffffff&qzone=1';
+document.getElementById('qr-img').src = qrUrl;
+document.getElementById('app-url').textContent = url;
+</script>
+</body>
+</html>
