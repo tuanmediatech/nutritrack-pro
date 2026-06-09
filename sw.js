@@ -1,15 +1,15 @@
-// NutriTrack Pro — Service Worker v3
-// Full offline support for iOS PWA
+// NutriTrack Pro — Service Worker v4
+// Full offline support for iOS PWA and GitHub Pages
 
-const CACHE = 'nutritrack-v3';
+const CACHE = 'nutritrack-v4';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/nutritrack-mobile.html',
-  '/cai-app-ios.html',
-  '/manifest.json'
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './nutritrack-mobile.html',
+  './cai-app-ios.html',
+  './manifest.json'
 ];
 
 // Install: cache all assets
@@ -53,7 +53,7 @@ self.addEventListener('fetch', e => {
         return res;
       }).catch(() => {
         // Offline fallback
-        return caches.match('/nutritrack-mobile.html');
+        return caches.match('./nutritrack-mobile.html');
       });
     })
   );
