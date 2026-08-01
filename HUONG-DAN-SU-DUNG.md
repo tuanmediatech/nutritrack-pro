@@ -1,7 +1,7 @@
 # 🥗 NutriTrack Pro — Hướng Dẫn Sử Dụng
 
 > **Công cụ quản lý dinh dưỡng cá nhân**  
-> Dành riêng cho: Tuấn Nguyễn | Mục tiêu: 71kg → 78kg  
+> Dành riêng cho: Nguyễn Tuân | Mục tiêu: 71kg → 78kg  
 > Phiên bản: 1.0 | Cập nhật: 07/06/2026
 
 ---

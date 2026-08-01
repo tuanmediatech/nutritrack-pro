@@ -387,9 +387,9 @@ body{
 /* toggle switch */
 .tog{position:relative;width:40px;height:22px;flex-shrink:0}
 .tog input{opacity:0;width:0;height:0}
-.tsl{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border-radius:22px;transition:all .2s}
-.tsl::before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:all .2s}
-.tog input:checked + .tsl{background:var(--g)}
+.tsl{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.08);border-radius:22px;box-shadow:inset 0 1px 2px rgba(0,0,0,.25);transition:all .2s}
+.tsl::before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:all .2s}
+.tog input:checked + .tsl{background:linear-gradient(135deg,var(--g),var(--gd));box-shadow:0 0 0 1px rgba(16,185,129,.35),0 0 10px rgba(16,185,129,.25)}
 .tog input:checked + .tsl::before{transform:translateX(18px)}
 .setrow{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
 .setrow:last-child{border-bottom:none;padding-bottom:0}
@@ -749,7 +749,7 @@ const MEALS=[
   {id:'pk_noon',t:'11:30',d:'11h30–12h30',n:'Dạy Pickleball trưa',i:'🏸',act:'Tập luyện',g:'Bù nước khi dạy',cat:'noon',opts:['Nước lọc thường xuyên','Điện giải loãng nếu nắng/mồ hôi nhiều']},
   {id:'lunch',t:'12:45',d:'12h45–13h15',n:'Ăn trưa chính',i:'🍚',act:'Bữa phục hồi',g:'2 chén cơm + đạm + rau + canh',cat:'noon',opts:['2 chén cơm','Đạm: cá kho/hấp, gà, heo nạc, bò, tôm, trứng, đậu phụ','Rau luộc hoặc rau xào ít dầu','1 chén canh','Trái cây nhỏ tráng miệng']},
   {id:'rest',t:'13:20',d:'13h20–13h40',n:'Nghỉ phục hồi',i:'😴',act:'Nghỉ trưa',g:'Giảm mệt, hỗ trợ tăng cân',cat:'noon',opts:['Chợp mắt 15–20 phút nếu được','Quan trọng nếu ngủ đêm ít']},
-  {id:'snk_pm',t:'15:30',d:'15h30–16h',n:'Bữa phụ chiều',i:'🍌',act:'Bữa phụ chiều',g:'Chuẩn bị năng lượng chiều/tối',cat:'afternoon',opts:['Sữa tươi KĐ + chuối (ưu tiên)','Sữa tươi KĐ + bắp luộc','Sữa chua KĐ + trái cây','Bánh mì nhỏ + sữa (nếu chiều chơi)','Khoai + sữa']},
+  {id:'snk_pm',t:'15:30',d:'15h30–16h',n:'Bữa phụ chiều',i:'🍌',act:'Bữa phụ chiều',g:'Chuẩn bị năng lượng chiều/tối',cat:'afternoon',opts:['Sữa tươi KĐ + chuối (ưu tiên)','Sữa tươi KĐ + bắp luộc','Sữa chua KĐ + trái cây','Bánh bao / bánh bèo / bún riêu / bánh bột lọc: 1 phần + thêm 1 trứng hoặc 100g tôm/gà/đậu phụ','Vịt gỏi trộn: 1 phần + thêm 1 trứng luộc hoặc 1 hộp đậu phụ + 1 ly sữa','Bánh mì nhỏ + sữa (nếu chiều chơi)','Khoai + sữa']},
   {id:'ext',t:'16:30',d:'16h30',n:'Ăn thêm nếu chơi tới 20h',i:'🥖',act:'Nếu chiều chơi thể thao',g:'Tăng năng lượng',cat:'afternoon',opts:['1 lát bánh mì / ½ ổ','1 củ khoai nhỏ','1 quả trứng luộc','1 khúc bắp','1 phần cơm nắm nhỏ'],opt:true},
   {id:'sport',t:'17:00',d:'17h–20h',n:'Bóng bàn / Pickleball social',i:'🏓',act:'Nếu có chơi',g:'Duy trì nước',cat:'afternoon',opts:['< 60 phút: nước lọc là đủ','90–180 phút: nước + điện giải loãng','Hụt sức: chuối hoặc bánh mì nhỏ'],opt:true},
   {id:'dinner',t:'20:15',d:'20h15–20h45',n:'Ăn tối chính',i:'🌙',act:'Bữa phục hồi tối',g:'Có chơi: 2 chén | Không: 1.5 chén',cat:'evening',opts:['Cơm + cá + rau + canh (ưu tiên)','Cơm + gà + rau','Cơm + thịt bò + canh','Cơm + đậu phụ + cá','Bún/phở/mì quảng']},
@@ -789,6 +789,8 @@ const RULES=[
   {i:'🍚',t:'Tăng cân bằng thực phẩm thật',d:'Cơm, bún, phở, cá, thịt, gà, trứng, đậu phụ, sữa không đường là nền tảng.'},
   {i:'🍽️',t:'Ưu tiên bữa trưa và tối',d:'2 bữa phục hồi chính. Không thay bằng trái cây hay sữa.'},
   {i:'🥗',t:'Bữa phụ là bắt buộc',d:'Vận động nhiều, không để khoảng cách bữa quá dài.'},
+  {i:'🥚',t:'Ưu tiên protein mỗi bữa',d:'Nếu ăn bánh bao, bánh bèo, bún riêu, bánh bột lọc hoặc vịt gỏi trộn, hãy kèm thêm trứng, tôm, gà, đậu phụ hoặc sữa để đủ đạm cho thể thao.'},
+  {i:'💪',t:'Mục tiêu protein cho vận động',d:'Ưu tiên 1.6–2.2 g protein/kg cân nặng mỗi ngày, chia đều vào bữa sáng, trưa, chiều và tối.'},
   {i:'📊',t:'Theo dõi glucose',d:'Nếu glucose tăng, giảm đồ ngọt và tinh chỉnh tinh bột tối.'},
   {i:'😴',t:'Ngủ đủ giấc',d:'Mục tiêu ngủ trước 23h, 7–8 tiếng. Ngủ đều giúp tăng cân sạch.'}
 ];
@@ -802,7 +804,7 @@ const ADJ=[
   {c:'😴 Ngủ kém',a:'Không cà phê sau chiều, ăn tối không sát giờ ngủ'},
   {c:'💪 Hay chuột rút',a:'Tăng nước, dùng điện giải loãng khi dạy/chơi lâu'}
 ];
-const GF=[{i:'🍚',n:'Cơm, bún, phở, mì quảng'},{i:'🥖',n:'Bánh mì, khoai, bắp'},{i:'🐟',n:'Cá, tôm, mực'},{i:'🍗',n:'Gà, heo nạc, bò'},{i:'🥚',n:'Trứng (1–2/ngày)'},{i:'🥛',n:'Sữa & sữa chua KĐ'},{i:'🫘',n:'Đậu phụ'},{i:'🍌',n:'Chuối, ổi, đu đủ'},{i:'🥜',n:'Đậu phộng, hạt điều'}];
+const GF=[{i:'🍚',n:'Cơm, bún, phở, mì quảng'},{i:'🥖',n:'Bánh mì, khoai, bắp'},{i:'🐟',n:'Cá, tôm, mực'},{i:'🍗',n:'Gà, heo nạc, bò'},{i:'🥚',n:'Trứng (1–2/ngày)'},{i:'🥛',n:'Sữa & sữa chua KĐ'},{i:'🫘',n:'Đậu phụ'},{i:'🍜',n:'Bánh bao / bánh bèo / bún riêu / bánh bột lọc kèm đạm'},{i:'🥗',n:'Vịt gỏi trộn có thêm trứng hoặc đậu phụ'},{i:'🍌',n:'Chuối, ổi, đu đủ'},{i:'🥜',n:'Đậu phộng, hạt điều'}];
 const BF=[{i:'🍯',n:'Sữa đặc có đường'},{i:'🥤',n:'Nước ngọt, tăng lực'},{i:'🧋',n:'Trà sữa'},{i:'🍰',n:'Bánh ngọt'},{i:'🍹',n:'Nước ép trái cây nhiều'},{i:'☕',n:'Cà phê đặc sau chiều'}];
 const CCAT={morning:'cm',noon:'cn',afternoon:'ca',evening:'ce'};
 const CNAME={morning:'☀️ Sáng',noon:'🌤 Trưa',afternoon:'🌅 Chiều',evening:'🌙 Tối'};
