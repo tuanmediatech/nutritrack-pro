@@ -726,6 +726,30 @@
   <!-- Mobile overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <button class="mbn-item active" id="mbn-dashboard" onclick="switchTab('dashboard');mbnActive(this)">
+      <span class="mbn-icon">🏠</span>
+      <span class="mbn-label">Tổng quan</span>
+    </button>
+    <button class="mbn-item" id="mbn-schedule" onclick="switchTab('schedule');mbnActive(this)">
+      <span class="mbn-icon">📅</span>
+      <span class="mbn-label">Lịch hôm nay</span>
+    </button>
+    <button class="mbn-item mbn-log-btn" id="mbn-log" onclick="switchTab('log');mbnActive(this)">
+      <span class="mbn-icon">📝</span>
+      <span class="mbn-label">Nhật ký</span>
+    </button>
+    <button class="mbn-item" id="mbn-checklist" onclick="switchTab('checklist');mbnActive(this)">
+      <span class="mbn-icon">✅</span>
+      <span class="mbn-label">Bảng kiểm</span>
+    </button>
+    <button class="mbn-item" id="mbn-more" onclick="openSidebarMobile()">
+      <span class="mbn-icon">☰</span>
+      <span class="mbn-label">Thêm</span>
+    </button>
+  </nav>
+
   <script src="app.js"></script>
 </body>
 </html>

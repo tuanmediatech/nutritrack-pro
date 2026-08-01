@@ -1653,6 +1653,39 @@ function showNotification(title, body, type = 'success') {
   setTimeout(() => { if (el.parentElement) el.remove(); }, 4500);
 }
 
+// ==================== MOBILE BOTTOM NAV ====================
+function mbnActive(btn) {
+  document.querySelectorAll('.mbn-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (window.innerWidth <= 900) closeSidebar();
+}
+
+function openSidebarMobile() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (sidebar) sidebar.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+}
+
+// Sync bottom nav active state when tab changes via keyboard shortcut or sidebar
+const _origSwitchTab = switchTab;
+// already defined above — patch mbn sync into navigation
+document.addEventListener('DOMContentLoaded', () => {
+  // Patch nav-items to also update mbn
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const tab = item.dataset.tab;
+      const mbnMap = { dashboard:'mbn-dashboard', schedule:'mbn-schedule', log:'mbn-log', checklist:'mbn-checklist' };
+      if (mbnMap[tab]) {
+        const btn = document.getElementById(mbnMap[tab]);
+        if (btn) mbnActive(btn);
+      } else {
+        document.querySelectorAll('.mbn-item').forEach(b => b.classList.remove('active'));
+      }
+    });
+  });
+});
+
 // ==================== KEYBOARD SHORTCUTS ====================
 document.addEventListener('keydown', e => {
   if (e.altKey) {
