@@ -29,7 +29,7 @@ export const INITIAL_USER_PROFILE: UserProfile = {
   height: 175,
   startWeight: 71.0,
   targetWeight: 78.0,
-  startDate: new Date().toISOString().split('T')[0],
+  startDate: '2026-08-12',
   glucose: 5.6,
   profileType: 'tang_can',
 };
@@ -37,58 +37,29 @@ export const INITIAL_USER_PROFILE: UserProfile = {
 export const INITIAL_STATE: AppStateData = {
   userProfile: INITIAL_USER_PROFILE,
   dayType: 'heavy',
-  logs: [
-    {
-      id: 'sample_1',
-      date: new Date().toISOString().split('T')[0],
-      time: '06:30',
-      meal_type: 'breakfast',
-      food: '1 tô bún bò huế + 1 bịch sữa tươi không đường',
-      rice: 0,
-      water: 250,
-      feeling: 'good',
-      protein: 28,
-      calories: 450,
-      timestamp: Date.now() - 3600000 * 4,
-    },
-    {
-      id: 'sample_2',
-      date: new Date().toISOString().split('T')[0],
-      time: '12:45',
-      meal_type: 'lunch',
-      food: '2 chén cơm + cá kho tộ + canh cải bắp + 1 quả trứng luộc',
-      rice: 2,
-      water: 300,
-      feeling: 'good',
-      protein: 36,
-      calories: 620,
-      timestamp: Date.now() - 3600000 * 1,
-    }
-  ],
+  logs: [],
   weights: [
-    { id: 'w1', date: '2026-07-28', weight: 70.2, note: 'Khởi đầu chương trình' },
-    { id: 'w2', date: '2026-08-01', weight: 70.6, note: 'Sáng sau vệ sinh' },
-    { id: 'w3', date: '2026-08-05', weight: 71.0, note: 'Tăng tiến nhẹ' },
+    { id: 'w1', date: '2026-08-12', weight: 71.0, note: 'Khởi đầu lộ trình Tăng Cân Sạch' }
   ],
   checklist: {},
   notes: [
     {
       id: 'note_1',
-      title: 'Kế hoạch bổ sung đạm và nước tập Pickleball',
-      content: 'Ưu tiên uống 1 ly nước điện giải loãng trong lúc dạy trưa 11h30-12h30. Sau ca dạy trưa cần ăn 2 chén cơm đầy.',
-      updatedAt: new Date().toISOString(),
+      title: 'Lộ trình sinh hoạt & dinh dưỡng cá nhân',
+      content: 'Bắt đầu lộ trình chuẩn từ 12/8/2026: Sáng làm văn phòng 7h–11h30, chiều làm văn phòng 13h30–17h, thể thao 17h–19h. Duy trì uống 3 bịch Sữa tươi Vinamilk nguyên chất (sáng, phụ chiều 15h30, trước ngủ 22h).',
+      updatedAt: '2026-08-12T00:00:00.000Z',
     }
   ],
   healthRecords: [
     {
       id: 'hr_1',
-      checkupDate: '2026-06-15',
+      checkupDate: '2026-08-12',
       bloodPressure: '120/80 mmHg',
       glucose: 5.6,
       cholesterol: 4.8,
       uricAcid: 380,
       liverEnzymes: 'AST 24 / ALT 28 U/L',
-      conclusion: 'Sức khỏe tổng quát tốt, thể lực sung sức. Tiếp tục duy trì dinh dưỡng thể thao.',
+      conclusion: 'Sức khỏe tổng quát tốt, thể lực sung sức. Sẵn sàng bắt đầu lộ trình tăng cân sạch từ ngày 12/8/2026.',
       notes: 'Khám định kỳ tại Bệnh viện Tâm Anh'
     }
   ],
