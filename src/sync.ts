@@ -99,7 +99,6 @@ export async function triggerSync(type: string, overrideUrl?: string, mode: stri
     await new Promise(r => setTimeout(r, 500));
 
     console.log('[Sync] Bắt đầu nén mã nguồn...');
-    const projectDir = path.resolve(_dirname, '..');
     const zip = new AdmZip();
 
     const IGNORE_DIRS = ['node_modules', '.git', 'dist', '.tempmediaStorage', 'artifacts', 'scratch', '.gemini', '.vscode'];
