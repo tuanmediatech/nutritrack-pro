@@ -14,17 +14,22 @@ const transporter = nodemailer.createTransport({
 // Define meal and training schedules for both profiles
 const SCHEDULES: Record<string, Array<{ id: string; time: string; name: string; type: string; desc: string }>> = {
   tang_can: [
-    { id: 'pre_morning', time: '04:30', name: 'Ăn nhẹ trước dạy sáng 🌅', type: 'eat', desc: 'Chuối nhỏ, bánh mì, hoặc khoai lang + sữa tươi. Có năng lượng nhẹ, tránh tụt đường huyết khi vận động.' },
-    { id: 'pickleball_morning', time: '05:00', name: '🏸 Dạy Pickleball sáng', type: 'workout', desc: 'Lớp dạy từ 5h00 - 6h15. Uống nước lọc đều đặn hoặc điện giải loãng.' },
-    { id: 'breakfast', time: '06:15', name: 'Ăn sáng chính 🍜', type: 'eat', desc: 'Phở, bún bò, bánh mì trứng + sữa. Nạp đạm và tinh bột phục hồi cơ bắp.' },
-    { id: 'snack_morning', time: '09:30', name: 'Bữa phụ sáng 🥛', type: 'eat', desc: 'Sữa chua hạt, trứng luộc, trái cây để tránh hụt năng lượng giữa buổi.' },
-    { id: 'pre_noon', time: '10:45', name: 'Ăn nhẹ trước dạy trưa ⚡', type: 'eat', desc: 'Chuối hoặc khoai lang để lót dạ trước ca dạy trưa.' },
-    { id: 'pickleball_noon', time: '11:30', name: '🏸 Dạy Pickleball trưa', type: 'workout', desc: 'Lớp dạy từ 11h30 - 12h30. Bù nước thường xuyên.' },
-    { id: 'lunch', time: '12:30', name: 'Ăn trưa chính 🍚', type: 'eat', desc: '2 chén cơm đầy + đạm nạc (thịt, cá, trứng) + canh + rau xanh.' },
-    { id: 'snack_afternoon', time: '15:30', name: 'Bữa phụ chiều 🍌', type: 'eat', desc: 'Sữa tươi + chuối/bắp luộc để tiếp năng lượng làm việc.' },
-    { id: 'sport_evening', time: '17:00', name: '🏓 Tập luyện bóng bàn / Pickleball', type: 'workout', desc: 'Buổi chơi 17h00 - 19h30. Nhớ bổ sung nước điện giải loãng.' },
-    { id: 'dinner', time: '20:15', name: 'Ăn tối chính 🌙', type: 'eat', desc: 'Cơm + cá/gà + rau xanh + canh xương. Ăn đủ lượng cơm để bù calo.' },
-    { id: 'pre_sleep', time: '22:00', name: 'Trước khi ngủ 🌛', type: 'eat', desc: 'Ly sữa tươi ấm + quả trứng luộc nếu cảm thấy đói.' }
+    { id: 'pre_morning', time: '06:00', name: 'Thức dậy & Uống nước ấm 🥛', type: 'water', desc: 'Uống 300ml nước ấm khởi động hệ tiêu hóa & bù nước sau giấc ngủ.' },
+    { id: 'breakfast', time: '06:30', name: 'Ăn sáng chính + Sữa Vinamilk 🍜', type: 'eat', desc: 'Phở / bún bò / bánh mì + 1 bịch Sữa tươi Vinamilk Nguyên chất (220ml).' },
+    { id: 'water_m1', time: '08:30', name: 'Uống nước ca làm việc sáng 💧', type: 'water', desc: 'Uống 250ml nước lọc giữ cơ thể luôn đủ nước khi làm việc hành chính.' },
+    { id: 'snack_morning', time: '09:30', name: 'Bữa phụ sáng tại công ty 🥗', type: 'eat', desc: 'Sữa chua hạt / trái cây / trứng luộc để duy trì năng lượng.' },
+    { id: 'water_m2', time: '10:30', name: 'Uống nước ca làm việc sáng 💧', type: 'water', desc: 'Uống 250ml nước lọc trước khi chuẩn bị nghỉ trưa.' },
+    { id: 'lunch', time: '11:45', name: 'Ăn trưa chính 🍚', type: 'eat', desc: '2 chén cơm đầy + đạm nạc (cá/thịt/gà/trứng) + rau xanh + 1 chén canh.' },
+    { id: 'rest_noon', time: '12:30', name: 'Nghỉ trưa phục hồi 😴', type: 'workout', desc: 'Chợp mắt 20–30 phút giúp lấy lại sức làm việc ca chiều 13h30-17h.' },
+    { id: 'water_a1', time: '14:30', name: 'Uống nước ca làm việc chiều 💧', type: 'water', desc: 'Uống 250ml nước lọc duy trì độ tập trung ca chiều công ty.' },
+    { id: 'snack_afternoon', time: '15:30', name: 'Bữa phụ chiều + Sữa Vinamilk 🍌', type: 'eat', desc: '1 bịch Sữa tươi Vinamilk Nguyên chất (220ml) + chuối luộc / bắp luộc.' },
+    { id: 'water_a2', time: '16:00', name: 'Uống nước ca làm việc chiều 💧', type: 'water', desc: 'Uống 250ml nước lọc kết thúc ca làm việc công ty.' },
+    { id: 'pre_sport', time: '16:30', name: 'Ăn nhẹ trước chơi thể thao 🥖', type: 'eat', desc: '1 lát bánh mì / 1 quả trứng luộc để nạp năng lượng nhanh.' },
+    { id: 'sport_evening', time: '17:00', name: '🏓 Ca thể thao Bóng bàn / Pickleball', type: 'workout', desc: 'Chơi thể thao 17h00 - 19h00. Nhớ uống bổ sung 500-700ml nước điện giải.' },
+    { id: 'dinner', time: '19:30', name: 'Ăn tối chính 🌙', type: 'eat', desc: 'Cơm (2 chén nếu chơi thể thao) + cá/gà + rau xanh + canh xương.' },
+    { id: 'water_night', time: '21:00', name: 'Uống nước buổi tối 💧', type: 'water', desc: 'Uống 250ml nước lọc thư giãn buổi tối.' },
+    { id: 'pre_sleep', time: '22:00', name: 'Sữa tươi Vinamilk trước ngủ 🥛', type: 'eat', desc: '1 bịch Sữa tươi Vinamilk Nguyên chất (220ml) ấm giúp phục hồi cơ bắp & dễ ngủ.' },
+    { id: 'sleep', time: '22:30', name: 'Đi ngủ phục hồi 💤', type: 'workout', desc: 'Tắt thiết bị điện tử, ngủ đủ 7–8 tiếng để kích hoạt hormone tăng cân tăng cơ.' }
   ],
   giam_can: [
     { id: 'wake_up', time: '05:00', name: 'Thức dậy & Uống nước ấm 💧', type: 'eat', desc: 'Uống 1 ly nước ấm ngay khi ngủ dậy để thải độc tố và khởi động hệ trao đổi chất.' },
