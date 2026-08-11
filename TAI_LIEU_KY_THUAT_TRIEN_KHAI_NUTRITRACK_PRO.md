@@ -71,7 +71,7 @@ Hệ thống sử dụng **Ngrok Cố Định (Static Domain)** để truy cập
 
 ### 📋 4.1. Thông Tin Kỹ Thuật Ngrok
 * **Địa chỉ Ngrok Static Domain**: `reveler-leverage-backlight.ngrok-free.dev`
-* **Email Ngrok Account**: `nguyentuanqnpc@gmail.com`
+* **Email Ngrok Account**: `tuannguyengraphics@gmail.com`
 * **Ngrok Auth Token**: `3Hg4T1fQLPnYqCO088vxFaNkRuP_6VeKdR546DWD2NpEL5WsY`
 * **Port Đích Local**: `localhost:3456`
 * **Thư mục dự án**:
@@ -119,7 +119,7 @@ Hệ thống sử dụng **Ngrok Cố Định (Static Domain)** để truy cập
    pm2 restart nutritrack-ngrok
    ```
 3. **Bước 3 (Nếu vẫn lỗi)**:
-   * Truy cập [dashboard.ngrok.com](https://dashboard.ngrok.com) ➔ Đăng nhập bằng Gmail: `nguyentuanqnpc@gmail.com`.
+   * Truy cập [dashboard.ngrok.com](https://dashboard.ngrok.com) ➔ Đăng nhập bằng Gmail: `tuannguyengraphics@gmail.com`.
    * Vào mục **Tunnels** / **Endpoints** để kiểm tra trạng thái Authtoken hoặc Domain `reveler-leverage-backlight.ngrok-free.dev`.
    * Thêm lại Authtoken nếu cần:
      ```powershell
