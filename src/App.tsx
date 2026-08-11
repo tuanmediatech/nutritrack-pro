@@ -522,13 +522,15 @@ export default function App() {
               mealSchedule={activeMealSchedule}
               reminderAdvance={appState.reminderAdvance}
               waterReminderEnabled={appState.waterReminderEnabled}
+              sportReminderEnabled={appState.sportReminderEnabled}
               reminderEnabled={appState.reminderEnabled}
-              onUpdateReminders={(adv, wRem, rem) =>
+              onUpdateReminders={(adv, wRem, rem, sRem) =>
                 setAppState(p => ({
                   ...p,
                   reminderAdvance: adv,
                   waterReminderEnabled: wRem,
                   reminderEnabled: rem,
+                  sportReminderEnabled: sRem !== undefined ? sRem : p.sportReminderEnabled,
                 }))
               }
             />
@@ -550,12 +552,13 @@ export default function App() {
               onActivateSchedule={handleActivateSchedule}
               onAddAISchedule={handleAddAISchedule}
               onDeleteAISchedule={handleDeleteAISchedule}
-              onUpdateReminders={(adv, wRem, rem) =>
+              onUpdateReminders={(adv, wRem, rem, sRem) =>
                 setAppState(p => ({
                   ...p,
                   reminderAdvance: adv,
                   waterReminderEnabled: wRem,
                   reminderEnabled: rem,
+                  sportReminderEnabled: sRem !== undefined ? sRem : p.sportReminderEnabled,
                 }))
               }
               onExportBackup={handleExportBackup}

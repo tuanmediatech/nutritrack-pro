@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { Bell, Clock, Droplets, Utensils, CheckCircle, Volume2, ShieldCheck, Play } from 'lucide-react';
+import { Bell, Clock, Droplets, Utensils, CheckCircle, Volume2, ShieldCheck, Play, Flame, Dumbbell } from 'lucide-react';
 import { MealOption } from '../types';
 
 interface RemindersViewProps {
   mealSchedule: MealOption[];
   reminderAdvance: number;
   waterReminderEnabled: boolean;
+  sportReminderEnabled?: boolean;
   reminderEnabled: boolean;
-  onUpdateReminders: (advance: number, waterRem: boolean, rem: boolean) => void;
+  onUpdateReminders: (advance: number, waterRem: boolean, rem: boolean, sportRem?: boolean) => void;
 }
 
 export const RemindersView: React.FC<RemindersViewProps> = ({
   mealSchedule,
   reminderAdvance,
   waterReminderEnabled,
+  sportReminderEnabled = true,
   reminderEnabled,
   onUpdateReminders,
 }) => {
@@ -54,10 +56,10 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
           <div>
             <h2 className="text-xl font-bold text-white font-outfit flex items-center gap-2">
               <Bell className="w-6 h-6 text-emerald-400" />
-              <span>Nhắc Nhở Lịch Ăn & Uống Nước Auto</span>
+              <span>Nhắc Nhở Lịch Ăn, Uống Nước & Tập Luyện</span>
             </h2>
             <p className="text-xs text-slate-300 mt-1">
-              Tự động phát âm thanh và hiển thị thông báo báo giờ ăn, giờ uống nước đúng lộ trình dinh dưỡng.
+              Tự động phát âm thanh và hiển thị thông báo báo giờ ăn, giờ uống nước & giờ chơi thể thao tập luyện.
             </p>
           </div>
           <button
@@ -78,7 +80,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
       </div>
 
       {/* Global Toggles */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Meal Reminders Card */}
         <div className="glass-card p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -90,7 +92,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
               <input
                 type="checkbox"
                 checked={reminderEnabled}
-                onChange={e => onUpdateReminders(reminderAdvance, waterReminderEnabled, e.target.checked)}
+                onChange={e => onUpdateReminders(reminderAdvance, waterReminderEnabled, e.target.checked, sportReminderEnabled)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
@@ -107,7 +109,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
               {[0, 5, 10, 15].map(mins => (
                 <button
                   key={mins}
-                  onClick={() => onUpdateReminders(mins, waterReminderEnabled, reminderEnabled)}
+                  onClick={() => onUpdateReminders(mins, waterReminderEnabled, reminderEnabled, sportReminderEnabled)}
                   className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                     reminderAdvance === mins
                       ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-md'
@@ -132,7 +134,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
               <input
                 type="checkbox"
                 checked={waterReminderEnabled}
-                onChange={e => onUpdateReminders(reminderAdvance, e.target.checked, reminderEnabled)}
+                onChange={e => onUpdateReminders(reminderAdvance, e.target.checked, reminderEnabled, sportReminderEnabled)}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
@@ -146,6 +148,34 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-xs text-blue-300 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-blue-400 flex-shrink-0" />
             <span>Đảm bảo bạn luôn bù đủ nước cho cơ thể kể cả khi làm việc bận rộn.</span>
+          </div>
+        </div>
+
+        {/* Sport / Workout Reminders Card */}
+        <div className="glass-card p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 className="font-bold text-white text-base flex items-center gap-2">
+              <Flame className="w-5 h-5 text-amber-400" />
+              <span>Nhắc Lịch Tập Luyện & Thể Thao</span>
+            </h3>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={sportReminderEnabled}
+                onChange={e => onUpdateReminders(reminderAdvance, waterReminderEnabled, reminderEnabled, e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+            </label>
+          </div>
+
+          <p className="text-xs text-slate-300">
+            Báo trước 15–30 phút ca tập Bóng bàn / Pickleball chiều (17:00) để khởi động & nạp nhẹ Sữa tươi / Chuối.
+          </p>
+
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 flex items-center gap-2">
+            <Dumbbell className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <span>Nhắc nạp 1 bịch Vinamilk + 1 chuối lúc 15h30 để sẵn sàng sung sức lúc 17h00.</span>
           </div>
         </div>
       </div>

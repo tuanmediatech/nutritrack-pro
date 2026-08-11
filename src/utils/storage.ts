@@ -19,6 +19,7 @@ export interface AppStateData {
   customChecklistItems?: ChecklistItem[];
   reminderAdvance: number;
   waterReminderEnabled: boolean;
+  sportReminderEnabled?: boolean;
   reminderEnabled: boolean;
   theme: 'dark' | 'light';
 }
@@ -95,6 +96,7 @@ export const INITIAL_STATE: AppStateData = {
   aiSchedules: [],
   reminderAdvance: 5,
   waterReminderEnabled: true,
+  sportReminderEnabled: true,
   reminderEnabled: true,
   theme: 'dark',
 };
