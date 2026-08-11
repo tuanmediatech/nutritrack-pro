@@ -64,13 +64,19 @@ export const SyncView: React.FC = () => {
         }),
       });
 
-      const data = await res.json();
+      const resText = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(resText);
+      } catch (e) {
+        throw new Error(`Phản hồi từ server không phải JSON (${res.status}): ${resText.substring(0, 150)}`);
+      }
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Lỗi không xác định từ máy chủ!');
       }
 
-      addLog(`✅ Đồng bộ thành công! Kết quả: ${JSON.stringify(data.results)}`);
+      addLog(`✅ Đồng bộ thành công! DB=${data.results?.db ? 'OK' : 'Không'}, Code=${data.results?.code ? 'OK' : 'Không'}`);
       setSyncSuccess(true);
     } catch (err: any) {
       addLog(`❌ Thất bại: ${err.message}`);

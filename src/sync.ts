@@ -15,6 +15,8 @@ export async function triggerSync(type: string, overrideUrl?: string) {
 
   const results = { code: false, db: false };
 
+  const cleanTargetUrl = targetUrl.replace(/\/$/, '');
+
   if (type === 'db' || type === 'both') {
     console.log('[Sync] Bắt đầu đồng bộ Database...');
     const dbPath = path.resolve(_dirname, '../nutritrack.db');
@@ -25,9 +27,12 @@ export async function triggerSync(type: string, overrideUrl?: string) {
     const dbBuffer = fs.readFileSync(dbPath);
     console.log(`[Sync] Đang gửi database (${dbBuffer.length} bytes) tới PC...`);
 
-    const response = await fetch(`${targetUrl}/api/sync/receive-db`, {
+    const response = await fetch(`${cleanTargetUrl}/api/sync/receive-db`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/octet-stream' },
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: dbBuffer
     });
 
@@ -63,9 +68,12 @@ export async function triggerSync(type: string, overrideUrl?: string) {
     const zipBuffer = zip.toBuffer();
     console.log(`[Sync] Nén code thành công (${zipBuffer.length} bytes). Đang gửi tới PC...`);
 
-    const response = await fetch(`${targetUrl}/api/sync/receive-code`, {
+    const response = await fetch(`${cleanTargetUrl}/api/sync/receive-code`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/octet-stream' },
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: zipBuffer
     });
 

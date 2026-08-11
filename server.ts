@@ -409,13 +409,13 @@ app.get("/api/sync/status", (_req, res) => {
   res.json({ isLaptop: IS_LAPTOP, targetUrl: SYNC_TARGET_URL });
 });
 
-app.post("/api/sync/trigger", authenticate, async (_req, res) => {
+app.post("/api/sync/trigger", async (_req, res) => {
   const { type, targetUrl } = _req.body;
   try {
     const results = await triggerSync(type, targetUrl);
     res.json({ success: true, results });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Lỗi không xác định khi đồng bộ" });
   }
 });
 
