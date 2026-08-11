@@ -55,7 +55,7 @@ export async function triggerSync(type: string, overrideUrl?: string) {
       const stat = fs.statSync(fullPath);
 
       if (stat.isDirectory()) {
-        if (file !== 'node_modules' && file !== '.git' && file !== 'dist') {
+        if (file !== 'node_modules' && file !== '.git') {
           zip.addLocalFolder(fullPath, file);
         }
       } else {
