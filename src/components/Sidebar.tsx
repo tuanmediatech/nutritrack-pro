@@ -34,7 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navSections = [
     {
-      label: 'Ghi nhận hằng ngày (Ưu tiên cao)',
+      label: 'Ghi nhận hằng ngày',
       items: [
         { id: 'checklist', label: 'Bảng kiểm hằng ngày', icon: CheckSquare },
         { id: 'log', label: 'Nhật ký ăn uống', icon: FileText },
@@ -92,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`sidebar fixed top-0 left-0 bottom-0 w-[260px] bg-slate-900/95 backdrop-blur-xl border-r border-white/10 z-50 flex flex-col p-5 transition-transform duration-300 ${
+        className={`sidebar fixed top-0 left-0 bottom-0 w-[280px] bg-slate-900/95 backdrop-blur-xl border-r border-white/10 z-50 flex flex-col p-5 transition-transform duration-300 ${
           isOpenMobile ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
         }`}
       >

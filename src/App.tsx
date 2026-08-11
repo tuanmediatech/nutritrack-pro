@@ -418,7 +418,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <div className="md:ml-[260px] min-h-screen p-4 sm:p-6 lg:p-8">
+      <div className="md:ml-[280px] min-h-screen p-4 sm:p-6 lg:p-8">
         <Header
           userProfile={appState.userProfile}
           dayType={appState.dayType}
