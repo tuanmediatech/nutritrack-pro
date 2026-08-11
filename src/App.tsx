@@ -54,9 +54,16 @@ export default function App() {
     saveState(appState);
   }, [appState]);
 
-  // Apply dark / light data-theme
+  // Apply dark / light data-theme & classes
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', appState.theme);
+    if (appState.theme === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    }
   }, [appState.theme]);
 
   // Get active Meal Schedule & Checklist Items

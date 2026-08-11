@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { HealthRecord, SymptomConsultation } from '../types';
-import { HeartPulse, Plus, Stethoscope, ExternalLink, Trash2, Calendar, AlertTriangle } from 'lucide-react';
+import {
+  HeartPulse,
+  Plus,
+  Stethoscope,
+  ExternalLink,
+  Trash2,
+  Calendar,
+  AlertTriangle,
+  Activity,
+  Droplet,
+  Sparkles,
+  ShieldAlert,
+  FileText,
+  X
+} from 'lucide-react';
 
 interface HealthViewProps {
   healthRecords: HealthRecord[];
@@ -27,6 +41,13 @@ export const HealthView: React.FC<HealthViewProps> = ({
   const [symptomInput, setSymptomInput] = useState<string>('');
   const [loadingConsult, setLoadingConsult] = useState<boolean>(false);
   const [consultResult, setConsultResult] = useState<SymptomConsultation | null>(null);
+
+  const sampleSymptoms = [
+    'Mỏi cơ gối sau dạy Pickleball',
+    'Đau dạ dày khi đói',
+    'Chóng mặt sau buổi tập',
+    'Tăng Acid Uric nhẹ',
+  ];
 
   const handleRecordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,68 +91,117 @@ export const HealthView: React.FC<HealthViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Title Header */}
       <div>
         <h1 className="page-title text-2xl font-bold text-white font-outfit flex items-center gap-2">
           <HeartPulse className="w-6 h-6 text-rose-400" />
-          <span>Theo Dõi Sức Khỏe & Tư Vấn Y Khoa</span>
+          <span>Theo Dõi Sức Khỏe & Tra Cứu Y Khoa</span>
         </h1>
         <p className="page-subtitle text-sm text-slate-400 mt-1">
-          Lưu trữ kết quả khám sức khỏe định kỳ & Tra cứu tư vấn triệu chứng y khoa
+          Quản lý kết quả khám sức khỏe định kỳ & Hỏi đáp tư vấn triệu chứng y khoa AI
         </p>
       </div>
 
       {/* AI Symptom Consult Section */}
-      <div className="glass-card p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <Stethoscope className="w-5 h-5 text-emerald-400" />
-          <h3 className="text-base font-bold text-white font-outfit">Tư Vấn & Tra Cứu Triệu Chứng Y Khoa</h3>
+      <div className="glass-card p-5 md:p-6 space-y-4 rounded-3xl border border-white/10 shadow-2xl relative">
+        <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+            <Stethoscope className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-white font-outfit flex items-center gap-2">
+              <span>Trợ Lý Tra Cứu Y Khoa AI</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase font-bold">
+                Medical AI
+              </span>
+            </h3>
+            <p className="text-xs text-slate-400">Nhập triệu chứng hoặc thắc mắc sức khỏe để nhận phân tích y khoa</p>
+          </div>
         </div>
 
         <form onSubmit={handleConsultSubmit} className="space-y-3">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={symptomInput}
-              onChange={e => setSymptomInput(e.target.value)}
-              placeholder="VD: Mỏi cơ gối sau dạy Pickleball, Đau dạ dày khi đói, Chóng mặt..."
-              className="flex-1 bg-slate-800 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
-            />
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={symptomInput}
+                onChange={e => setSymptomInput(e.target.value)}
+                placeholder="VD: Mỏi cơ gối sau dạy Pickleball, Đau dạ dày khi đói, Chóng mặt..."
+                className="w-full bg-slate-800/90 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-400 transition-all shadow-inner pr-10"
+              />
+              {symptomInput && (
+                <button
+                  type="button"
+                  onClick={() => setSymptomInput('')}
+                  className="absolute top-3 right-3 text-slate-400 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={loadingConsult || !symptomInput.trim()}
-              className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 hover:from-emerald-600 hover:to-emerald-700 transition-all shrink-0 disabled:opacity-50"
+              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs rounded-2xl shadow-xl shadow-emerald-500/20 transition-all shrink-0 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {loadingConsult ? 'Đang tra cứu...' : 'Gửi Tư Vấn'}
+              <Sparkles className="w-4 h-4" />
+              <span>{loadingConsult ? 'Đang phân tích...' : 'Gửi Tư Vấn AI'}</span>
             </button>
+          </div>
+
+          {/* Quick sample chips */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[11px] font-semibold text-slate-400">Gợi ý mẫu:</span>
+            {sampleSymptoms.map((s, idx) => (
+              <button
+                type="button"
+                key={idx}
+                onClick={() => setSymptomInput(s)}
+                className="text-[11px] px-2.5 py-1 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-emerald-500/20 hover:text-emerald-300 hover:border-emerald-500/30 transition-all"
+              >
+                {s}
+              </button>
+            ))}
           </div>
         </form>
 
         {consultResult && (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-            <h4 className="text-sm font-bold text-emerald-400 font-outfit">{consultResult.symptomName}</h4>
+          <div className="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h4 className="text-base font-bold text-emerald-400 font-outfit flex items-center gap-2">
+                <Stethoscope className="w-4 h-4 text-emerald-400" />
+                <span>Phân Tích Y Khoa: {consultResult.symptomName}</span>
+              </h4>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                Khuyên Dùng
+              </span>
+            </div>
 
-            <div className="space-y-2 text-xs text-slate-200">
-              <p>
-                <strong className="text-slate-300">Phân tích:</strong> {consultResult.assessment}
-              </p>
-              <div className="bg-slate-800/80 p-3 rounded-xl border border-white/5">
-                <strong className="text-emerald-400 block mb-1">📋 Khuyên dùng:</strong>
-                <p className="whitespace-pre-line text-slate-300">{consultResult.recommendations}</p>
+            <div className="space-y-3 text-xs leading-relaxed text-slate-200">
+              <div className="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-1">
+                <strong className="text-emerald-400 block text-xs">🔬 Đánh giá tổng quan:</strong>
+                <p className="text-slate-300">{consultResult.assessment}</p>
+              </div>
+
+              <div className="bg-slate-800/90 p-4 rounded-xl border border-white/10 space-y-1.5">
+                <strong className="text-emerald-400 block text-xs font-bold">📋 Khuyên dùng & Hướng xử lý:</strong>
+                <p className="whitespace-pre-line text-slate-200">{consultResult.recommendations}</p>
               </div>
 
               {consultResult.warnings && (
-                <div className="bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl text-rose-300">
-                  <span className="font-bold flex items-center gap-1 mb-1 text-rose-400">
-                    <AlertTriangle className="w-3.5 h-3.5" />
-                    <span>Dấu hiệu nguy hiểm cần lưu ý:</span>
+                <div className="bg-rose-500/10 border border-rose-500/30 p-3.5 rounded-xl text-rose-300 space-y-1">
+                  <span className="font-bold flex items-center gap-1.5 text-rose-400">
+                    <ShieldAlert className="w-4 h-4" />
+                    <span>Dấu hiệu cảnh báo cần lưu ý:</span>
                   </span>
                   <p>{consultResult.warnings}</p>
                 </div>
               )}
 
               {consultResult.references && consultResult.references.length > 0 && (
-                <div className="pt-2 border-t border-white/5">
-                  <span className="text-[11px] font-bold text-slate-400 block mb-1">Tài liệu tham khảo uy tín:</span>
+                <div className="pt-2 border-t border-white/10">
+                  <span className="text-[11px] font-bold text-slate-400 block mb-1.5">Nguồn tài liệu y khoa tham khảo:</span>
                   <div className="flex flex-wrap gap-2">
                     {consultResult.references.map((ref, idx) => (
                       <a
@@ -139,10 +209,10 @@ export const HealthView: React.FC<HealthViewProps> = ({
                         href={ref.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:underline bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-lg"
+                        className="inline-flex items-center gap-1.5 text-xs text-cyan-400 hover:underline bg-cyan-500/10 border border-cyan-500/30 px-3 py-1.5 rounded-xl font-semibold transition-all"
                       >
                         <span>{ref.title}</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     ))}
                   </div>
@@ -154,20 +224,33 @@ export const HealthView: React.FC<HealthViewProps> = ({
       </div>
 
       {/* Annual Checkup Records Header */}
-      <div className="glass-card p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-bold text-white font-outfit">Hồ Sơ Khám Bệnh Định Kỳ</h3>
+      <div className="glass-card p-5 md:p-6 space-y-4 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white font-outfit">Hồ Sơ Khám Bệnh Định Kỳ</h3>
+              <p className="text-xs text-slate-400">Lưu trữ các chỉ số xét nghiệm huyết áp, đường huyết, cholesterol, acid uric</p>
+            </div>
+          </div>
+
           <button
             onClick={() => setShowForm(!showForm)}
-            className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition-all"
+            className="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-emerald-500 transition-all flex items-center gap-1.5"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4" />
             <span>{showForm ? 'Đóng form' : 'Thêm hồ sơ khám'}</span>
           </button>
         </div>
 
         {showForm && (
-          <form onSubmit={handleRecordSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-4">
+          <form onSubmit={handleRecordSubmit} className="bg-slate-900/90 border border-emerald-500/40 rounded-2xl p-5 space-y-4 shadow-2xl">
+            <h4 className="text-sm font-bold text-emerald-400 border-b border-white/10 pb-2">
+              📝 Cập Nhật Chỉ Số Xét Nghiệm Mới
+            </h4>
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">Ngày khám</label>
@@ -175,18 +258,18 @@ export const HealthView: React.FC<HealthViewProps> = ({
                   type="date"
                   value={checkupDate}
                   onChange={e => setCheckupDate(e.target.value)}
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Huyết áp</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Huyết áp (mmHg)</label>
                 <input
                   type="text"
                   value={bloodPressure}
                   onChange={e => setBloodPressure(e.target.value)}
                   placeholder="120/80 mmHg"
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -197,7 +280,7 @@ export const HealthView: React.FC<HealthViewProps> = ({
                   step="0.1"
                   value={glucose}
                   onChange={e => setGlucose(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -208,7 +291,7 @@ export const HealthView: React.FC<HealthViewProps> = ({
                   step="0.1"
                   value={cholesterol}
                   onChange={e => setCholesterol(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -218,7 +301,7 @@ export const HealthView: React.FC<HealthViewProps> = ({
                   type="number"
                   value={uricAcid}
                   onChange={e => setUricAcid(parseInt(e.target.value) || 0)}
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -229,7 +312,7 @@ export const HealthView: React.FC<HealthViewProps> = ({
                   value={liverEnzymes}
                   onChange={e => setLiverEnzymes(e.target.value)}
                   placeholder="AST 24 / ALT 28 U/L"
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
                 />
               </div>
             </div>
@@ -241,63 +324,101 @@ export const HealthView: React.FC<HealthViewProps> = ({
                 onChange={e => setConclusion(e.target.value)}
                 rows={2}
                 placeholder="VD: Các chỉ số ổn định, duy trì chế độ sinh hoạt thể thao..."
-                className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
+                className="w-full bg-slate-800 border border-white/10 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-400"
               />
             </div>
 
-            <button
-              type="submit"
-              className="btn-primary py-2 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl"
-            >
-              Lưu Hồ Sơ Khám
-            </button>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-700"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20"
+              >
+                Lưu Hồ Sơ Khám
+              </button>
+            </div>
           </form>
         )}
 
-        {/* List of Records */}
-        <div className="space-y-3">
+        {/* List of Clinical Records */}
+        <div className="space-y-4">
           {healthRecords.length === 0 ? (
-            <p className="text-xs text-slate-400 py-6 text-center">Chưa có kết quả khám sức khỏe nào.</p>
+            <div className="text-center py-10 space-y-2 border border-dashed border-white/10 rounded-2xl">
+              <HeartPulse className="w-8 h-8 text-slate-500 mx-auto" />
+              <p className="text-xs text-slate-400">Chưa có kết quả khám sức khỏe nào được ghi nhận.</p>
+            </div>
           ) : (
             healthRecords.map(r => (
-              <div key={r.id} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
+              <div
+                key={r.id}
+                className="p-5 rounded-2xl bg-slate-900/60 border border-white/10 space-y-4 hover:border-white/20 transition-all"
+              >
+                {/* Record Header */}
+                <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-emerald-400" />
                     <span>Ngày khám: {r.checkupDate}</span>
                   </span>
+
                   <button
-                    onClick={() => onDeleteHealthRecord(r.id)}
-                    className="p-1 text-slate-400 hover:text-rose-400"
+                    onClick={() => {
+                      if (window.confirm('Bạn có chắc muốn xóa hồ sơ khám bệnh này?')) {
+                        onDeleteHealthRecord(r.id);
+                      }
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
                     title="Xóa hồ sơ khám này"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-300 pt-1">
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Huyết áp</span>
-                    <span className="font-semibold text-white">{r.bloodPressure || '—'}</span>
+                {/* Vital Stat Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-0.5">
+                    <span className="text-slate-400 text-[11px] font-semibold block flex items-center gap-1">
+                      <Activity className="w-3 h-3 text-rose-400" /> Huyết áp
+                    </span>
+                    <span className="font-outfit font-extrabold text-sm text-white">{r.bloodPressure || '—'}</span>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Đường huyết</span>
-                    <span className="font-semibold text-white">{r.glucose ? `${r.glucose} mmol/L` : '—'}</span>
+
+                  <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-0.5">
+                    <span className="text-slate-400 text-[11px] font-semibold block flex items-center gap-1">
+                      <Droplet className="w-3 h-3 text-amber-400" /> Đường huyết
+                    </span>
+                    <span className="font-outfit font-extrabold text-sm text-white">
+                      {r.glucose ? `${r.glucose} mmol/L` : '—'}
+                    </span>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Cholesterol</span>
-                    <span className="font-semibold text-white">{r.cholesterol ? `${r.cholesterol} mmol/L` : '—'}</span>
+
+                  <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-0.5">
+                    <span className="text-slate-400 text-[11px] font-semibold block">Cholesterol</span>
+                    <span className="font-outfit font-extrabold text-sm text-white">
+                      {r.cholesterol ? `${r.cholesterol} mmol/L` : '—'}
+                    </span>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Acid Uric</span>
-                    <span className="font-semibold text-white">{r.uricAcid ? `${r.uricAcid} umol/L` : '—'}</span>
+
+                  <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-0.5">
+                    <span className="text-slate-400 text-[11px] font-semibold block">Acid Uric</span>
+                    <span className="font-outfit font-extrabold text-sm text-white">
+                      {r.uricAcid ? `${r.uricAcid} µmol/L` : '—'}
+                    </span>
                   </div>
                 </div>
 
-                <div className="bg-slate-800/80 p-2.5 rounded-xl border border-white/5 text-xs">
-                  <span className="text-emerald-400 font-bold block mb-0.5">Kết luận:</span>
-                  <p className="text-slate-200">{r.conclusion}</p>
-                </div>
+                {/* Conclusion Box */}
+                {r.conclusion && (
+                  <div className="bg-slate-800/80 p-3.5 rounded-xl border border-white/5 text-xs space-y-1">
+                    <span className="text-emerald-400 font-bold block text-xs">🩺 Kết luận bác sĩ:</span>
+                    <p className="text-slate-200 leading-relaxed">{r.conclusion}</p>
+                  </div>
+                )}
               </div>
             ))
           )}
