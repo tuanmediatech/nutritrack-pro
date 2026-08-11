@@ -66,11 +66,12 @@ export default function App() {
     }
   }, [appState.theme]);
 
-  // Get active Meal Schedule & Checklist Items
-  const activeProfileData = PROFILE_DATA[appState.userProfile.profileType || 'tang_can'];
+  // Get active Meal Schedule & Checklist Items per profile type
+  const currentProfileType = appState.userProfile.profileType || 'tang_can';
+  const activeProfileData = PROFILE_DATA[currentProfileType];
 
-  let activeMealSchedule: MealOption[] = (appState.customMealSchedule && appState.customMealSchedule.length > 0)
-    ? appState.customMealSchedule
+  let activeMealSchedule: MealOption[] = (appState.customMealSchedules && appState.customMealSchedules[currentProfileType] && appState.customMealSchedules[currentProfileType]!.length > 0)
+    ? appState.customMealSchedules[currentProfileType]!
     : activeProfileData.MEAL_SCHEDULE;
 
   if (appState.activeScheduleId) {
@@ -102,6 +103,7 @@ export default function App() {
 
   // Schedule & Slot Mutators
   const handleSaveMealSchedule = (newSchedule: MealOption[]) => {
+    const pType = appState.userProfile.profileType || 'tang_can';
     if (appState.activeScheduleId) {
       setAppState(prev => ({
         ...prev,
@@ -112,7 +114,10 @@ export default function App() {
     } else {
       setAppState(prev => ({
         ...prev,
-        customMealSchedule: newSchedule,
+        customMealSchedules: {
+          ...(prev.customMealSchedules || {}),
+          [pType]: newSchedule,
+        },
       }));
     }
     showToast('Đã lưu danh sách bữa ăn!');
@@ -137,8 +142,13 @@ export default function App() {
   };
 
   const handleResetSchedule = () => {
+    const pType = appState.userProfile.profileType || 'tang_can';
     setAppState(prev => ({
       ...prev,
+      customMealSchedules: {
+        ...(prev.customMealSchedules || {}),
+        [pType]: undefined,
+      },
       customMealSchedule: undefined,
       customChecklistItems: undefined,
     }));

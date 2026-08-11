@@ -15,6 +15,7 @@ export interface AppStateData {
   aiSchedules: AISchedule[];
   activeScheduleId?: string;
   customMealSchedule?: MealOption[];
+  customMealSchedules?: Record<string, MealOption[]>;
   customChecklistItems?: ChecklistItem[];
   reminderAdvance: number;
   waterReminderEnabled: boolean;
