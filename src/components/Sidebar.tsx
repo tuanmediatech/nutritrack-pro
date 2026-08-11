@@ -34,23 +34,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navSections = [
     {
-      label: 'Tổng quan',
+      label: 'Ghi nhận hằng ngày (Ưu tiên cao)',
       items: [
-        { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+        { id: 'checklist', label: 'Bảng kiểm hằng ngày', icon: CheckSquare },
+        { id: 'log', label: 'Nhật ký ăn uống', icon: FileText },
+        { id: 'dashboard', label: 'Dashboard tổng quan', icon: BarChart3 },
+      ],
+    },
+    {
+      label: 'Lịch trình & Lộ trình',
+      items: [
         { id: 'schedule', label: 'Lịch sinh hoạt', icon: Clock },
+        { id: 'weight', label: 'Cân nặng & Lộ trình', icon: Scale },
         { id: 'stats', label: 'Thống kê 7 ngày', icon: TrendingUp },
       ],
     },
     {
-      label: 'Theo dõi & Nhật ký',
-      items: [
-        { id: 'log', label: 'Nhật ký ăn uống', icon: FileText },
-        { id: 'weight', label: 'Cân nặng & Lộ trình', icon: Scale },
-        { id: 'checklist', label: 'Bảng kiểm hằng ngày', icon: CheckSquare },
-      ],
-    },
-    {
-      label: 'Kiến thức & Công cụ',
+      label: 'Kiến thức & Tiện ích',
       items: [
         { id: 'meals', label: 'Thực đơn gợi ý', icon: Utensils },
         { id: 'notebook', label: 'Sổ ghi chép (Notes)', icon: BookOpen },
