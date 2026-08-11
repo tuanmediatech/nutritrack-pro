@@ -43,6 +43,17 @@ export async function triggerSync(type: string, overrideUrl?: string) {
         const errMsg = await response.text();
         throw new Error(`Máy PC phản hồi lỗi (${response.status}): ${errMsg}`);
       }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/octet-stream')) {
+        const arrayBuf = await response.arrayBuffer();
+        const mergedBuf = Buffer.from(arrayBuf);
+        if (mergedBuf.length > 0) {
+          fs.writeFileSync(dbPath, mergedBuf);
+          console.log(`[Sync] Đã cập nhật DB hợp nhất 2 chiều từ PC về Laptop (${mergedBuf.length} bytes)!`);
+        }
+      }
+
       console.log('[Sync] Đồng bộ Database thành công!');
       results.db = true;
     } catch (err: any) {
@@ -110,6 +121,7 @@ export async function triggerSync(type: string, overrideUrl?: string) {
 export function receiveDb(req: Request, res: Response) {
   console.log('[Sync] Nhận yêu cầu đồng bộ Database từ Laptop...');
   const dbPath = path.resolve(_dirname, '../nutritrack.db');
+  const tempIncomingPath = path.resolve(_dirname, '../temp_incoming.db');
   const dbBakPath = path.resolve(_dirname, '../nutritrack.db.bak');
 
   try {
@@ -118,14 +130,41 @@ export function receiveDb(req: Request, res: Response) {
       return res.status(400).send('Dữ liệu database gửi lên bị rỗng');
     }
 
+    fs.writeFileSync(tempIncomingPath, dataBuffer);
+
     if (fs.existsSync(dbPath)) {
       fs.copyFileSync(dbPath, dbBakPath);
-      console.log('[Sync] Đã sao lưu database cũ thành nutritrack.db.bak');
     }
 
-    fs.writeFileSync(dbPath, dataBuffer);
-    console.log(`[Sync] Đã cập nhật xong file nutritrack.db (${dataBuffer.length} bytes).`);
-    res.send('Database synchronized successfully.');
+    db.serialize(() => {
+      db.run(`ATTACH DATABASE ? AS temp_incoming`, [tempIncomingPath], (attachErr) => {
+        if (attachErr) {
+          console.log('[Sync] Lỗi ATTACH DB, ghi đè trực tiếp:', attachErr.message);
+          fs.writeFileSync(dbPath, dataBuffer);
+          if (fs.existsSync(tempIncomingPath)) {
+            try { fs.unlinkSync(tempIncomingPath); } catch (e) {}
+          }
+          const mergedBuffer = fs.readFileSync(dbPath);
+          res.setHeader('Content-Type', 'application/octet-stream');
+          return res.send(mergedBuffer);
+        }
+
+        const tables = ['health_records', 'logs', 'weight_logs', 'checklist_logs', 'notes', 'ai_schedules'];
+        tables.forEach((tbl) => {
+          db.run(`INSERT OR IGNORE INTO ${tbl} SELECT * FROM temp_incoming.${tbl}`, () => {});
+        });
+
+        db.run(`DETACH DATABASE temp_incoming`, () => {
+          if (fs.existsSync(tempIncomingPath)) {
+            try { fs.unlinkSync(tempIncomingPath); } catch (e) {}
+          }
+          console.log('[Sync] Đã gộp 2 chiều (Merge 2-Way) thành công!');
+          const mergedBuffer = fs.readFileSync(dbPath);
+          res.setHeader('Content-Type', 'application/octet-stream');
+          res.send(mergedBuffer);
+        });
+      });
+    });
   } catch (writeErr: any) {
     console.error('[Sync] Lỗi ghi file database:', writeErr.message);
     res.status(500).send(`Lỗi ghi database: ${writeErr.message}`);
