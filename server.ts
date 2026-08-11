@@ -273,6 +273,14 @@ app.post("/api/health/records", authenticate, (req: any, res) => {
   }
 });
 
+app.delete("/api/health/records/:id", authenticate, (req: any, res) => {
+  const { id } = req.params;
+  db.run("DELETE FROM health_records WHERE id = ? OR id = ?", [id, id.replace('hr_', '')], (err: any) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Đã xóa hồ sơ khám thành công!" });
+  });
+});
+
 app.post("/api/ai/parse-medical-pdf", authenticate, async (req: any, res) => {
   try {
     const { file_name, text_content } = req.body;

@@ -50,19 +50,7 @@ export const INITIAL_STATE: AppStateData = {
       updatedAt: '2026-08-12T00:00:00.000Z',
     }
   ],
-  healthRecords: [
-    {
-      id: 'hr_1',
-      checkupDate: '2026-08-12',
-      bloodPressure: '120/80 mmHg',
-      glucose: 5.6,
-      cholesterol: 4.8,
-      uricAcid: 380,
-      liverEnzymes: 'AST 24 / ALT 28 U/L',
-      conclusion: 'Sức khỏe tổng quát tốt, thể lực sung sức. Sẵn sàng bắt đầu lộ trình tăng cân sạch từ ngày 12/8/2026.',
-      notes: 'Khám định kỳ tại Bệnh viện Tâm Anh'
-    }
-  ],
+  healthRecords: [],
   symptomLogs: [],
   aiSchedules: [],
   reminderAdvance: 5,

@@ -81,7 +81,6 @@ export const SyncView: React.FC = () => {
       setSyncSuccess(true);
 
       setTimeout(() => {
-        localStorage.removeItem('nutritrack_pro_v3_state');
         window.location.reload();
       }, 2000);
     } catch (err: any) {

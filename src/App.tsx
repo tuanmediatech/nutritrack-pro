@@ -312,7 +312,7 @@ export default function App() {
       const res = await fetch('/api/health/records');
       if (res.ok) {
         const rows = await res.json();
-        if (Array.isArray(rows) && rows.length > 0) {
+        if (Array.isArray(rows)) {
           const mapped: HealthRecord[] = rows.map((r: any) => ({
             id: String(r.id),
             checkupDate: r.checkup_date || r.checkupDate || '',
