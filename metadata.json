@@ -1,0 +1,6 @@
+{
+  "name": "NutriTrack Pro",
+  "description": "Ứng dụng quản lý dinh dưỡng, cân nặng và lịch sinh hoạt NutriTrack Pro",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

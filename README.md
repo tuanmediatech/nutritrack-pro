@@ -1,31 +1,20 @@
-# 🥗 NutriTrack Pro
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-> **Công cụ quản lý dinh dưỡng cá nhân** — Theo dõi, nhắc nhở và giám sát chế độ ăn uống tăng cân sạch dành cho người vận động nhiều.
+# Run and deploy your AI Studio app
 
-## 🌐 Truy cập App
+This contains everything you need to run your app locally.
 
-👉 **[Mở NutriTrack Pro](https://tuanmediatech.github.io/nutritrack-pro/)**
+View your app in AI Studio: https://ai.studio/apps/5772485d-17d3-4a9c-8c53-5e993b21d71b
 
-*(Cài vào màn hình chính iPhone: Mở Safari → Chia sẻ ⎙ → "Thêm vào Màn hình chính" → "Thêm")*
+## Run Locally
 
-## ✨ Tính năng
+**Prerequisites:**  Node.js
 
-- 📊 **Dashboard** — Timeline bữa ăn theo giờ thực, thống kê nước/cơm/cân nặng
-- ⏰ **Lịch** — 16 mốc bữa ăn từ 4h30 đến 22h30 với gợi ý chi tiết
-- 📝 **Nhật ký** — Ghi và lọc bữa ăn, xuất file
-- ⚖️ **Cân nặng** — Biểu đồ tiến trình 71→78kg
-- ✅ **Bảng kiểm** — 12 mục cần hoàn thành mỗi ngày
-- 🍽️ **Thực đơn** — Gợi ý món xoay vòng theo buổi
-- 📋 **Nguyên tắc** — 8 quy tắc cốt lõi tăng cân sạch
-- 🔔 **Nhắc nhở** — Thông báo hệ thống đúng giờ ăn
 
-## 📱 Hoạt động Offline
-
-App là PWA (Progressive Web App) — sau khi mở lần đầu, hoạt động hoàn toàn offline. Dữ liệu lưu trong bộ nhớ điện thoại (localStorage).
-
-## 🛠 Tech Stack
-
-- Pure HTML/CSS/JavaScript (no dependencies)
-- Service Worker for offline support
-- localStorage for data persistence
-- Canvas API for weight chart
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

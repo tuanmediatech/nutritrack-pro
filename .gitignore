@@ -1,3 +1,13 @@
-lich-dinh-duong-tang-can-the-thao-bang-bieu.md
-.git/
 node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+*.db
+*.db-journal
+*.db.bak
+*.zip
+
