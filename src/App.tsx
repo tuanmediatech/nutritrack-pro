@@ -65,29 +65,33 @@ export default function App() {
   let activeMealSchedule: MealOption[] = (appState.customMealSchedule && appState.customMealSchedule.length > 0)
     ? appState.customMealSchedule
     : activeProfileData.MEAL_SCHEDULE;
-  let activeChecklistItems: ChecklistItem[] = (appState.customChecklistItems && appState.customChecklistItems.length > 0)
-    ? appState.customChecklistItems
-    : activeProfileData.CHECKLIST_ITEMS;
 
   if (appState.activeScheduleId) {
     const aiFound = appState.aiSchedules.find(s => s.id === appState.activeScheduleId);
-    if (aiFound) {
-      if (aiFound.meal_schedule && aiFound.meal_schedule.length > 0) {
-        activeMealSchedule = aiFound.meal_schedule;
-      }
-      if (aiFound.checklist && aiFound.checklist.length > 0) {
-        activeChecklistItems = aiFound.checklist;
-      }
+    if (aiFound && aiFound.meal_schedule && aiFound.meal_schedule.length > 0) {
+      activeMealSchedule = aiFound.meal_schedule;
     }
   }
 
-  // Ensure active lists are never empty
+  // Ensure active list is never empty
   if (!activeMealSchedule || activeMealSchedule.length === 0) {
     activeMealSchedule = activeProfileData.MEAL_SCHEDULE;
   }
-  if (!activeChecklistItems || activeChecklistItems.length === 0) {
-    activeChecklistItems = activeProfileData.CHECKLIST_ITEMS;
-  }
+
+  // Automatically sync Checklist Items with activeMealSchedule so Bảng kiểm and Lịch sinh hoạt stay 100% in sync!
+  const scheduleChecklistItems: ChecklistItem[] = activeMealSchedule.map(slot => ({
+    id: slot.id,
+    text: slot.name,
+    time: slot.displayTime || slot.time,
+    icon: slot.icon || '⏰',
+  }));
+
+  const habitChecklistItems: ChecklistItem[] = [
+    { id: 'c_water', text: 'Uống đủ nước (2–3 lít)', time: 'Cả ngày', icon: '💧' },
+    { id: 'c_nosugar', text: 'Không dùng nước ngọt / trà sữa / đồ ngọt', time: 'Cả ngày', icon: '🚫' },
+  ];
+
+  const activeChecklistItems: ChecklistItem[] = [...scheduleChecklistItems, ...habitChecklistItems];
 
   // Schedule & Slot Mutators
   const handleSaveMealSchedule = (newSchedule: MealOption[]) => {
