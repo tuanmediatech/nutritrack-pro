@@ -3,9 +3,17 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import { fileURLToPath } from 'url';
 
-const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+const getProjectDir = () => {
+  if (typeof __dirname !== 'undefined') {
+    if (__dirname.endsWith('dist') || __dirname.endsWith('src')) {
+      return path.resolve(__dirname, '..');
+    }
+    return __dirname;
+  }
+  return process.cwd();
+};
 
-const dbPath = path.resolve(_dirname, '../nutritrack.db');
+const dbPath = path.join(getProjectDir(), 'nutritrack.db');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Lỗi kết nối cơ sở dữ liệu SQLite:', err.message);

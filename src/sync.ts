@@ -6,7 +6,15 @@ import { fileURLToPath } from 'url';
 import { Request, Response } from 'express';
 import db from './db.js';
 
-const _dirname = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
+const getProjectDir = () => {
+  if (typeof __dirname !== 'undefined') {
+    if (__dirname.endsWith('dist') || __dirname.endsWith('src')) {
+      return path.resolve(__dirname, '..');
+    }
+    return __dirname;
+  }
+  return process.cwd();
+};
 
 export async function triggerSync(type: string, overrideUrl?: string, mode: string = 'push') {
   const targetUrl = overrideUrl || process.env.SYNC_TARGET_URL;
@@ -16,7 +24,8 @@ export async function triggerSync(type: string, overrideUrl?: string, mode: stri
 
   const results = { code: false, db: false };
   const cleanTargetUrl = targetUrl.replace(/\/$/, '');
-  const dbPath = path.resolve(_dirname, '../nutritrack.db');
+  const projectDir = getProjectDir();
+  const dbPath = path.join(projectDir, 'nutritrack.db');
 
   if (type === 'db' || type === 'both') {
     console.log(`[Sync] Bắt đầu đồng bộ Database (Hướng/Chế độ: ${mode.toUpperCase()})...`);
@@ -143,9 +152,10 @@ export async function triggerSync(type: string, overrideUrl?: string, mode: stri
 
 export function receiveDb(req: Request, res: Response) {
   console.log('[Sync] Nhận yêu cầu đồng bộ Database từ Laptop...');
-  const dbPath = path.resolve(_dirname, '../nutritrack.db');
-  const tempIncomingPath = path.resolve(_dirname, '../temp_incoming.db');
-  const dbBakPath = path.resolve(_dirname, '../nutritrack.db.bak');
+  const projectDir = getProjectDir();
+  const dbPath = path.join(projectDir, 'nutritrack.db');
+  const tempIncomingPath = path.join(projectDir, 'temp_incoming.db');
+  const dbBakPath = path.join(projectDir, 'nutritrack.db.bak');
 
   const mode = (req.headers['x-sync-mode'] as string) || 'push';
 
@@ -205,7 +215,8 @@ export function receiveDb(req: Request, res: Response) {
 
 export function exportDb(_req: Request, res: Response) {
   console.log('[Sync] Máy Laptop yêu cầu xuất database từ PC (export-db)...');
-  const dbPath = path.resolve(_dirname, '../nutritrack.db');
+  const projectDir = getProjectDir();
+  const dbPath = path.join(projectDir, 'nutritrack.db');
   if (!fs.existsSync(dbPath)) {
     return res.status(404).send('Không tìm thấy file nutritrack.db trên PC');
   }
@@ -216,8 +227,8 @@ export function exportDb(_req: Request, res: Response) {
 
 export function receiveCode(req: Request, res: Response) {
   console.log('[Sync] Nhận yêu cầu đồng bộ Code từ Laptop...');
-  const zipPath = path.resolve(_dirname, '../update.zip');
-  const projectDir = path.resolve(_dirname, '..');
+  const projectDir = getProjectDir();
+  const zipPath = path.join(projectDir, 'update.zip');
 
   try {
     const dataBuffer = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || '');
