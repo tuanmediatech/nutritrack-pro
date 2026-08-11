@@ -124,18 +124,29 @@ export function receiveCode(req: Request, res: Response) {
 
   try {
     fs.writeFileSync(zipPath, req.body);
-    console.log(`[Sync] Tải file code update.zip thành công (${req.body?.length || 0} bytes). Tiến hành giải nén...`);
+    console.log(`[Sync] Tải file code update.zip thành công (${req.body?.length || 0} bytes). Phản hồi OK & giải nén...`);
 
-    const zip = new AdmZip(zipPath);
-    zip.extractAllTo(projectDir, true);
+    // Gửi phản hồi HTTP 200 thành công ngay lập tức để tránh Ngrok timeout (ERR_NGROK_3004)
+    res.send('Code received successfully. Extracting & restarting server...');
 
-    fs.unlinkSync(zipPath);
-    console.log('[Sync] Giải nén thành công! Khởi động lại server...');
-    res.send('Code synchronized. Server restarting...');
-
-    setTimeout(() => { process.exit(0); }, 1000);
+    // Tiến hành giải nén và khởi động lại sau 200ms
+    setTimeout(() => {
+      try {
+        const zip = new AdmZip(zipPath);
+        zip.extractAllTo(projectDir, true);
+        if (fs.existsSync(zipPath)) {
+          fs.unlinkSync(zipPath);
+        }
+        console.log('[Sync] Giải nén thành công! Khởi động lại server...');
+        process.exit(0);
+      } catch (extractErr: any) {
+        console.error('[Sync] Lỗi giải nén update.zip:', extractErr.message);
+      }
+    }, 200);
   } catch (err: any) {
-    console.error('[Sync] Lỗi giải nén update.zip:', err.message);
-    res.status(500).send(`Lỗi giải nén zip: ${err.message}`);
+    console.error('[Sync] Lỗi ghi file update.zip:', err.message);
+    if (!res.headersSent) {
+      res.status(500).send(`Lỗi nhận file zip: ${err.message}`);
+    }
   }
 }
