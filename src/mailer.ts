@@ -102,71 +102,107 @@ async function sendReminderEmail(toEmail: string, userName: string, eventName: s
   }
 }
 
-async function sendDailySummaryEmail(toEmail: string, user: any, logs: any[], checks: Record<string, boolean>, currentWeight: number) {
+async function sendWeeklySummaryEmail(toEmail: string, user: any, past7DaysLogs: any[], past7DaysChecklist: any[], currentWeight: number) {
   const isGain = user.profile_type === 'tang_can';
-  const today = new Date().toISOString().split('T')[0];
-  const todayLogs = logs.filter((l: any) => l.date === today);
+  
+  // Calculate weekly stats
+  const totalWater = past7DaysLogs.reduce((sum: number, l: any) => sum + (l.water || 0), 0);
+  const avgWaterPerDay = Math.round(totalWater / 7);
+  const totalMeals = past7DaysLogs.filter((l: any) => l.meal_type !== 'water').length;
+  const doneChecklistCount = past7DaysChecklist.filter((c: any) => c.is_done).length;
 
-  const totalCal = todayLogs.reduce((sum: number, l: any) => sum + (l.calories || 0), 0);
-  const totalPro = todayLogs.reduce((sum: number, l: any) => sum + (l.protein || 0), 0);
-  const totalWater = todayLogs.reduce((sum: number, l: any) => sum + (l.water || 0), 0);
-  const totalRice = todayLogs.reduce((sum: number, l: any) => sum + (l.rice || 0), 0);
+  // Highlights & Good Achievements
+  const goodPoints: string[] = [];
+  const improvePoints: string[] = [];
 
-  const doneChecks = Object.values(checks).filter(Boolean).length;
-  const totalChecks = 12;
-  const checkPct = totalChecks > 0 ? Math.round((doneChecks / totalChecks) * 100) : 0;
-  const dateFormatted = new Date().toLocaleDateString('vi-VN');
-
-  let advice = '';
-  if (isGain) {
-    advice = (totalCal >= 2500 && totalPro >= 100)
-      ? 'Hôm nay bạn nạp calo và đạm rất tốt, cực kỳ thích hợp để xây dựng cơ bắp và tăng cân sạch!'
-      : 'Bạn nạp hơi ít năng lượng và đạm hôm nay. Hãy cố gắng ăn thêm các bữa phụ và sữa tươi!';
+  if (doneChecklistCount >= 35) {
+    goodPoints.push('✅ Duy trì kỷ luật bảng kiểm thói quen xuất sắc (hơn 5 thói quen cốt lõi/ngày).');
   } else {
-    advice = (totalCal <= 1800 && totalWater >= 2000)
-      ? 'Tuyệt vời! Lượng calo nạp vào hôm nay nằm trong tầm kiểm soát tốt để duy trì thâm hụt calo đốt mỡ.'
-      : 'Hôm nay lượng calo hơi cao hoặc thiếu nước. Hãy uống thêm nước và giảm tinh bột vào ngày mai!';
+    goodPoints.push('✅ Đã khởi tạo nhịp sinh hoạt và theo dõi sức khỏe chủ động hàng ngày.');
+  }
+
+  if (avgWaterPerDay >= 2000) {
+    goodPoints.push(`✅ Bù nước & điện giải rất tốt: Trung bình ${avgWaterPerDay}ml nước lọc/ngày.`);
+  } else {
+    improvePoints.push(`⚠️ Uống chưa đủ nước: Trung bình ${avgWaterPerDay}ml/ngày. Cần tăng thêm 1 ly (250ml) vào ca làm việc chiều.`);
+  }
+
+  if (totalMeals >= 20) {
+    goodPoints.push('✅ Duy trì đủ 3 bữa chính và 2 bữa phụ Vinamilk bổ sung đạm đúng giờ.');
+  } else {
+    improvePoints.push('⚠️ Khoảng cách giữa các bữa ăn còn thưa: Cần nhớ bổ sung 1 bịch Sữa tươi Vinamilk 220ml vào lúc 15h30 chiều.');
+  }
+
+  if (isGain) {
+    if (currentWeight >= user.start_weight) {
+      goodPoints.push(`✅ Tiến trình cân nặng ổn định: ${currentWeight.toFixed(1)}kg (Mục tiêu: ${user.target_weight}kg).`);
+    } else {
+      improvePoints.push('⚠️ Cân nặng giảm nhẹ: Cần đảm bảo ăn đủ 2 chén cơm ở bữa trưa và tối sau ca tập thể thao 17h.');
+    }
   }
 
   const html = `
-    <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
-      <div style="background-color: #0f172a; padding: 24px; text-align: center; color: white; border-bottom: 3px solid #f97316;">
-        <span style="font-size: 12px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; color: #f97316;">NutriTrack Pro</span>
-        <h2 style="margin: 10px 0 0 0; font-size: 22px;">📊 Báo Cáo Tổng Kết Ngày</h2>
-        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.8;">Ngày ${dateFormatted}</p>
+    <div style="font-family: 'Segoe UI', sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);">
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 28px; text-align: center; color: white; border-bottom: 4px solid #10b981;">
+        <span style="font-size: 11px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; background: rgba(16, 185, 129, 0.2); padding: 5px 12px; border-radius: 20px; color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3);">NutriTrack Pro Weekly Report</span>
+        <h2 style="margin: 12px 0 4px 0; font-size: 24px; font-weight: 800;">📊 Báo Cáo Tổng Kết Tuần & Định Hướng Sức Khỏe</h2>
+        <p style="margin: 0; font-size: 13px; opacity: 0.8; color: #94a3b8;">Tổng hợp tiến trình & lời khuyên chuyên sâu từ AI Health System</p>
       </div>
-      <div style="padding: 24px; color: #1e293b; line-height: 1.6;">
-        <p>Xin chào <strong>${user.name}</strong>,</p>
-        <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
-          <thead><tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-            <th style="padding: 10px; text-align: left; color: #475569;">Chỉ số</th>
-            <th style="padding: 10px; text-align: right; color: #475569;">Đạt được</th>
-            <th style="padding: 10px; text-align: right; color: #475569;">Mục tiêu</th>
-          </tr></thead>
-          <tbody>
-            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px; font-weight: bold;">🔥 Calories</td><td style="padding: 10px; text-align: right; color: #f97316; font-weight: bold;">${totalCal} kcal</td><td style="padding: 10px; text-align: right; color: #64748b;">${isGain ? '>= 2500' : '<= 1800'} kcal</td></tr>
-            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px; font-weight: bold;">🥚 Protein</td><td style="padding: 10px; text-align: right; color: #06b6d4; font-weight: bold;">${totalPro} g</td><td style="padding: 10px; text-align: right; color: #64748b;">~${Math.round(currentWeight * 1.8)} g</td></tr>
-            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px; font-weight: bold;">💧 Nước uống</td><td style="padding: 10px; text-align: right; color: #3b82f6; font-weight: bold;">${totalWater} ml</td><td style="padding: 10px; text-align: right; color: #64748b;">2000-2500 ml</td></tr>
-            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px; font-weight: bold;">🍚 Lượng cơm</td><td style="padding: 10px; text-align: right; font-weight: bold;">${totalRice.toFixed(1)} chén</td><td style="padding: 10px; text-align: right; color: #64748b;">${isGain ? '3.5 - 4' : '1.5 - 2'} chén</td></tr>
-            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px; font-weight: bold;">✅ Bảng kiểm</td><td style="padding: 10px; text-align: right; color: #10b981; font-weight: bold;">${doneChecks}/${totalChecks} (${checkPct}%)</td><td style="padding: 10px; text-align: right; color: #64748b;">100%</td></tr>
-            <tr style="border-bottom: 2px solid #e2e8f0;"><td style="padding: 10px; font-weight: bold;">⚖️ Cân nặng hiện tại</td><td style="padding: 10px; text-align: right; color: #8b5cf6; font-weight: bold;">${currentWeight.toFixed(1)} kg</td><td style="padding: 10px; text-align: right; color: #64748b;">Mục tiêu: ${user.target_weight} kg</td></tr>
-          </tbody>
-        </table>
-        <div style="background-color: #f8fafc; border-left: 4px solid #f97316; padding: 16px; border-radius: 6px; margin: 24px 0;">
-          <h4 style="margin: 0 0 6px 0; color: #0f172a;">📝 Đánh giá chuyên sâu:</h4>
-          <p style="margin: 0; font-size: 14px; color: #334155; font-style: italic;">"${advice}"</p>
-        </div>
-        <div style="margin-top: 24px;">
-          <h4 style="margin: 0 0 10px 0; color: #334155;">📋 Các bữa đã ghi nhận hôm nay:</h4>
-          <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #475569;">
-            ${todayLogs.map((l: any) => `<li><strong>[${l.time}]</strong> ${l.food}</li>`).join('') || '<li style="color:#94a3b8; font-style:italic;">Không ghi nhận hoạt động nào hôm nay</li>'}
+
+      <div style="padding: 28px; color: #1e293b; line-height: 1.6;">
+        <p style="font-size: 16px; margin-top: 0;">Xin chào <strong>${user.name}</strong>,</p>
+        <p style="font-size: 14px; color: #475569;">Dưới đây là bảng tổng kết toàn bộ nhịp sinh hoạt, dinh dưỡng và chỉ số sức khỏe của anh trong 7 ngày qua:</p>
+
+        <!-- GOOD ACHIEVEMENTS -->
+        <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 18px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #166534; flex items-center gap-2;">🌟 Việc Đã Hoàn Thành Tốt Trong Tuần:</h3>
+          <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #15803d; line-height: 1.8;">
+            ${goodPoints.map(p => `<li>${p}</li>`).join('')}
           </ul>
         </div>
+
+        <!-- AREAS FOR IMPROVEMENT -->
+        <div style="background-color: #fffbebf5; border-left: 4px solid #f59e0b; padding: 18px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #92400e;">💡 Việc Cần Cải Thiện Để Đảm Bảo Sức Khỏe Tuần Tới:</h3>
+          <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #b45309; line-height: 1.8;">
+            ${improvePoints.length > 0 ? improvePoints.map(p => `<li>${p}</li>`).join('') : '<li>🎉 Rất xuất sắc! Anh đã thực hiện hoàn hảo mọi mục tiêu trong tuần qua!</li>'}
+          </ul>
+        </div>
+
+        <!-- STATS TABLE SUMMARY -->
+        <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px;">
+          <thead>
+            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+              <th style="padding: 12px; text-align: left; color: #475569;">Chỉ số thống kê 7 ngày</th>
+              <th style="padding: 12px; text-align: right; color: #475569;">Kết quả tuần</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+              <td style="padding: 10px; font-weight: bold;">🥛 Nước uống trung bình/ngày</td>
+              <td style="padding: 10px; text-align: right; color: #3b82f6; font-weight: bold;">${avgWaterPerDay} ml/ngày</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+              <td style="padding: 10px; font-weight: bold;">🍱 Tổng số bữa ăn & phụ đã ghi nhận</td>
+              <td style="padding: 10px; text-align: right; color: #10b981; font-weight: bold;">${totalMeals} bữa</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+              <td style="padding: 10px; font-weight: bold;">✅ Tổng lượt tích chọn bảng kiểm thói quen</td>
+              <td style="padding: 10px; text-align: right; color: #8b5cf6; font-weight: bold;">${doneChecklistCount} lượt</td>
+            </tr>
+            <tr style="border-bottom: 2px solid #e2e8f0;">
+              <td style="padding: 10px; font-weight: bold;">⚖️ Cân nặng cập nhật mới nhất</td>
+              <td style="padding: 10px; text-align: right; color: #f97316; font-weight: bold;">${currentWeight.toFixed(1)} kg</td>
+            </tr>
+          </tbody>
+        </table>
+
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0;" />
         <p style="font-size: 13px; color: #64748b; text-align: center; margin: 0;">
-          Xem thêm chi tiết tại <a href="${process.env.SYNC_TARGET_URL || 'http://localhost:3456'}" style="color: #f97316; text-decoration: none; font-weight: bold;">NutriTrack Pro Web App</a>.
+          Mở ứng dụng <a href="${process.env.SYNC_TARGET_URL || 'http://localhost:3456'}" style="color: #10b981; text-decoration: none; font-weight: bold;">NutriTrack Pro Dashboard</a> để tiếp tục duy trì kỷ luật cho tuần mới!
         </p>
       </div>
+
       <div style="background-color: #f1f5f9; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8;">
         © 2026 NTM Systems & Automation. All rights reserved.
       </div>
@@ -176,15 +212,15 @@ async function sendDailySummaryEmail(toEmail: string, user: any, logs: any[], ch
   const mailOptions = {
     from: `"NutriTrack Pro" <${process.env.GMAIL_USER}>`,
     to: toEmail,
-    subject: `[NutriTrack] Báo cáo tổng kết ngày ${dateFormatted}`,
+    subject: `[NutriTrack] Báo cáo tổng kết tuần & Định hướng sức khỏe tuần mới`,
     html
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`[Email] Đã gửi báo cáo tổng kết ngày thành công tới ${toEmail}. MessageId: ${info.messageId}`);
+    console.log(`[Email] Đã gửi báo cáo tổng kết TUẦN thành công tới ${toEmail}. MessageId: ${info.messageId}`);
   } catch (error: any) {
-    console.error(`[Email] Lỗi gửi báo cáo tổng kết ngày tới ${toEmail}:`, error.message);
+    console.error(`[Email] Lỗi gửi báo cáo tổng kết TUẦN tới ${toEmail}:`, error.message);
   }
 }
 
@@ -221,23 +257,19 @@ export function initScheduler() {
     });
   });
 
-  // Daily summary at 22:30
-  cron.schedule('30 22 * * *', () => {
-    const today = new Date().toISOString().split('T')[0];
-    console.log('[Scheduler] Bắt đầu tạo báo cáo tổng kết ngày...');
+  // Weekly summary EVERY SUNDAY AT 20:00 (8:00 PM)
+  cron.schedule('0 20 * * 0', () => {
+    console.log('[Scheduler] Bắt đầu tạo báo cáo tổng kết TUẦN (Tối Chủ Nhật)...');
 
     db.all('SELECT id, name, username, profile_type, target_weight, start_weight FROM users', [], async (err: Error | null, users: any[]) => {
       if (err || !users) return;
       for (const user of users) {
-        db.all('SELECT * FROM logs WHERE user_id = ? AND date = ?', [user.id, today], (errLogs: Error | null, logs: any[] = []) => {
-          db.all('SELECT item_id, is_done FROM checklist_logs WHERE user_id = ? AND date = ?', [user.id, today], (errCheck: Error | null, checkRows: any[] = []) => {
-            const checks: Record<string, boolean> = {};
-            checkRows.forEach((r: any) => { checks[r.item_id] = !!r.is_done; });
-
+        db.all('SELECT * FROM logs WHERE user_id = ? AND timestamp >= ?', [user.id, Date.now() - 7 * 24 * 3600 * 1000], (errLogs: Error | null, logs: any[] = []) => {
+          db.all('SELECT item_id, is_done FROM checklist_logs WHERE user_id = ? AND date >= date("now", "-7 days")', [user.id], (errCheck: Error | null, checkRows: any[] = []) => {
             db.get('SELECT weight FROM weight_logs WHERE user_id = ? ORDER BY date DESC LIMIT 1', [user.id], (errW: Error | null, wRow: any) => {
               const currentWeight = wRow ? wRow.weight : user.start_weight;
               const targetEmail = process.env.RECIPIENT_EMAIL || process.env.GMAIL_USER || '';
-              sendDailySummaryEmail(targetEmail, user, logs, checks, currentWeight);
+              sendWeeklySummaryEmail(targetEmail, user, logs, checkRows, currentWeight);
             });
           });
         });
