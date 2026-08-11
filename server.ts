@@ -9,7 +9,7 @@ import cors from "cors";
 import db from "./src/db.js";
 import { initScheduler } from "./src/mailer.js";
 import { consultSymptoms } from "./src/medical.js";
-import { triggerSync, receiveDb, receiveCode } from "./src/sync.js";
+import { triggerSync, receiveDb, receiveCode, exportDb } from "./src/sync.js";
 
 dotenv.config();
 
@@ -481,15 +481,16 @@ app.get("/api/sync/status", (_req, res) => {
 });
 
 app.post("/api/sync/trigger", async (_req, res) => {
-  const { type, targetUrl } = _req.body;
+  const { type, targetUrl, mode } = _req.body;
   try {
-    const results = await triggerSync(type, targetUrl);
+    const results = await triggerSync(type, targetUrl, mode || 'push');
     res.json({ success: true, results });
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Lỗi không xác định khi đồng bộ" });
   }
 });
 
+app.get("/api/sync/export-db", exportDb);
 app.post("/api/sync/receive-db", receiveDb);
 app.post("/api/sync/receive-code", receiveCode);
 

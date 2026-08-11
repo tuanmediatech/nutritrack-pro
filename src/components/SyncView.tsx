@@ -17,6 +17,7 @@ import {
 export const SyncView: React.FC = () => {
   const [isLaptop, setIsLaptop] = useState<boolean>(true);
   const [targetUrl, setTargetUrl] = useState<string>('');
+  const [syncMode, setSyncMode] = useState<'push' | 'pull' | 'merge'>('push');
   const [syncType, setSyncType] = useState<'db' | 'code' | 'both'>('both');
   const [loading, setLoading] = useState<boolean>(false);
   const [logs, setLogs] = useState<string[]>([]);
@@ -51,7 +52,7 @@ export const SyncView: React.FC = () => {
     setLoading(true);
     setSyncSuccess(null);
     setLogs([]);
-    addLog(`🚀 Bắt đầu quá trình đồng bộ (Chế độ: ${syncType.toUpperCase()})...`);
+    addLog(`🚀 Bắt đầu quá trình đồng bộ (Nội dung: ${syncType.toUpperCase()}, Chế độ: ${syncMode.toUpperCase()})...`);
     addLog(`🌐 Địa chỉ đích: ${targetUrl.trim()}`);
 
     try {
@@ -61,6 +62,7 @@ export const SyncView: React.FC = () => {
         body: JSON.stringify({
           type: syncType,
           targetUrl: targetUrl.trim(),
+          mode: syncMode,
         }),
       });
 
@@ -118,7 +120,7 @@ export const SyncView: React.FC = () => {
             </div>
             <div>
               <h3 className="text-base font-bold text-white font-outfit">
-                {isLaptop ? 'Máy Laptop (Source - Nguồn)' : 'Máy PC (Target - Đích)'}
+                {isLaptop ? 'Máy Laptop (Nguồn chính Dev)' : 'Máy PC (Target - Máy đích)'}
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
                 {isLaptop
@@ -150,14 +152,101 @@ export const SyncView: React.FC = () => {
         </div>
       </div>
 
+      {/* Sync Direction Mode Selection */}
+      <div className="glass-card p-5 space-y-4">
+        <h3 className="text-base font-bold text-white font-outfit flex items-center gap-2 border-b border-white/10 pb-3">
+          <RefreshCw className="w-5 h-5 text-emerald-400" />
+          <span>1. Chọn Hướng / Chế độ Đồng Bộ</span>
+        </h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Mode: Push (Laptop -> PC) */}
+          <button
+            type="button"
+            onClick={() => setSyncMode('push')}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              syncMode === 'push'
+                ? 'bg-amber-500/20 border-amber-500 text-white shadow-lg shadow-amber-500/10'
+                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <Laptop className="w-6 h-6 text-amber-400" />
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase">Khuyên dùng khi Dev</span>
+            </div>
+            <h4 className="text-sm font-bold">Laptop ➔ PC (Laptop làm Chuẩn)</h4>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Lấy toàn bộ Database & Code trên Laptop làm gốc, đẩy sang ghi đè hoàn toàn máy PC.
+            </p>
+          </button>
+
+          {/* Mode: Pull (PC -> Laptop) */}
+          <button
+            type="button"
+            onClick={() => setSyncMode('pull')}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              syncMode === 'pull'
+                ? 'bg-blue-500/20 border-blue-500 text-white shadow-lg shadow-blue-500/10'
+                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <Monitor className="w-6 h-6 text-blue-400" />
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 uppercase">Kéo từ PC</span>
+            </div>
+            <h4 className="text-sm font-bold">PC ➔ Laptop (PC làm Chuẩn)</h4>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Tải toàn bộ Database từ máy PC về cập nhật và ghi đè trên máy Laptop.
+            </p>
+          </button>
+
+          {/* Mode: Merge (2-Way) */}
+          <button
+            type="button"
+            onClick={() => setSyncMode('merge')}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              syncMode === 'merge'
+                ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10'
+                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <Zap className="w-6 h-6 text-emerald-400" />
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 uppercase">Gộp dữ liệu</span>
+            </div>
+            <h4 className="text-sm font-bold">Hợp Nhất 2 Chiều (Merge)</h4>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Tự động gộp chung bản ghi của cả 2 máy, không xóa bất kỳ dữ liệu nào.
+            </p>
+          </button>
+        </div>
+      </div>
+
       {/* Sync Type Selector */}
       <div className="glass-card p-5 space-y-4">
         <h3 className="text-base font-bold text-white font-outfit flex items-center gap-2 border-b border-white/10 pb-3">
           <Zap className="w-5 h-5 text-emerald-400" />
-          <span>Chọn chế độ Đồng bộ</span>
+          <span>2. Chọn Nội Dung Đồng Bộ</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Option: Both */}
+          <button
+            type="button"
+            onClick={() => setSyncType('both')}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              syncType === 'both'
+                ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10'
+                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            <Zap className="w-6 h-6 text-amber-400 mb-2" />
+            <h4 className="text-sm font-bold">Cả Database & Mã Nguồn</h4>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Đồng bộ hoàn toàn cả dữ liệu và code cập nhật mới nhất (Khuyên dùng khi Dev xong).
+            </p>
+          </button>
+
           {/* Option: Database */}
           <button
             type="button"
@@ -189,23 +278,6 @@ export const SyncView: React.FC = () => {
             <h4 className="text-sm font-bold">Chỉ Mã Nguồn (Code)</h4>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
               Tự động nén tất cả file giao diện, logic server và giải nén sang máy PC.
-            </p>
-          </button>
-
-          {/* Option: Both */}
-          <button
-            type="button"
-            onClick={() => setSyncType('both')}
-            className={`p-4 rounded-xl border text-left transition-all ${
-              syncType === 'both'
-                ? 'bg-emerald-500/20 border-emerald-500 text-white shadow-lg shadow-emerald-500/10'
-                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
-            }`}
-          >
-            <Zap className="w-6 h-6 text-amber-400 mb-2" />
-            <h4 className="text-sm font-bold">Cả Database & Mã Nguồn</h4>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Đồng bộ hoàn toàn cả dữ liệu và code cập nhật mới nhất (Khuyên dùng).
             </p>
           </button>
         </div>
