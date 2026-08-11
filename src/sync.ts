@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { exec } from 'child_process';
 import AdmZip from 'adm-zip';
 import { fileURLToPath } from 'url';
 import { Request, Response } from 'express';
@@ -58,13 +59,15 @@ export async function triggerSync(type: string, overrideUrl?: string) {
     const projectDir = path.resolve(_dirname, '..');
     const zip = new AdmZip();
 
+    const IGNORE_DIRS = ['node_modules', '.git', 'dist', '.tempmediaStorage', 'artifacts', 'scratch', '.gemini', '.vscode'];
+
     const files = fs.readdirSync(projectDir);
     files.forEach(file => {
       const fullPath = path.join(projectDir, file);
       const stat = fs.statSync(fullPath);
 
       if (stat.isDirectory()) {
-        if (file !== 'node_modules' && file !== '.git') {
+        if (!IGNORE_DIRS.includes(file)) {
           zip.addLocalFolder(fullPath, file);
         }
       } else {
@@ -154,8 +157,14 @@ export function receiveCode(req: Request, res: Response) {
         if (fs.existsSync(zipPath)) {
           fs.unlinkSync(zipPath);
         }
-        console.log('[Sync] Giải nén thành công! Khởi động lại server...');
-        process.exit(0);
+        console.log('[Sync] Giải nén thành công! Đang build lại và khởi động lại server...');
+        exec('npm run build', { cwd: projectDir }, (buildErr) => {
+          if (buildErr) {
+            console.error('[Sync] Lỗi npm run build trên PC:', buildErr.message);
+          }
+          console.log('[Sync] Build hoàn tất. Restarting PM2...');
+          process.exit(0);
+        });
       } catch (extractErr: any) {
         console.error('[Sync] Lỗi giải nén update.zip:', extractErr.message);
       }
