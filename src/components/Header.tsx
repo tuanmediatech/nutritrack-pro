@@ -71,33 +71,6 @@ export const Header: React.FC<HeaderProps> = ({
           <span>Phân hệ: {userProfile.profileType === 'tang_can' ? 'Tăng Cân Sạch 📈' : 'Giảm Cân / Giảm Mỡ 📉'}</span>
         </button>
 
-        {/* Day Type Toggle */}
-        <div className="day-type-toggle flex items-center gap-1.5 bg-white/5 border border-white/10 p-1 rounded-full">
-          <span className="text-xs text-slate-400 px-2 font-medium hidden sm:inline">Chế độ:</span>
-          <button
-            onClick={() => onSetDayType('heavy')}
-            className={`day-type-btn px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-              dayType === 'heavy'
-                ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Activity className="w-3.5 h-3.5" />
-            <span>Vận động nhiều</span>
-          </button>
-          <button
-            onClick={() => onSetDayType('light')}
-            className={`day-type-btn px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-              dayType === 'light'
-                ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Sun className="w-3.5 h-3.5" />
-            <span>Vận động nhẹ</span>
-          </button>
-        </div>
-
         {/* Theme Toggle Button */}
         <button
           onClick={onToggleTheme}

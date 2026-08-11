@@ -474,7 +474,7 @@ export default function App() {
           )}
 
           {currentTab === 'log' && (
-            <LogView logs={appState.logs} onDeleteLog={handleDeleteLog} />
+            <LogView logs={appState.logs} onDeleteLog={handleDeleteLog} onAddLog={handleAddLog} />
           )}
 
           {currentTab === 'weight' && (
