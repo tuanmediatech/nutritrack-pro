@@ -11,6 +11,7 @@ export type TabType =
   | 'meals' 
   | 'notebook' 
   | 'health' 
+  | 'sync'
   | 'reminders'
   | 'settings';
 

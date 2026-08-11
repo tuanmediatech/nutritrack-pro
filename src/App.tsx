@@ -34,6 +34,7 @@ import { NotebookView } from './components/NotebookView';
 import { HealthView } from './components/HealthView';
 import { RemindersView } from './components/RemindersView';
 import { SettingsView } from './components/SettingsView';
+import { SyncView } from './components/SyncView';
 
 export default function App() {
   const [appState, setAppState] = useState<AppStateData>(() => loadState());
@@ -479,6 +480,8 @@ export default function App() {
             />
           )}
 
+          {currentTab === 'sync' && <SyncView />}
+
           {currentTab === 'reminders' && (
             <RemindersView
               mealSchedule={activeMealSchedule}
@@ -537,6 +540,7 @@ export default function App() {
             'meals',
             'notebook',
             'health',
+            'sync',
             'reminders',
             'settings',
           ].includes(currentTab) && (
