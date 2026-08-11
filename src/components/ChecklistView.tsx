@@ -22,28 +22,21 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
   const totalCount = checklistItems.length;
   const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
-  // Categorize checklist items into 3 clear modules matching Email notifications
-  const mealItems = checklistItems.filter(item => {
-    const text = item.text.toLowerCase();
-    return text.includes('ăn') || text.includes('sữa') || text.includes('bữa') || text.includes('cơm');
-  });
-
+  // Categorize checklist items into 3 clear modules matching Email notifications 1-to-1
   const waterItems = checklistItems.filter(item => {
     const text = item.text.toLowerCase();
-    return text.includes('nước') || text.includes('uống') || text.includes('lít');
+    return item.id.startsWith('c_0600') || item.id.startsWith('c_0830') || item.id.startsWith('c_1030') || 
+           item.id.startsWith('c_1430') || item.id.startsWith('c_1600') || item.id.startsWith('c_2100') || 
+           (text.includes('nước') && !text.includes('sữa'));
   });
 
   const sportItems = checklistItems.filter(item => {
     const text = item.text.toLowerCase();
-    return (
-      text.includes('thể thao') ||
-      text.includes('pickleball') ||
-      text.includes('bóng bàn') ||
-      text.includes('nghỉ') ||
-      text.includes('ngủ') ||
-      text.includes('không dùng')
-    );
+    return item.id.startsWith('c_1230') || item.id.startsWith('c_1700') || item.id.startsWith('c_2230') ||
+           text.includes('thể thao') || text.includes('pickleball') || text.includes('bóng bàn') || text.includes('nghỉ') || text.includes('ngủ');
   });
+
+  const mealItems = checklistItems.filter(item => !waterItems.includes(item) && !sportItems.includes(item));
 
   // Catch any remaining items
   const otherItems = checklistItems.filter(

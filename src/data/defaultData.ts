@@ -29,17 +29,27 @@ export const PROFILE_DATA: Record<ProfileType, {
       { id: 'sleep', time: '22:30', displayTime: '22h30–23h', name: 'Ngủ', icon: '💤', activity: 'Ngủ phục hồi', goal: 'Cố định giờ ngủ, mục tiêu 7–8 tiếng', category: 'evening', options: ['Càng ngủ đều càng dễ tăng cân sạch'] }
     ],
     CHECKLIST_ITEMS: [
-      { id: 'c1', text: 'Uống 300ml nước ấm sau khi thức dậy (6h00)', time: '6h00', icon: '🥛' },
-      { id: 'c2', text: 'Ăn sáng + 1 bịch Sữa tươi Vinamilk Nguyên chất (6h30)', time: '6h30', icon: '🍜' },
-      { id: 'c3', text: 'Ăn bữa phụ sáng tại công ty (9h30)', time: '9h30', icon: '🥗' },
-      { id: 'c4', text: 'Ăn trưa đủ 2 chén cơm + đạm + rau + canh', time: '11h45', icon: '🍚' },
-      { id: 'c5', text: 'Nghỉ trưa 20–30 phút', time: '12h30', icon: '😴' },
-      { id: 'c6', text: 'Ăn phụ chiều + 1 bịch Sữa tươi Vinamilk Nguyên chất (15h30)', time: '15h30', icon: '🍌' },
-      { id: 'c7', text: 'Chơi thể thao / Pickleball chiều (17h00)', time: '17h00', icon: '🏓' },
-      { id: 'c8', text: 'Ăn tối đủ đạm, không bỏ cơm (19h30)', time: '19h30', icon: '🌙' },
-      { id: 'c9', text: '1 bịch Sữa tươi Vinamilk Nguyên chất ấm (22h00)', time: '22h00', icon: '🥛' },
-      { id: 'c10', text: 'Uống đủ nước (2–3 lít)', time: 'Cả ngày', icon: '💧' },
-      { id: 'c11', text: 'Không dùng sữa đặc / nước ngọt / trà sữa', time: 'Cả ngày', icon: '🚫' }
+      // 1. Phân hệ Bữa Ăn & Sữa
+      { id: 'c_0630', text: 'Ăn sáng chính + 1 bịch Sữa tươi Vinamilk Nguyên chất (220ml)', time: '06:30', icon: '🍜' },
+      { id: 'c_0930', text: 'Ăn bữa phụ sáng tại công ty (Sữa chua / Trái cây / Trứng)', time: '09:30', icon: '🥗' },
+      { id: 'c_1145', text: 'Ăn trưa chính (2 chén cơm + đạm + rau + canh)', time: '11:45', icon: '🍚' },
+      { id: 'c_1530', text: 'Bữa phụ chiều + 1 bịch Sữa tươi Vinamilk Nguyên chất (220ml)', time: '15:30', icon: '🍌' },
+      { id: 'c_1630', text: 'Ăn nhẹ tinh bột trước ca thể thao (Bánh mì / Khoai / Trứng)', time: '16:30', icon: '🥖' },
+      { id: 'c_1930', text: 'Ăn tối chính (Cơm + Cá/Gà + Rau xanh + Canh)', time: '19:30', icon: '🌙' },
+      { id: 'c_2200', text: 'Bữa phụ trước ngủ + 1 bịch Sữa tươi Vinamilk Nguyên chất (220ml)', time: '22:00', icon: '🥛' },
+
+      // 2. Phân hệ Uống Nước
+      { id: 'c_0600', text: 'Thức dậy: Uống 300ml nước ấm khởi động ruột & bù nước', time: '06:00', icon: '🥛' },
+      { id: 'c_0830', text: 'Nước ca làm việc sáng công ty: Uống 250ml (1 cốc)', time: '08:30', icon: '💧' },
+      { id: 'c_1030', text: 'Nước ca làm việc sáng công ty: Uống 250ml (1 cốc)', time: '10:30', icon: '💧' },
+      { id: 'c_1430', text: 'Nước ca làm việc chiều công ty: Uống 250ml (1 cốc)', time: '14:30', icon: '💧' },
+      { id: 'c_1600', text: 'Nước ca làm việc chiều công ty: Uống 250ml (1 cốc)', time: '16:00', icon: '💧' },
+      { id: 'c_2100', text: 'Nước lọc thư giãn buổi tối: Uống 250ml (1 cốc)', time: '21:00', icon: '💧' },
+
+      // 3. Phân hệ Tập Luyện & Phục Hồi
+      { id: 'c_1230', text: 'Nghỉ trưa phục hồi: Chợp mắt 20–30 phút', time: '12:30', icon: '😴' },
+      { id: 'c_1700', text: 'Ca thể thao Bóng bàn / Pickleball chiều (17h00 - 19h00, nạp điện giải)', time: '17:00', icon: '🏓' },
+      { id: 'c_2230', text: 'Đi ngủ phục hồi: Ngủ trước 23h00 (đạt 7-8 tiếng ngủ sâu)', time: '22:30', icon: '💤' }
     ],
     RULES: [
       { icon: '⏰', title: 'Giữ khung giờ cố định', text: 'Ăn đúng các mốc trong ngày để không bị rỗng năng lượng. Cơ thể quen giờ ăn sẽ hấp thu tốt hơn.' },
