@@ -113,6 +113,8 @@ db.serialize(() => {
   db.run("ALTER TABLE app_settings ADD COLUMN active_schedule_id INTEGER", () => {});
   db.run("ALTER TABLE app_settings ADD COLUMN gemini_api_key TEXT", () => {});
   db.run("ALTER TABLE app_settings ADD COLUMN theme TEXT DEFAULT 'dark'", () => {});
+  db.run("ALTER TABLE health_records ADD COLUMN file_name TEXT", () => {});
+  db.run("ALTER TABLE health_records ADD COLUMN ai_advice TEXT", () => {});
 
   // 6.5. Custom AI Schedules Table
   db.run(`

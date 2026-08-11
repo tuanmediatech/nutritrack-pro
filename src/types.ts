@@ -105,6 +105,8 @@ export interface HealthRecord {
   liverEnzymes: string;
   conclusion: string;
   notes?: string;
+  fileName?: string;
+  aiAdvice?: string;
 }
 
 export interface ReferenceLink {
