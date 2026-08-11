@@ -238,10 +238,10 @@ export function receiveCode(req: Request, res: Response) {
     fs.writeFileSync(zipPath, dataBuffer);
     console.log(`[Sync] Tải file code update.zip thành công (${dataBuffer.length} bytes). Phản hồi OK & giải nén...`);
 
-    // Gửi phản hồi HTTP 200 thành công ngay lập tức để tránh Ngrok timeout (ERR_NGROK_3004)
-    res.send('Code received successfully. Extracting & restarting server...');
+    // Gửi phản hồi HTTP 200 thành công ngay lập tức và flush socket để tránh Ngrok ERR_NGROK_3004
+    res.status(200).send('Code received successfully. Extracting & restarting server...');
 
-    // Tiến hành giải nén và khởi động lại sau 200ms
+    // Tiến hành giải nén và khởi động lại sau 1500ms để đảm bảo socket HTTP kết thúc hoàn toàn
     setTimeout(() => {
       try {
         const zip = new AdmZip(zipPath);
@@ -260,7 +260,7 @@ export function receiveCode(req: Request, res: Response) {
       } catch (extractErr: any) {
         console.error('[Sync] Lỗi giải nén update.zip:', extractErr.message);
       }
-    }, 200);
+    }, 1500);
   } catch (err: any) {
     console.error('[Sync] Lỗi ghi file update.zip:', err.message);
     if (!res.headersSent) {
