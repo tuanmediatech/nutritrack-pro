@@ -7,20 +7,18 @@ import {
   ProfileType
 } from '../types';
 import { exportICSFile } from '../utils/storage';
+import { SyncView } from './SyncView';
 import {
   Settings,
   User,
   Sparkles,
   Calendar,
-  Clock,
-  Plus,
-  Trash2,
   Save,
   Download,
   Upload,
   RotateCcw,
-  Bell,
-  CheckSquare
+  ShieldCheck,
+  Info
 } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -72,12 +70,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [startDate, setStartDate] = useState<string>(userProfile.startDate);
   const [profileType, setProfileType] = useState<ProfileType>(userProfile.profileType);
 
-  // Meal slot editing state
-  const [editingMealSlot, setEditingMealSlot] = useState<MealOption | null>(null);
-  const [slotTime, setSlotTime] = useState<string>('08:00');
-  const [slotName, setSlotName] = useState<string>('');
-  const [slotGoal, setSlotGoal] = useState<string>('');
-
   // AI Generator prompt input state
   const [aiHabitsInput, setAiHabitsInput] = useState<string>('');
   const [loadingAi, setLoadingAi] = useState<boolean>(false);
@@ -94,31 +86,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       glucose: userProfile.glucose,
       profileType,
     });
-  };
-
-  const handleAddMealSlot = () => {
-    if (!slotName.trim()) return;
-    const newSlot: MealOption = {
-      id: `custom_${Date.now()}`,
-      time: slotTime,
-      displayTime: slotTime,
-      name: slotName.trim(),
-      icon: '🍽️',
-      activity: 'Khung giờ tùy chỉnh',
-      goal: slotGoal.trim() || 'Cung cấp năng lượng',
-      category: 'morning',
-      options: ['Thực phẩm tùy chọn'],
-    };
-
-    const updated = [...mealSchedule, newSlot].sort((a, b) => a.time.localeCompare(b.time));
-    onSaveMealSchedule(updated);
-    setSlotName('');
-    setSlotGoal('');
-  };
-
-  const handleDeleteMealSlot = (id: string) => {
-    const updated = mealSchedule.filter(m => m.id !== id);
-    onSaveMealSchedule(updated);
   };
 
   const handleGenerateAiSchedule = async (e: React.FormEvent) => {
@@ -167,10 +134,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <div>
         <h1 className="page-title text-2xl font-bold text-white font-outfit flex items-center gap-2">
           <Settings className="w-6 h-6 text-emerald-400" />
-          <span>Cài Đặt & AI Schedule Generator</span>
+          <span>Cài Đặt, AI Schedule & Đồng Bộ</span>
         </h1>
         <p className="page-subtitle text-sm text-slate-400 mt-1">
-          Tùy chỉnh thông số cá nhân, khung giờ sinh hoạt và tạo lịch trình AI cá nhân hóa
+          Quản lý thông số cá nhân, tạo lịch trình AI và đồng bộ dữ liệu giữa các thiết bị
         </p>
       </div>
 
@@ -265,6 +232,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <h3 className="text-base font-bold text-white font-outfit">AI Schedule Generator (Gemini AI)</h3>
         </div>
 
+        {/* Isolation Note Banner */}
+        <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl text-xs text-blue-300 flex items-start gap-2.5">
+          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+          <div className="leading-relaxed">
+            <span className="font-bold text-white block mb-0.5">💡 Đảm bảo độc lập dữ liệu:</span>
+            Lịch trình do AI tạo ra sẽ lưu thành một <b>Lịch Cá Nhân Riêng Biệt</b>. Việc bật/tắt lịch AI chỉ áp dụng lớp phủ hiển thị chứ <b>hoàn toàn không làm đè hay ảnh hưởng</b> đến dữ liệu của 2 phân hệ gốc (Tăng Cân & Giảm Cân). Bạn có thể bấm "Kích hoạt" hoặc "Trở về mặc định" bất cứ lúc nào.
+          </div>
+        </div>
+
         <form onSubmit={handleGenerateAiSchedule} className="space-y-3">
           <label className="block text-xs font-semibold text-slate-300">
             Mô tả thói quen sinh hoạt & nhu cầu riêng biệt của bạn:
@@ -273,7 +249,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             value={aiHabitsInput}
             onChange={e => setAiHabitsInput(e.target.value)}
             rows={3}
-            placeholder="VD: Tôi thường dạy Pickleball lúc 5h sáng, làm văn phòng từ 8h-17h, tập gym 18h tối. Muốn có lịch ăn 6 bữa tập trung đạm..."
+            placeholder="VD: Tôi làm việc văn phòng từ 7h–11h30 & 13h30–17h, chơi bóng bàn 17h–19h. Thói quen thích uống sữa tươi bịch Vinamilk nguyên chất..."
             className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500 resize-none"
           />
 
@@ -337,67 +313,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         )}
       </div>
 
-      {/* Custom Meal Schedule Manager */}
-      <div className="glass-card p-5 space-y-4">
-        <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-          <Clock className="w-5 h-5 text-emerald-400" />
-          <h3 className="text-base font-bold text-white font-outfit">Danh Sách Bữa Ăn & Khung Giờ Sinh Hoạt</h3>
-        </div>
-
-        {/* Add Slot */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/5 p-3 rounded-xl border border-white/5 items-end">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Tên bữa ăn</label>
-            <input
-              type="text"
-              value={slotName}
-              onChange={e => setSlotName(e.target.value)}
-              placeholder="VD: Ăn xế chiều"
-              className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Giờ thực hiện</label>
-            <input
-              type="time"
-              value={slotTime}
-              onChange={e => setSlotTime(e.target.value)}
-              className="w-full bg-slate-800 border border-white/10 rounded-xl p-2 text-xs text-white"
-            />
-          </div>
-          <button
-            onClick={handleAddMealSlot}
-            disabled={!slotName.trim()}
-            className="btn-primary py-2 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1 disabled:opacity-50"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Thêm Bữa</span>
-          </button>
-        </div>
-
-        {/* List Meal Slots */}
-        <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
-          {mealSchedule.map(m => (
-            <div key={m.id} className="p-2.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-emerald-400 w-12">{m.time}</span>
-                <span className="font-semibold text-white">{m.icon} {m.name}</span>
-              </div>
-              <button
-                onClick={() => handleDeleteMealSlot(m.id)}
-                className="p-1 text-slate-400 hover:text-rose-400"
-                title="Xóa bữa này"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Embedded Cloud Sync Section */}
+      <SyncView />
 
       {/* Backup & System Tools */}
       <div className="glass-card p-5 space-y-4">
-        <h3 className="text-base font-bold text-white font-outfit">Xuất / Nhập Dữ Liệu & Khôi Phục</h3>
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 className="text-base font-bold text-white font-outfit">Sao Lưu Thủ Công & Khôi Phục Dữ Liệu</h3>
+          <span className="text-xs text-slate-400">Phương án dự phòng khi làm việc offline</span>
+        </div>
 
         <div className="flex flex-wrap gap-3">
           <button

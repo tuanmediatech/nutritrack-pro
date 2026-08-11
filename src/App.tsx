@@ -515,8 +515,6 @@ export default function App() {
             />
           )}
 
-          {currentTab === 'sync' && <SyncView />}
-
           {currentTab === 'reminders' && (
             <RemindersView
               mealSchedule={activeMealSchedule}

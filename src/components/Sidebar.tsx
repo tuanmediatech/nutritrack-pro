@@ -60,9 +60,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       label: 'Hệ thống',
       items: [
-        { id: 'sync', label: 'Đồng bộ (Laptop ↔ PC)', icon: RefreshCw },
         { id: 'reminders', label: 'Nhắc nhở & Lịch', icon: Bell },
-        { id: 'settings', label: 'Cài đặt & AI Schedule', icon: Settings },
+        { id: 'settings', label: 'Cài đặt & Đồng bộ AI', icon: Settings },
       ],
     },
   ];
