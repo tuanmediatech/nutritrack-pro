@@ -38,7 +38,14 @@ import { SyncView } from './components/SyncView';
 
 export default function App() {
   const [appState, setAppState] = useState<AppStateData>(() => loadState());
-  const [currentTab, setCurrentTab] = useState<TabType>('dashboard');
+  const [currentTab, setCurrentTab] = useState<TabType>(() => {
+    const validTabs: TabType[] = ['dashboard', 'schedule', 'log', 'weight', 'stats', 'checklist', 'meals', 'notebook', 'health', 'reminders', 'settings', 'sync'];
+    const hash = window.location.hash.replace('#', '') as TabType;
+    if (validTabs.includes(hash)) return hash;
+    const saved = sessionStorage.getItem('nutritrack_active_tab') as TabType;
+    if (validTabs.includes(saved)) return saved;
+    return 'dashboard';
+  });
   const [isOpenMobileSidebar, setIsOpenMobileSidebar] = useState<boolean>(false);
 
   // Notification Toast state
@@ -48,6 +55,12 @@ export default function App() {
     setToastMessage({ text, type });
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  // Sync tab state to sessionStorage & hash
+  useEffect(() => {
+    sessionStorage.setItem('nutritrack_active_tab', currentTab);
+    window.location.hash = currentTab;
+  }, [currentTab]);
 
   // Sync state to LocalStorage
   useEffect(() => {

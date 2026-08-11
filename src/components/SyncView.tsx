@@ -79,10 +79,12 @@ export const SyncView: React.FC = () => {
       }
 
       addLog(`✅ Đồng bộ thành công! DB=${data.results?.db ? 'OK' : 'Không'}, Code=${data.results?.code ? 'OK' : 'Không'}`);
-      addLog(`💡 Đang tự động làm mới dữ liệu trình duyệt trong 2 giây...`);
+      addLog(`💡 Đang tự động làm mới dữ liệu và giữ bạn ở lại trang Đồng bộ...`);
       setSyncSuccess(true);
 
       setTimeout(() => {
+        sessionStorage.setItem('nutritrack_active_tab', 'sync');
+        window.location.hash = 'sync';
         window.location.reload();
       }, 2000);
     } catch (err: any) {
