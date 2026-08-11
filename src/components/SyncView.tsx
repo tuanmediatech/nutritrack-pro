@@ -77,7 +77,13 @@ export const SyncView: React.FC = () => {
       }
 
       addLog(`✅ Đồng bộ thành công! DB=${data.results?.db ? 'OK' : 'Không'}, Code=${data.results?.code ? 'OK' : 'Không'}`);
+      addLog(`💡 Đang tự động làm mới dữ liệu trình duyệt trong 2 giây...`);
       setSyncSuccess(true);
+
+      setTimeout(() => {
+        localStorage.removeItem('nutritrack_pro_v3_state');
+        window.location.reload();
+      }, 2000);
     } catch (err: any) {
       addLog(`❌ Thất bại: ${err.message}`);
       setSyncSuccess(false);

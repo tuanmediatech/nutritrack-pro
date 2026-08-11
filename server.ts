@@ -26,10 +26,9 @@ app.use(express.json({ limit: "10mb" }));
 app.use("/api/sync/receive-code", express.raw({ type: "application/octet-stream", limit: "100mb" }));
 app.use("/api/sync/receive-db", express.raw({ type: "application/octet-stream", limit: "50mb" }));
 
-// Auth middleware
+// Auth middleware (Default to User ID 1 for seamless single-user sync)
 function authenticate(req: Request & { userId?: number }, res: Response, next: NextFunction) {
-  const userId = req.headers["x-user-id"];
-  if (!userId) return res.status(401).json({ error: "Bạn cần đăng nhập để thực hiện chức năng này." });
+  const userId = req.headers["x-user-id"] || "1";
   (req as any).userId = parseInt(userId as string, 10);
   next();
 }

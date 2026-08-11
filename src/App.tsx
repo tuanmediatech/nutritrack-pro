@@ -306,8 +306,40 @@ export default function App() {
     showToast('Đã xóa ghi chú', 'warn');
   };
 
+  // Fetch Health Records from Server Database
+  const fetchHealthRecords = async () => {
+    try {
+      const res = await fetch('/api/health/records');
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length > 0) {
+          const mapped: HealthRecord[] = rows.map((r: any) => ({
+            id: String(r.id),
+            checkupDate: r.checkup_date || r.checkupDate || '',
+            bloodPressure: r.blood_pressure || r.bloodPressure || '120/80 mmHg',
+            glucose: r.glucose,
+            cholesterol: r.cholesterol,
+            uricAcid: r.uric_acid || r.uricAcid,
+            liverEnzymes: r.liver_enzymes || r.liverEnzymes || '',
+            conclusion: r.conclusion || '',
+            notes: r.notes || '',
+            fileName: r.file_name || r.fileName,
+            aiAdvice: r.ai_advice || r.aiAdvice,
+          }));
+          setAppState(prev => ({ ...prev, healthRecords: mapped }));
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch health records from server:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchHealthRecords();
+  }, [currentTab]);
+
   // Health Record Operations
-  const handleSaveHealthRecord = (recordData: Omit<HealthRecord, 'id'> & { id?: string }) => {
+  const handleSaveHealthRecord = async (recordData: Omit<HealthRecord, 'id'> & { id?: string }) => {
     setAppState(prev => {
       let updated = [...prev.healthRecords];
       if (recordData.id) {
@@ -320,14 +352,44 @@ export default function App() {
       }
       return { ...prev, healthRecords: updated };
     });
+
+    try {
+      await fetch('/api/health/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: recordData.id,
+          checkup_date: recordData.checkupDate,
+          blood_pressure: recordData.bloodPressure,
+          glucose: recordData.glucose,
+          cholesterol: recordData.cholesterol,
+          uric_acid: recordData.uricAcid,
+          liver_enzymes: recordData.liverEnzymes,
+          conclusion: recordData.conclusion,
+          notes: recordData.notes,
+          file_name: recordData.fileName,
+          ai_advice: recordData.aiAdvice,
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to save health record to server DB:', e);
+    }
+
     showToast('Đã lưu kết quả khám bệnh!');
   };
 
-  const handleDeleteHealthRecord = (id: string) => {
+  const handleDeleteHealthRecord = async (id: string) => {
     setAppState(prev => ({
       ...prev,
       healthRecords: prev.healthRecords.filter(h => h.id !== id),
     }));
+
+    try {
+      await fetch(`/api/health/records/${id}`, { method: 'DELETE' });
+    } catch (e) {
+      console.error('Failed to delete health record from server DB:', e);
+    }
+
     showToast('Đã xóa hồ sơ khám bệnh', 'warn');
   };
 
