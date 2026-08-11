@@ -22,9 +22,9 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3456;
 
 app.use(cors());
+app.use("/api/sync/receive-code", express.raw({ type: "*/*", limit: "100mb" }));
+app.use("/api/sync/receive-db", express.raw({ type: "*/*", limit: "50mb" }));
 app.use(express.json({ limit: "10mb" }));
-app.use("/api/sync/receive-code", express.raw({ type: "application/octet-stream", limit: "100mb" }));
-app.use("/api/sync/receive-db", express.raw({ type: "application/octet-stream", limit: "50mb" }));
 
 // Auth middleware (Default to User ID 1 for seamless single-user sync)
 function authenticate(req: Request & { userId?: number }, res: Response, next: NextFunction) {

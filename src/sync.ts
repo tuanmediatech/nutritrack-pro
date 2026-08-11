@@ -82,6 +82,7 @@ export async function triggerSync(type: string, overrideUrl?: string) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/octet-stream',
+          'Content-Length': String(zipBuffer.length),
           'ngrok-skip-browser-warning': 'true',
           'User-Agent': 'NutriTrackSyncClient/1.0',
         },
@@ -109,13 +110,18 @@ export function receiveDb(req: Request, res: Response) {
   const dbBakPath = path.resolve(_dirname, '../nutritrack.db.bak');
 
   try {
+    const dataBuffer = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || '');
+    if (!dataBuffer || dataBuffer.length === 0) {
+      return res.status(400).send('Dữ liệu database gửi lên bị rỗng');
+    }
+
     if (fs.existsSync(dbPath)) {
       fs.copyFileSync(dbPath, dbBakPath);
       console.log('[Sync] Đã sao lưu database cũ thành nutritrack.db.bak');
     }
 
-    fs.writeFileSync(dbPath, req.body);
-    console.log(`[Sync] Đã cập nhật xong file nutritrack.db (${req.body?.length || 0} bytes).`);
+    fs.writeFileSync(dbPath, dataBuffer);
+    console.log(`[Sync] Đã cập nhật xong file nutritrack.db (${dataBuffer.length} bytes).`);
     res.send('Database synchronized successfully.');
   } catch (writeErr: any) {
     console.error('[Sync] Lỗi ghi file database:', writeErr.message);
@@ -129,8 +135,13 @@ export function receiveCode(req: Request, res: Response) {
   const projectDir = path.resolve(_dirname, '..');
 
   try {
-    fs.writeFileSync(zipPath, req.body);
-    console.log(`[Sync] Tải file code update.zip thành công (${req.body?.length || 0} bytes). Phản hồi OK & giải nén...`);
+    const dataBuffer = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || '');
+    if (!dataBuffer || dataBuffer.length < 100) {
+      return res.status(400).send(`File zip nhận được bị rỗng hoặc lỗi (${dataBuffer?.length || 0} bytes)`);
+    }
+
+    fs.writeFileSync(zipPath, dataBuffer);
+    console.log(`[Sync] Tải file code update.zip thành công (${dataBuffer.length} bytes). Phản hồi OK & giải nén...`);
 
     // Gửi phản hồi HTTP 200 thành công ngay lập tức để tránh Ngrok timeout (ERR_NGROK_3004)
     res.send('Code received successfully. Extracting & restarting server...');
