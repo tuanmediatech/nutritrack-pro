@@ -95,8 +95,8 @@ export async function triggerSync(type: string, overrideUrl?: string, mode: stri
   }
 
   if (type === 'code' || type === 'both') {
-    // 500ms delay to let server finish saving DB cleanly before sending Zip
-    await new Promise(r => setTimeout(r, 500));
+    // 2000ms delay to let server finish saving DB cleanly before sending Zip
+    await new Promise(r => setTimeout(r, 2000));
 
     console.log('[Sync] Bắt đầu nén mã nguồn...');
     const zip = new AdmZip();
@@ -122,27 +122,48 @@ export async function triggerSync(type: string, overrideUrl?: string, mode: stri
     const zipBuffer = zip.toBuffer();
     console.log(`[Sync] Nén code thành công (${zipBuffer.length} bytes). Đang gửi tới PC...`);
 
-    try {
-      const response = await fetch(`${cleanTargetUrl}/api/sync/receive-code`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/octet-stream',
-          'Content-Length': String(zipBuffer.length),
-          'ngrok-skip-browser-warning': 'true',
-          'User-Agent': 'NutriTrackSyncClient/1.0',
-        },
-        body: zipBuffer
-      });
+    let attempts = 0;
+    const maxAttempts = 3;
+    let lastError: any = null;
 
-      if (!response.ok) {
-        const errMsg = await response.text();
-        throw new Error(`Máy PC phản hồi lỗi code (${response.status}): ${errMsg}`);
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        if (attempts > 1) {
+          console.log(`[Sync] Thử lại gửi mã nguồn lần ${attempts}/${maxAttempts} sau khi chờ Ngrok sẵng sàng...`);
+          await new Promise(r => setTimeout(r, 2000));
+        }
+
+        const response = await fetch(`${cleanTargetUrl}/api/sync/receive-code`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/octet-stream',
+            'Content-Length': String(zipBuffer.length),
+            'ngrok-skip-browser-warning': 'true',
+            'User-Agent': 'NutriTrackSyncClient/1.0',
+          },
+          body: zipBuffer
+        });
+
+        if (!response.ok) {
+          const errMsg = await response.text();
+          if (response.status === 503 && attempts < maxAttempts) {
+            console.warn(`[Sync] Máy PC phản hồi 503 (Ngrok chưa sẵn sàng), đang thử lại...`);
+            continue;
+          }
+          throw new Error(`Máy PC phản hồi lỗi code (${response.status}): ${errMsg}`);
+        }
+
+        console.log('[Sync] Đồng bộ Code thành công!');
+        results.code = true;
+        break;
+      } catch (err: any) {
+        lastError = err;
+        if (attempts >= maxAttempts) {
+          const cause = err.cause ? ` [${err.cause.code || err.cause.message || err.cause}]` : '';
+          throw new Error(`Không thể truyền mã nguồn đến Ngrok máy PC (${cleanTargetUrl}): ${err.message}${cause}`);
+        }
       }
-      console.log('[Sync] Đồng bộ Code thành công!');
-      results.code = true;
-    } catch (err: any) {
-      const cause = err.cause ? ` [${err.cause.code || err.cause.message || err.cause}]` : '';
-      throw new Error(`Không thể truyền mã nguồn đến Ngrok máy PC (${cleanTargetUrl}): ${err.message}${cause}`);
     }
   }
 
