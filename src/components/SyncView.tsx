@@ -83,8 +83,8 @@ export const SyncView: React.FC = () => {
       setSyncSuccess(true);
 
       setTimeout(() => {
-        sessionStorage.setItem('nutritrack_active_tab', 'sync');
-        window.location.hash = 'sync';
+        sessionStorage.setItem('nutritrack_active_tab', 'settings');
+        window.location.hash = 'settings';
         window.location.reload();
       }, 2000);
     } catch (err: any) {

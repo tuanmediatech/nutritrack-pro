@@ -597,6 +597,10 @@ export default function App() {
             />
           )}
 
+          {currentTab === 'sync' && (
+            <SyncView />
+          )}
+
           {currentTab === 'settings' && (
             <SettingsView
               userProfile={appState.userProfile}
