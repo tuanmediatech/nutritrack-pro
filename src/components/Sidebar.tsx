@@ -37,7 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Tổng quan',
       items: [
         { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-        { id: 'schedule', label: 'Lịch hôm nay', icon: Clock },
+        { id: 'schedule', label: 'Lịch sinh hoạt', icon: Clock },
         { id: 'stats', label: 'Thống kê 7 ngày', icon: TrendingUp },
       ],
     },

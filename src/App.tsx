@@ -113,6 +113,18 @@ export default function App() {
     showToast('Đã xóa mốc thời gian khỏi danh mục');
   };
 
+  const handleUpdateMealSlot = (updatedItem: MealOption) => {
+    const updated = activeMealSchedule.map(m => (m.id === updatedItem.id ? updatedItem : m));
+    handleSaveMealSchedule(updated);
+    showToast(`Đã cập nhật mốc sinh hoạt: ${updatedItem.displayTime || updatedItem.time}`);
+  };
+
+  const handleAddMealSlot = (newItem: MealOption) => {
+    const updated = [...activeMealSchedule, newItem];
+    handleSaveMealSchedule(updated);
+    showToast(`Đã thêm mốc sinh hoạt mới: ${newItem.name}`);
+  };
+
   const handleResetSchedule = () => {
     setAppState(prev => ({
       ...prev,
@@ -431,6 +443,8 @@ export default function App() {
               mealSchedule={activeMealSchedule}
               onDeleteMealSlot={handleDeleteMealSlot}
               onResetSchedule={handleResetSchedule}
+              onUpdateMealSlot={handleUpdateMealSlot}
+              onAddMealSlot={handleAddMealSlot}
             />
           )}
 

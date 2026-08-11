@@ -15,7 +15,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   const items = [
     { id: 'dashboard', label: 'Tổng quan', icon: BarChart3 },
-    { id: 'schedule', label: 'Lịch ăn', icon: Clock },
+    { id: 'schedule', label: 'Lịch sinh hoạt', icon: Clock },
     { id: 'checklist', label: 'Bảng kiểm', icon: CheckSquare },
     { id: 'weight', label: 'Cân nặng', icon: Scale },
   ];
