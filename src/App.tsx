@@ -86,20 +86,8 @@ export default function App() {
     activeMealSchedule = activeProfileData.MEAL_SCHEDULE;
   }
 
-  // Automatically sync Checklist Items with activeMealSchedule so Bảng kiểm and Lịch sinh hoạt stay 100% in sync!
-  const scheduleChecklistItems: ChecklistItem[] = activeMealSchedule.map(slot => ({
-    id: slot.id,
-    text: slot.name,
-    time: slot.displayTime || slot.time,
-    icon: slot.icon || '⏰',
-  }));
-
-  const habitChecklistItems: ChecklistItem[] = [
-    { id: 'c_water', text: 'Uống đủ nước (2–3 lít)', time: 'Cả ngày', icon: '💧' },
-    { id: 'c_nosugar', text: 'Không dùng nước ngọt / trà sữa / đồ ngọt', time: 'Cả ngày', icon: '🚫' },
-  ];
-
-  const activeChecklistItems: ChecklistItem[] = [...scheduleChecklistItems, ...habitChecklistItems];
+  // Use the 16 exact checklist items matching email notifications 1-to-1
+  const activeChecklistItems: ChecklistItem[] = activeProfileData.CHECKLIST_ITEMS;
 
   // Schedule & Slot Mutators
   const handleSaveMealSchedule = (newSchedule: MealOption[]) => {

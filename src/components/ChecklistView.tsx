@@ -23,20 +23,19 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
   const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
   // Categorize checklist items into 3 clear modules matching Email notifications 1-to-1
-  const waterItems = checklistItems.filter(item => {
-    const text = item.text.toLowerCase();
-    return item.id.startsWith('c_0600') || item.id.startsWith('c_0830') || item.id.startsWith('c_1030') || 
-           item.id.startsWith('c_1430') || item.id.startsWith('c_1600') || item.id.startsWith('c_2100') || 
-           (text.includes('nước') && !text.includes('sữa'));
-  });
+  const mealItems = checklistItems.filter(item => 
+    item.id === 'c_0630' || item.id === 'c_0930' || item.id === 'c_1145' || 
+    item.id === 'c_1530' || item.id === 'c_1630' || item.id === 'c_1930' || item.id === 'c_2200'
+  );
 
-  const sportItems = checklistItems.filter(item => {
-    const text = item.text.toLowerCase();
-    return item.id.startsWith('c_1230') || item.id.startsWith('c_1700') || item.id.startsWith('c_2230') ||
-           text.includes('thể thao') || text.includes('pickleball') || text.includes('bóng bàn') || text.includes('nghỉ') || text.includes('ngủ');
-  });
+  const waterItems = checklistItems.filter(item => 
+    item.id === 'c_0600' || item.id === 'c_0830' || item.id === 'c_1030' || 
+    item.id === 'c_1430' || item.id === 'c_1600' || item.id === 'c_2100'
+  );
 
-  const mealItems = checklistItems.filter(item => !waterItems.includes(item) && !sportItems.includes(item));
+  const sportItems = checklistItems.filter(item => 
+    item.id === 'c_1230' || item.id === 'c_1700' || item.id === 'c_2230'
+  );
 
   // Catch any remaining items
   const otherItems = checklistItems.filter(
