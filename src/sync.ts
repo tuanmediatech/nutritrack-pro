@@ -25,23 +25,29 @@ export async function triggerSync(type: string, overrideUrl?: string) {
     }
 
     const dbBuffer = fs.readFileSync(dbPath);
-    console.log(`[Sync] Đang gửi database (${dbBuffer.length} bytes) tới PC...`);
+    console.log(`[Sync] Đang gửi database (${dbBuffer.length} bytes) tới PC (${cleanTargetUrl})...`);
 
-    const response = await fetch(`${cleanTargetUrl}/api/sync/receive-db`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'ngrok-skip-browser-warning': 'true'
-      },
-      body: dbBuffer
-    });
+    try {
+      const response = await fetch(`${cleanTargetUrl}/api/sync/receive-db`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'ngrok-skip-browser-warning': 'true',
+          'User-Agent': 'NutriTrackSyncClient/1.0',
+        },
+        body: dbBuffer
+      });
 
-    if (!response.ok) {
-      const errMsg = await response.text();
-      throw new Error(`Đồng bộ DB thất bại: ${errMsg}`);
+      if (!response.ok) {
+        const errMsg = await response.text();
+        throw new Error(`Máy PC phản hồi lỗi (${response.status}): ${errMsg}`);
+      }
+      console.log('[Sync] Đồng bộ Database thành công!');
+      results.db = true;
+    } catch (err: any) {
+      const cause = err.cause ? ` [${err.cause.code || err.cause.message || err.cause}]` : '';
+      throw new Error(`Không thể kết nối đến Ngrok máy PC (${cleanTargetUrl}): ${err.message}${cause}. Vui lòng kiểm tra xem máy PC đã mở Ngrok và PM2 chưa.`);
     }
-    console.log('[Sync] Đồng bộ Database thành công!');
-    results.db = true;
   }
 
   if (type === 'code' || type === 'both') {
@@ -68,21 +74,27 @@ export async function triggerSync(type: string, overrideUrl?: string) {
     const zipBuffer = zip.toBuffer();
     console.log(`[Sync] Nén code thành công (${zipBuffer.length} bytes). Đang gửi tới PC...`);
 
-    const response = await fetch(`${cleanTargetUrl}/api/sync/receive-code`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        'ngrok-skip-browser-warning': 'true'
-      },
-      body: zipBuffer
-    });
+    try {
+      const response = await fetch(`${cleanTargetUrl}/api/sync/receive-code`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'ngrok-skip-browser-warning': 'true',
+          'User-Agent': 'NutriTrackSyncClient/1.0',
+        },
+        body: zipBuffer
+      });
 
-    if (!response.ok) {
-      const errMsg = await response.text();
-      throw new Error(`Đồng bộ Code thất bại: ${errMsg}`);
+      if (!response.ok) {
+        const errMsg = await response.text();
+        throw new Error(`Máy PC phản hồi lỗi code (${response.status}): ${errMsg}`);
+      }
+      console.log('[Sync] Đồng bộ Code thành công!');
+      results.code = true;
+    } catch (err: any) {
+      const cause = err.cause ? ` [${err.cause.code || err.cause.message || err.cause}]` : '';
+      throw new Error(`Không thể truyền mã nguồn đến Ngrok máy PC (${cleanTargetUrl}): ${err.message}${cause}`);
     }
-    console.log('[Sync] Đồng bộ Code thành công!');
-    results.code = true;
   }
 
   return results;
