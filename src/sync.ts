@@ -51,6 +51,9 @@ export async function triggerSync(type: string, overrideUrl?: string) {
   }
 
   if (type === 'code' || type === 'both') {
+    // 500ms delay to let server finish saving DB cleanly before sending Zip
+    await new Promise(r => setTimeout(r, 500));
+
     console.log('[Sync] Bắt đầu nén mã nguồn...');
     const projectDir = path.resolve(_dirname, '..');
     const zip = new AdmZip();
@@ -105,28 +108,19 @@ export function receiveDb(req: Request, res: Response) {
   const dbPath = path.resolve(_dirname, '../nutritrack.db');
   const dbBakPath = path.resolve(_dirname, '../nutritrack.db.bak');
 
-  db.close((err) => {
-    if (err) {
-      console.error('[Sync] Lỗi đóng kết nối database cũ:', err.message);
-      return res.status(500).send('Không thể đóng kết nối database cũ');
+  try {
+    if (fs.existsSync(dbPath)) {
+      fs.copyFileSync(dbPath, dbBakPath);
+      console.log('[Sync] Đã sao lưu database cũ thành nutritrack.db.bak');
     }
 
-    try {
-      if (fs.existsSync(dbPath)) {
-        fs.copyFileSync(dbPath, dbBakPath);
-        console.log('[Sync] Đã sao lưu database cũ thành nutritrack.db.bak');
-      }
-
-      fs.writeFileSync(dbPath, req.body);
-      console.log(`[Sync] Đã cập nhật xong file nutritrack.db (${req.body?.length || 0} bytes). Khởi động lại server...`);
-      res.send('Database synchronized. Server restarting...');
-
-      setTimeout(() => { process.exit(0); }, 1000);
-    } catch (writeErr: any) {
-      console.error('[Sync] Lỗi ghi file database:', writeErr.message);
-      res.status(500).send(`Lỗi ghi database: ${writeErr.message}`);
-    }
-  });
+    fs.writeFileSync(dbPath, req.body);
+    console.log(`[Sync] Đã cập nhật xong file nutritrack.db (${req.body?.length || 0} bytes).`);
+    res.send('Database synchronized successfully.');
+  } catch (writeErr: any) {
+    console.error('[Sync] Lỗi ghi file database:', writeErr.message);
+    res.status(500).send(`Lỗi ghi database: ${writeErr.message}`);
+  }
 }
 
 export function receiveCode(req: Request, res: Response) {
