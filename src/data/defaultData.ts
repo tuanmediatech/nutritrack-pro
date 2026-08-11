@@ -30,14 +30,14 @@ export const PROFILE_DATA: Record<ProfileType, {
     ],
     CHECKLIST_ITEMS: [
       { id: 'c1', text: 'Uống 300ml nước ấm sau khi thức dậy (6h00)', time: '6h00', icon: '🥛' },
-      { id: 'c2', text: 'Ăn sáng có tinh bột + đạm + 1 ly sữa tươi KĐ (6h30)', time: '6h30', icon: '🍜' },
+      { id: 'c2', text: 'Ăn sáng + 1 bịch Sữa tươi Vinamilk Nguyên chất (6h30)', time: '6h30', icon: '🍜' },
       { id: 'c3', text: 'Ăn bữa phụ sáng tại công ty (9h30)', time: '9h30', icon: '🥗' },
       { id: 'c4', text: 'Ăn trưa đủ 2 chén cơm + đạm + rau + canh', time: '11h45', icon: '🍚' },
       { id: 'c5', text: 'Nghỉ trưa 20–30 phút', time: '12h30', icon: '😴' },
-      { id: 'c6', text: 'Ăn bữa phụ chiều + 1 bịch sữa tươi KĐ (15h30)', time: '15h30', icon: '🍌' },
+      { id: 'c6', text: 'Ăn phụ chiều + 1 bịch Sữa tươi Vinamilk Nguyên chất (15h30)', time: '15h30', icon: '🍌' },
       { id: 'c7', text: 'Chơi thể thao / Pickleball chiều (17h00)', time: '17h00', icon: '🏓' },
       { id: 'c8', text: 'Ăn tối đủ đạm, không bỏ cơm (19h30)', time: '19h30', icon: '🌙' },
-      { id: 'c9', text: 'Uống 1 ly sữa tươi KĐ ấm trước ngủ (22h00)', time: '22h00', icon: '🥛' },
+      { id: 'c9', text: '1 bịch Sữa tươi Vinamilk Nguyên chất ấm (22h00)', time: '22h00', icon: '🥛' },
       { id: 'c10', text: 'Uống đủ nước (2–3 lít)', time: 'Cả ngày', icon: '💧' },
       { id: 'c11', text: 'Không dùng sữa đặc / nước ngọt / trà sữa', time: 'Cả ngày', icon: '🚫' }
     ],
