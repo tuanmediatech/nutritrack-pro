@@ -1,15 +1,24 @@
 import nodemailer from 'nodemailer';
 import cron from 'node-cron';
+import dotenv from 'dotenv';
 import db from './db.js';
+import { ImapFlow } from 'imapflow';
 
-// Transporter configuration using Gmail SMTP
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
-  }
-});
+dotenv.config();
+
+// Helper to get transporter with active credentials
+function getTransporter() {
+  const user = process.env.GMAIL_USER || 'nguyentuanqnpc@gmail.com';
+  const pass = process.env.GMAIL_PASS || '';
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user,
+      pass
+    }
+  });
+}
 
 // Define meal and training schedules for both profiles
 const SCHEDULES: Record<string, Array<{ id: string; time: string; name: string; type: string; desc: string }>> = {
@@ -52,7 +61,44 @@ function subtractMinutes(timeStr: string, mins: number): string {
   return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
 }
 
-async function sendReminderEmail(toEmail: string, userName: string, eventName: string, type: string, details: string, scheduledTime: string) {
+export async function sendTestEmail(targetEmail?: string) {
+  const recipient = targetEmail || process.env.RECIPIENT_EMAIL || process.env.GMAIL_USER || 'nguyentuanqnpc@gmail.com';
+  const transporter = getTransporter();
+  const mailOptions = {
+    from: `"NutriTrack Pro" <${process.env.GMAIL_USER || 'nguyentuanqnpc@gmail.com'}>`,
+    to: recipient,
+    subject: `[NutriTrack Pro] Email thử nghiệm kết nối thành công 🔔`,
+    html: `
+      <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #10b981; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <div style="background-color: #10b981; padding: 24px; text-align: center; color: white;">
+          <span style="font-size: 12px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;">NutriTrack Pro</span>
+          <h2 style="margin: 10px 0 0 0; font-size: 22px;">✅ Kết Nối Email Thành Công!</h2>
+        </div>
+        <div style="padding: 24px; background-color: #ffffff; color: #1e293b; line-height: 1.6;">
+          <p>Xin chào <strong>Nguyễn Tuân</strong>,</p>
+          <p>Đây là email thử nghiệm kiểm tra tính năng gửi thông báo tự động từ <strong>NutriTrack Pro</strong> tới hòm thư <code>${recipient}</code>.</p>
+          <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 16px; border-radius: 4px; margin: 20px 0;">
+            <p style="margin: 0; color: #166534; font-weight: bold;">Hệ thống thông báo NutriTrack Pro sẵn sàng gửi tin nhắn!</p>
+            <p style="margin: 4px 0 0 0; font-size: 13px; color: #15803d;">Bạn sẽ nhận được email nhắc nhở lịch ăn uống, lịch uống nước và lịch chơi thể thao Pickleball đúng giờ theo cài đặt.</p>
+          </div>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #64748b; text-align: center; margin: 0;">
+            Thời gian kiểm tra: ${new Date().toLocaleString('vi-VN')}
+          </p>
+        </div>
+        <div style="background-color: #f1f5f9; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8;">
+          © 2026 NTM Systems & Automation. All rights reserved.
+        </div>
+      </div>
+    `
+  };
+
+  const info = await transporter.sendMail(mailOptions);
+  console.log(`[Email Test] Đã gửi email thử nghiệm thành công tới ${recipient}. MessageId: ${info.messageId}`);
+  return info;
+}
+
+export async function sendReminderEmail(toEmail: string, userName: string, eventName: string, type: string, details: string, scheduledTime: string) {
   const isWorkout = type === 'workout';
   const typeText = isWorkout ? 'LỊCH TẬP LUYỆN' : 'LỊCH ĂN UỐNG';
   const colorTheme = isWorkout ? '#8b5cf6' : '#10b981';
@@ -88,13 +134,14 @@ async function sendReminderEmail(toEmail: string, userName: string, eventName: s
   `;
 
   const mailOptions = {
-    from: `"NutriTrack Pro" <${process.env.GMAIL_USER}>`,
+    from: `"NutriTrack Pro" <${process.env.GMAIL_USER || 'nguyentuanqnpc@gmail.com'}>`,
     to: toEmail,
     subject: `[NutriTrack] Nhắc lịch: ${eventName} (${scheduledTime})`,
     html
   };
 
   try {
+    const transporter = getTransporter();
     const info = await transporter.sendMail(mailOptions);
     console.log(`[Email] Đã gửi thành công tới ${toEmail} cho sự kiện ${eventName}. MessageId: ${info.messageId}`);
   } catch (error: any) {
@@ -102,16 +149,14 @@ async function sendReminderEmail(toEmail: string, userName: string, eventName: s
   }
 }
 
-async function sendWeeklySummaryEmail(toEmail: string, user: any, past7DaysLogs: any[], past7DaysChecklist: any[], currentWeight: number) {
+export async function sendWeeklySummaryEmail(toEmail: string, user: any, past7DaysLogs: any[], past7DaysChecklist: any[], currentWeight: number) {
   const isGain = user.profile_type === 'tang_can';
   
-  // Calculate weekly stats
   const totalWater = past7DaysLogs.reduce((sum: number, l: any) => sum + (l.water || 0), 0);
   const avgWaterPerDay = Math.round(totalWater / 7);
   const totalMeals = past7DaysLogs.filter((l: any) => l.meal_type !== 'water').length;
   const doneChecklistCount = past7DaysChecklist.filter((c: any) => c.is_done).length;
 
-  // Highlights & Good Achievements
   const goodPoints: string[] = [];
   const improvePoints: string[] = [];
 
@@ -210,13 +255,14 @@ async function sendWeeklySummaryEmail(toEmail: string, user: any, past7DaysLogs:
   `;
 
   const mailOptions = {
-    from: `"NutriTrack Pro" <${process.env.GMAIL_USER}>`,
+    from: `"NutriTrack Pro" <${process.env.GMAIL_USER || 'nguyentuanqnpc@gmail.com'}>`,
     to: toEmail,
     subject: `[NutriTrack] Báo cáo tổng kết tuần & Định hướng sức khỏe tuần mới`,
     html
   };
 
   try {
+    const transporter = getTransporter();
     const info = await transporter.sendMail(mailOptions);
     console.log(`[Email] Đã gửi báo cáo tổng kết TUẦN thành công tới ${toEmail}. MessageId: ${info.messageId}`);
   } catch (error: any) {
@@ -224,37 +270,183 @@ async function sendWeeklySummaryEmail(toEmail: string, user: any, past7DaysLogs:
   }
 }
 
-export function initScheduler() {
-  console.log('[Scheduler] Đã kích hoạt hệ thống kiểm tra và gửi nhắc nhở qua Gmail');
+export async function checkAndSendReminders(isCatchup: boolean = false) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
 
-  // Minute check cron for live reminders
-  cron.schedule('* * * * *', () => {
-    const now = new Date();
-    const currentHHMM = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const currentHHMM = `${h}:${m}`;
 
+  return new Promise<{ checked: number; sent: number; eventsSent: string[] }>((resolve) => {
     db.all(`
-      SELECT u.id, u.username, u.name, u.profile_type, s.reminder_enabled, s.reminder_advance
+      SELECT u.id, u.username, u.name, u.profile_type, s.reminder_enabled, s.water_reminder_enabled, s.reminder_advance, s.active_schedule_id
       FROM users u
       JOIN app_settings s ON u.id = s.user_id
       WHERE s.reminder_enabled = 1
     `, [], async (err: Error | null, users: any[]) => {
-      if (err) { console.error('[Scheduler] Lỗi truy vấn database:', err); return; }
-      if (!users || users.length === 0) return;
+      if (err || !users || users.length === 0) {
+        if (err) console.error('[Scheduler] Lỗi truy vấn DB:', err);
+        return resolve({ checked: 0, sent: 0, eventsSent: [] });
+      }
+
+      let sentCount = 0;
+      const eventsSent: string[] = [];
 
       for (const user of users) {
-        const schedule = SCHEDULES[user.profile_type] || [];
-        const advance = user.reminder_advance || 5;
+        let schedule: Array<{ id: string; time: string; name: string; type: string; desc: string }> = [];
+
+        // Check if custom active schedule is configured
+        if (user.active_schedule_id) {
+          try {
+            const row: any = await new Promise((res) => db.get("SELECT meal_schedule_json FROM custom_schedules WHERE id = ?", [user.active_schedule_id], (_e, r) => res(r)));
+            if (row && row.meal_schedule_json) {
+              const customMeals = JSON.parse(row.meal_schedule_json);
+              schedule = customMeals.map((m: any) => ({
+                id: m.id || m.name,
+                time: m.time,
+                name: m.name,
+                type: m.category === 'workout' ? 'workout' : (m.name.includes('nước') ? 'water' : 'eat'),
+                desc: m.activity || m.goal || m.name
+              }));
+            }
+          } catch (e) {
+            console.error('[Scheduler] Lỗi đọc custom schedule:', e);
+          }
+        }
+
+        if (schedule.length === 0) {
+          schedule = SCHEDULES[user.profile_type] || SCHEDULES['tang_can'];
+        }
+
+        const advance = user.reminder_advance ?? 5;
 
         for (const event of schedule) {
+          // Skip water reminder if water_reminder_enabled is turned off
+          if (event.type === 'water' && user.water_reminder_enabled === 0) {
+            continue;
+          }
+
           const notifyTime = subtractMinutes(event.time, advance);
-          if (notifyTime === currentHHMM) {
-            const targetEmail = process.env.RECIPIENT_EMAIL || process.env.GMAIL_USER || '';
-            console.log(`[Scheduler] Nhắc: ${event.name} lúc ${event.time} cho user ${user.name}`);
-            await sendReminderEmail(targetEmail, user.name, event.name, event.type, event.desc, event.time);
+
+          const shouldSend = isCatchup
+            ? notifyTime <= currentHHMM
+            : notifyTime === currentHHMM;
+
+          if (shouldSend) {
+            // Check if already sent today
+            const alreadySent: any = await new Promise((res) => {
+              db.get(
+                "SELECT id FROM sent_reminders_log WHERE user_id = ? AND date = ? AND event_id = ?",
+                [user.id, todayStr, event.id],
+                (_e, r) => res(r)
+              );
+            });
+
+            if (!alreadySent) {
+              const targetEmail = process.env.RECIPIENT_EMAIL || process.env.GMAIL_USER || 'nguyentuanqnpc@gmail.com';
+              console.log(`[Scheduler] Gửi nhắc nhở (${isCatchup ? 'Catch-up' : 'Live'}): ${event.name} lúc ${event.time} tới ${targetEmail}`);
+
+              try {
+                await sendReminderEmail(targetEmail, user.name, event.name, event.type, event.desc, event.time);
+                db.run(
+                  "INSERT OR IGNORE INTO sent_reminders_log (user_id, date, event_id) VALUES (?, ?, ?)",
+                  [user.id, todayStr, event.id]
+                );
+                sentCount++;
+                eventsSent.push(`${event.name} (${event.time})`);
+              } catch (err: any) {
+                console.error(`[Scheduler] Lỗi khi gửi email event ${event.name}:`, err);
+              }
+            }
           }
         }
       }
+
+      resolve({ checked: users.length, sent: sentCount, eventsSent });
     });
+  });
+}
+
+// ──────────────────────────────────────────────────────────────────
+// AUTO-DELETE: Xóa email NutriTrack khỏi Inbox sau 10 phút
+// Kết nối qua IMAP (dùng lại App Password) — không cần OAuth mới
+// ──────────────────────────────────────────────────────────────────
+export async function deleteExpiredNutritrackEmails() {
+  const user = process.env.GMAIL_USER || 'nguyentuanqnpc@gmail.com';
+  const pass = process.env.GMAIL_PASS || '';
+
+  if (!pass) {
+    console.warn('[AutoDelete] GMAIL_PASS chưa được cấu hình, bỏ qua auto-delete.');
+    return;
+  }
+
+  const client = new ImapFlow({
+    host: 'imap.gmail.com',
+    port: 993,
+    secure: true,
+    auth: { user, pass },
+    logger: false   // tắt log IMAP verbose
+  });
+
+  try {
+    await client.connect();
+
+    // Tìm trong INBOX
+    const lock = await client.getMailboxLock('INBOX');
+    try {
+      // Email NutriTrack gửi trước (now - 10 phút)
+      const cutoffDate = new Date(Date.now() - 10 * 60 * 1000);
+
+      const uids = await client.search({
+        from: user,               // gửi từ chính mình
+        subject: '[NutriTrack]', // subject chứa [NutriTrack]
+        before: cutoffDate        // nhận trước thời điểm cutoff
+      }, { uid: true });
+
+      if (uids && Array.isArray(uids) && uids.length > 0) {
+        // Chuyển vào Trash (xóa mềm)
+        await client.messageMove(uids as number[], '[Gmail]/Trash', { uid: true });
+        console.log(`[AutoDelete] Đã dọn ${uids.length} email NutriTrack cũ hơn 10 phút vào Thùng rác.`);
+      } else {
+        console.log('[AutoDelete] Không có email NutriTrack nào cần xóa.');
+      }
+    } finally {
+      lock.release();
+    }
+
+    await client.logout();
+  } catch (err: any) {
+    // Không crash server nếu IMAP lỗi (mạng, sai pass, v.v.)
+    console.error('[AutoDelete] Lỗi kết nối IMAP:', err.message);
+  }
+}
+
+export function initScheduler() {
+  console.log('[Scheduler] Đã kích hoạt hệ thống kiểm tra và gửi nhắc nhở qua Gmail (Auto Catch-up Enabled)');
+
+  // Run catch-up check on server boot to send any missed reminders for today
+  setTimeout(() => {
+    console.log('[Scheduler] Đang kiểm tra & gửi bù thông báo đã bỏ lỡ hôm nay...');
+    checkAndSendReminders(true);
+  }, 3000);
+
+  // Live minute check cron for reminders (and catch-up every 15 mins)
+  cron.schedule('* * * * *', () => {
+    checkAndSendReminders(false);
+  });
+
+  // Catch-up cron every 15 mins in case computer slept or process paused
+  cron.schedule('*/15 * * * *', () => {
+    checkAndSendReminders(true);
+  });
+
+  // Auto-delete NutriTrack emails from Inbox after 10 minutes (runs every 5 min)
+  cron.schedule('*/5 * * * *', () => {
+    deleteExpiredNutritrackEmails();
   });
 
   // Weekly summary EVERY SUNDAY AT 20:00 (8:00 PM)
@@ -268,7 +460,7 @@ export function initScheduler() {
           db.all('SELECT item_id, is_done FROM checklist_logs WHERE user_id = ? AND date >= date("now", "-7 days")', [user.id], (errCheck: Error | null, checkRows: any[] = []) => {
             db.get('SELECT weight FROM weight_logs WHERE user_id = ? ORDER BY date DESC LIMIT 1', [user.id], (errW: Error | null, wRow: any) => {
               const currentWeight = wRow ? wRow.weight : user.start_weight;
-              const targetEmail = process.env.RECIPIENT_EMAIL || process.env.GMAIL_USER || '';
+              const targetEmail = process.env.RECIPIENT_EMAIL || process.env.GMAIL_USER || 'nguyentuanqnpc@gmail.com';
               sendWeeklySummaryEmail(targetEmail, user, logs, checkRows, currentWeight);
             });
           });
@@ -277,5 +469,3 @@ export function initScheduler() {
     });
   });
 }
-
-export { sendReminderEmail, sendDailySummaryEmail };
