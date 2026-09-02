@@ -23,32 +23,52 @@ function getTransporter() {
 // Define meal and training schedules for both profiles
 const SCHEDULES: Record<string, Array<{ id: string; time: string; name: string; type: string; desc: string }>> = {
   tang_can: [
-    { id: 'pre_morning', time: '06:00', name: 'Thức dậy & Uống nước ấm 🥛', type: 'water', desc: 'Uống 300ml nước ấm khởi động hệ tiêu hóa & bù nước sau giấc ngủ.' },
-    { id: 'breakfast', time: '06:30', name: 'Ăn sáng chính + Sữa Vinamilk 🍜', type: 'eat', desc: 'Phở / bún bò / bánh mì + 1 bịch Sữa tươi Vinamilk Nguyên chất (220ml).' },
-    { id: 'water_m1', time: '08:30', name: 'Uống nước ca làm việc sáng 💧', type: 'water', desc: 'Uống 250ml nước lọc giữ cơ thể luôn đủ nước khi làm việc hành chính.' },
-    { id: 'snack_morning', time: '09:30', name: 'Bữa phụ sáng tại công ty 🥗', type: 'eat', desc: 'Sữa chua hạt / trái cây / trứng luộc để duy trì năng lượng.' },
-    { id: 'water_m2', time: '10:30', name: 'Uống nước ca làm việc sáng 💧', type: 'water', desc: 'Uống 250ml nước lọc trước khi chuẩn bị nghỉ trưa.' },
-    { id: 'lunch', time: '11:45', name: 'Ăn trưa chính 🍚', type: 'eat', desc: '2 chén cơm đầy + đạm nạc (cá/thịt/gà/trứng) + rau xanh + 1 chén canh.' },
-    { id: 'rest_noon', time: '12:30', name: 'Nghỉ trưa phục hồi 😴', type: 'workout', desc: 'Chợp mắt 20–30 phút giúp lấy lại sức làm việc ca chiều 13h30-17h.' },
-    { id: 'water_a1', time: '14:30', name: 'Uống nước ca làm việc chiều 💧', type: 'water', desc: 'Uống 250ml nước lọc duy trì độ tập trung ca chiều công ty.' },
-    { id: 'snack_afternoon', time: '15:30', name: 'Bữa phụ chiều + Sữa Vinamilk 🍌', type: 'eat', desc: '1 bịch Sữa tươi Vinamilk Nguyên chất (220ml) + chuối luộc / bắp luộc.' },
-    { id: 'water_a2', time: '16:00', name: 'Uống nước ca làm việc chiều 💧', type: 'water', desc: 'Uống 250ml nước lọc kết thúc ca làm việc công ty.' },
-    { id: 'pre_sport', time: '16:30', name: 'Ăn nhẹ trước chơi thể thao 🥖', type: 'eat', desc: '1 lát bánh mì / 1 quả trứng luộc để nạp năng lượng nhanh.' },
-    { id: 'sport_evening', time: '17:00', name: '🏓 Ca thể thao Bóng bàn / Pickleball', type: 'workout', desc: 'Chơi thể thao 17h00 - 19h00. Nhớ uống bổ sung 500-700ml nước điện giải.' },
-    { id: 'dinner', time: '19:30', name: 'Ăn tối chính 🌙', type: 'eat', desc: 'Cơm (2 chén nếu chơi thể thao) + cá/gà + rau xanh + canh xương.' },
-    { id: 'water_night', time: '21:00', name: 'Uống nước buổi tối 💧', type: 'water', desc: 'Uống 250ml nước lọc thư giãn buổi tối.' },
-    { id: 'pre_sleep', time: '22:00', name: 'Sữa tươi Vinamilk trước ngủ 🥛', type: 'eat', desc: '1 bịch Sữa tươi Vinamilk Nguyên chất (220ml) ấm giúp phục hồi cơ bắp & dễ ngủ.' },
-    { id: 'sleep', time: '22:30', name: 'Đi ngủ phục hồi 💤', type: 'workout', desc: 'Tắt thiết bị điện tử, ngủ đủ 7–8 tiếng để kích hoạt hormone tăng cân tăng cơ.' }
+    // ── SÁNG SỚM ──
+    { id: 'pre_morning',   time: '06:00', name: 'Thức dậy & Uống nước ấm 🥛',              type: 'water', desc: 'Uống 300ml nước ấm từng ngụm nhỏ — khởi động hệ tiêu hóa & bù nước sau giấc ngủ dài.' },
+    { id: 'breakfast',     time: '06:30', name: 'Ăn sáng chính + Sữa Vinamilk 🍜',         type: 'eat',   desc: 'Phở / bún bò / bánh mì + 1 bịch Sữa tươi Vinamilk Nguyên chất (220ml).' },
+    { id: 'water_07',      time: '07:30', name: 'Uống nước sau ăn sáng 💧',                 type: 'water', desc: 'Uống 200ml nước lọc từng ngụm — hỗ trợ tiêu hóa bữa sáng, cơ thể bắt đầu hoạt động.' },
+    // ── CA LÀM VIỆC SÁNG ──
+    { id: 'water_09',      time: '09:00', name: 'Uống nước giữa ca sáng 💧',                type: 'water', desc: 'Uống 200ml nước lọc — duy trì độ tỉnh táo, tránh mất nước giữa giờ làm việc.' },
+    { id: 'snack_morning', time: '09:30', name: 'Bữa phụ sáng tại công ty 🥗',              type: 'eat',   desc: 'Sữa chua hạt / trái cây / trứng luộc để duy trì năng lượng.' },
+    { id: 'water_10',      time: '10:30', name: 'Uống nước trước nghỉ trưa 💧',             type: 'water', desc: 'Uống 200ml nước lọc — chuẩn bị cho ca hoạt động trưa, không để cơ thể thiếu nước trước bữa ăn.' },
+    // ── TRƯA ──
+    { id: 'lunch',         time: '11:45', name: 'Ăn trưa chính 🍚',                         type: 'eat',   desc: '2 chén cơm đầy + đạm nạc (cá/thịt/gà/trứng) + rau xanh + 1 chén canh.' },
+    { id: 'rest_noon',     time: '12:30', name: 'Nghỉ trưa phục hồi 😴',                   type: 'workout', desc: 'Chợp mắt 20–30 phút giúp lấy lại sức làm việc ca chiều 13h30-17h.' },
+    { id: 'water_13',      time: '13:00', name: 'Uống nước sau bữa trưa 💧',                type: 'water', desc: 'Uống 200ml nước lọc — hỗ trợ tiêu hóa bữa trưa, bổ sung nước trước ca chiều dài.' },
+    // ── CA LÀM VIỆC CHIỀU ──
+    { id: 'water_14',      time: '14:00', name: 'Uống nước đầu ca chiều 💧',                type: 'water', desc: 'Uống 200ml nước lọc — khởi động ca làm việc chiều 13h30-17h, duy trì sự tập trung.' },
+    { id: 'snack_afternoon', time: '15:30', name: 'Bữa phụ chiều + Sữa Vinamilk 🍌',       type: 'eat',   desc: '1 bịch Sữa tươi Vinamilk Nguyên chất (220ml) + chuối luộc / bắp luộc.' },
+    { id: 'water_16',      time: '16:00', name: 'Uống nước cuối ca chiều 💧',               type: 'water', desc: 'Uống 200ml nước lọc — kết thúc ca làm việc, chuẩn bị cơ thể trước ca thể thao 17h.' },
+    { id: 'pre_sport',     time: '16:30', name: 'Ăn nhẹ trước chơi thể thao 🥖',           type: 'eat',   desc: '1 lát bánh mì / 1 quả trứng luộc để nạp năng lượng nhanh.' },
+    // ── CA THỂ THAO (3 mốc nước mới — quan trọng nhất) ──
+    { id: 'sport_evening', time: '17:00', name: '🏓 Ca thể thao Bóng bàn / Pickleball',    type: 'workout', desc: 'Chơi thể thao 17h00-19h00. Uống nước theo nhắc nhở lúc 17h15, 18h00, 18h45.' },
+    { id: 'water_sport1',  time: '17:15', name: 'Uống nước trong thể thao (lần 1) 🚰',     type: 'water', desc: 'Uống 200ml nước lọc hoặc điện giải loãng — từng ngụm nhỏ, không uống ồ ạt khi đang vận động.' },
+    { id: 'water_sport2',  time: '18:00', name: 'Uống nước trong thể thao (lần 2) 🚰',     type: 'water', desc: 'Uống 200ml nước lọc hoặc điện giải — giữa buổi tập là lúc mất nước nhiều nhất qua mồ hôi.' },
+    { id: 'water_sport3',  time: '18:45', name: 'Uống nước sau thể thao 🚰',               type: 'water', desc: 'Uống 200ml nước lọc sau khi kết thúc ca tập — bù ngay lượng nước mất, hỗ trợ phục hồi cơ bắp.' },
+    // ── TỐI ──
+    { id: 'dinner',        time: '19:30', name: 'Ăn tối chính 🌙',                          type: 'eat',   desc: 'Cơm (2 chén nếu chơi thể thao) + cá/gà + rau xanh + canh xương.' },
+    { id: 'water_night',   time: '21:00', name: 'Uống nước buổi tối 💧',                    type: 'water', desc: 'Uống 200ml nước lọc từng ngụm nhỏ — lần cuối trong ngày, không uống quá nhiều gần giờ ngủ.' },
+    { id: 'pre_sleep',     time: '22:00', name: 'Sữa tươi Vinamilk trước ngủ 🥛',          type: 'eat',   desc: '1 bịch Sữa tươi Vinamilk Nguyên chất (220ml) ấm giúp phục hồi cơ bắp & dễ ngủ.' },
+    { id: 'sleep',         time: '22:30', name: 'Đi ngủ phục hồi 💤',                      type: 'workout', desc: 'Tắt thiết bị điện tử, ngủ đủ 7–8 tiếng để kích hoạt hormone tăng cân tăng cơ.' }
   ],
   giam_can: [
-    { id: 'wake_up', time: '05:00', name: 'Thức dậy & Uống nước ấm 💧', type: 'eat', desc: 'Uống 1 ly nước ấm ngay khi ngủ dậy để thải độc tố và khởi động hệ trao đổi chất.' },
-    { id: 'breakfast', time: '06:30', name: 'Ăn sáng lành mạnh 🥣', type: 'eat', desc: 'Yến mạch trái cây hoặc 2 quả trứng luộc + khoai lang nhỏ. Hạn chế tinh bột nhanh.' },
-    { id: 'snack_morning', time: '09:30', name: 'Bữa phụ sáng 🍏', type: 'eat', desc: '1 quả táo xanh hoặc 1 hũ sữa chua không đường để giảm cảm giác thèm ăn.' },
-    { id: 'lunch', time: '12:00', name: 'Ăn trưa kiểm soát calo 🥗', type: 'eat', desc: '1 chén cơm nhỏ + ức gà áp chảo / cá hấp + thật nhiều rau luộc/salad ít sốt.' },
-    { id: 'snack_afternoon', time: '15:30', name: 'Bữa phụ chiều 🥜', type: 'eat', desc: 'Ổi hoặc 5-7 hạt hạnh nhân. Giữ lượng calo phụ dưới 100 kcal.' },
-    { id: 'cardio', time: '17:30', name: '🔥 Cardio / Đốt mỡ (Chạy bộ, Pickleball)', type: 'workout', desc: 'Buổi tập tối thiểu 45 phút để kích hoạt chế độ đốt mỡ tự nhiên.' },
-    { id: 'dinner', time: '18:45', name: 'Ăn tối low-carb 🥗', type: 'eat', desc: 'Nhiều rau xanh, đạm nạc (cá/ức gà), hạn chế tinh bột cơm sau 19h.' },
-    { id: 'sleep_prep', time: '22:30', name: 'Chuẩn bị ngủ phục hồi 💤', type: 'workout', desc: 'Ngủ đủ 7-8 tiếng. Đốt mỡ tự nhiên hiệu quả nhất khi ngủ sâu trước 23h.' }
+    { id: 'wake_up',         time: '05:00', name: 'Thức dậy & Uống nước ấm 💧',          type: 'water', desc: 'Uống 300ml nước ấm từng ngụm nhỏ — thải độc tố, khởi động trao đổi chất, hỗ trợ đốt mỡ sáng sớm.' },
+    { id: 'breakfast',       time: '06:30', name: 'Ăn sáng lành mạnh 🥣',               type: 'eat',   desc: 'Yến mạch trái cây hoặc 2 quả trứng luộc + khoai lang nhỏ. Hạn chế tinh bột nhanh.' },
+    { id: 'water_07',        time: '07:30', name: 'Uống nước sau ăn sáng 💧',            type: 'water', desc: 'Uống 200ml nước lọc — hỗ trợ tiêu hóa, tăng cảm giác no, giảm lượng ăn vặt buổi sáng.' },
+    { id: 'water_09',        time: '09:00', name: 'Uống nước giữa ca sáng 💧',           type: 'water', desc: 'Uống 200ml nước lọc — uống nước thay vì ăn vặt khi đói giả, hỗ trợ giảm cân hiệu quả.' },
+    { id: 'snack_morning',   time: '09:30', name: 'Bữa phụ sáng nhẹ 🍏',               type: 'eat',   desc: '1 quả táo xanh hoặc 1 hũ sữa chua không đường để giảm cảm giác thèm ăn.' },
+    { id: 'water_10',        time: '10:30', name: 'Uống nước trước nghỉ trưa 💧',        type: 'water', desc: 'Uống 200ml nước lọc — uống trước bữa trưa 30 phút giúp giảm lượng cơm ăn tự nhiên.' },
+    { id: 'lunch',           time: '12:00', name: 'Ăn trưa kiểm soát calo 🥗',          type: 'eat',   desc: '1 chén cơm nhỏ + ức gà áp chảo / cá hấp + thật nhiều rau luộc/salad ít sốt.' },
+    { id: 'water_13',        time: '13:00', name: 'Uống nước sau bữa trưa 💧',           type: 'water', desc: 'Uống 200ml nước lọc — hỗ trợ tiêu hóa, giảm cảm giác buồn ngủ sau ăn trưa.' },
+    { id: 'water_14',        time: '14:30', name: 'Uống nước giữa ca chiều 💧',          type: 'water', desc: 'Uống 200ml nước lọc — tránh nhầm khát với đói, ngăn ăn vặt không cần thiết buổi chiều.' },
+    { id: 'snack_afternoon', time: '15:30', name: 'Bữa phụ chiều ít calo 🥜',           type: 'eat',   desc: 'Ổi hoặc 5-7 hạt hạnh nhân. Giữ lượng calo phụ dưới 100 kcal.' },
+    { id: 'water_16',        time: '16:30', name: 'Uống nước trước tập 💧',              type: 'water', desc: 'Uống 200ml nước lọc — nạp nước trước buổi cardio, tránh chuột rút và tối ưu đốt mỡ.' },
+    { id: 'cardio',          time: '17:30', name: '🔥 Cardio / Đốt mỡ (Chạy bộ, Pickleball)', type: 'workout', desc: 'Buổi tập tối thiểu 45 phút để kích hoạt chế độ đốt mỡ tự nhiên.' },
+    { id: 'water_sport1',    time: '17:45', name: 'Uống nước trong tập (lần 1) 🚰',     type: 'water', desc: 'Uống 150–200ml nước lọc từng ngụm nhỏ — bù nước khi mồ hôi ra nhiều trong lúc cardio.' },
+    { id: 'water_sport2',    time: '18:15', name: 'Uống nước trong tập (lần 2) 🚰',     type: 'water', desc: 'Uống 150–200ml nước lọc — giữa buổi tập là thời điểm mất nước cao nhất, uống đủ để duy trì hiệu suất.' },
+    { id: 'dinner',          time: '18:45', name: 'Ăn tối low-carb 🥗',                 type: 'eat',   desc: 'Nhiều rau xanh, đạm nạc (cá/ức gà), hạn chế tinh bột cơm sau 19h.' },
+    { id: 'water_20',        time: '20:00', name: 'Uống nước buổi tối 💧',              type: 'water', desc: 'Uống 200ml nước lọc — bù nước sau buổi tập, không uống quá nhiều gần giờ ngủ để tránh phù.' },
+    { id: 'sleep_prep',      time: '22:30', name: 'Chuẩn bị ngủ phục hồi 💤',          type: 'workout', desc: 'Ngủ đủ 7-8 tiếng. Đốt mỡ tự nhiên hiệu quả nhất khi ngủ sâu trước 23h.' }
   ]
 };
 
