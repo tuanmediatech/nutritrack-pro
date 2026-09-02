@@ -38,13 +38,18 @@ export const PROFILE_DATA: Record<ProfileType, {
       { id: 'c_1930', text: 'Ăn tối chính (Cơm + Cá/Gà + Rau xanh + Canh)', time: '19:30', icon: '🌙' },
       { id: 'c_2200', text: 'Bữa phụ trước ngủ + 1 bịch Sữa tươi Vinamilk Nguyên chất (220ml)', time: '22:00', icon: '🥛' },
 
-      // 2. Phân hệ Uống Nước
-      { id: 'c_0600', text: 'Thức dậy: Uống 300ml nước ấm khởi động ruột & bù nước', time: '06:00', icon: '🥛' },
-      { id: 'c_0830', text: 'Nước ca làm việc sáng công ty: Uống 250ml (1 cốc)', time: '08:30', icon: '💧' },
-      { id: 'c_1030', text: 'Nước ca làm việc sáng công ty: Uống 250ml (1 cốc)', time: '10:30', icon: '💧' },
-      { id: 'c_1430', text: 'Nước ca làm việc chiều công ty: Uống 250ml (1 cốc)', time: '14:30', icon: '💧' },
-      { id: 'c_1600', text: 'Nước ca làm việc chiều công ty: Uống 250ml (1 cốc)', time: '16:00', icon: '💧' },
-      { id: 'c_2100', text: 'Nước lọc thư giãn buổi tối: Uống 250ml (1 cốc)', time: '21:00', icon: '💧' },
+      // 2. Phân hệ Uống Nước & Điện Giải (10 mốc khoa học — mỗi 60-90 phút)
+      { id: 'c_0600', text: 'Thức dậy: Uống 300ml nước ấm từng ngụm nhỏ khởi động ruột & bù nước', time: '06:00', icon: '🥛' },
+      { id: 'c_0730', text: 'Sau ăn sáng: Uống 200ml nước lọc hỗ trợ tiêu hóa', time: '07:30', icon: '💧' },
+      { id: 'c_0900', text: 'Giữa ca sáng: Uống 200ml nước lọc duy trì tỉnh táo', time: '09:00', icon: '💧' },
+      { id: 'c_1030', text: 'Trước nghỉ trưa: Uống 200ml nước lọc chuẩn bị cho ca trưa', time: '10:30', icon: '💧' },
+      { id: 'c_1300', text: 'Sau bữa trưa: Uống 200ml nước lọc hỗ trợ tiêu hóa', time: '13:00', icon: '💧' },
+      { id: 'c_1400', text: 'Đầu ca chiều: Uống 200ml nước lọc duy trì tập trung', time: '14:00', icon: '💧' },
+      { id: 'c_1600', text: 'Cuối ca chiều: Uống 200ml nước lọc chuẩn bị trước thể thao', time: '16:00', icon: '💧' },
+      { id: 'c_1715', text: 'Thể thao (lần 1): Uống 200ml nước/điện giải từng ngụm nhỏ', time: '17:15', icon: '🚰' },
+      { id: 'c_1800', text: 'Thể thao (lần 2): Uống 200ml nước/điện giải giữa buổi tập', time: '18:00', icon: '🚰' },
+      { id: 'c_1845', text: 'Sau thể thao: Uống 200ml nước lọc bù nước & phục hồi cơ', time: '18:45', icon: '🚰' },
+      { id: 'c_2100', text: 'Buổi tối: Uống 200ml nước lọc từng ngụm nhỏ (lần cuối ngày)', time: '21:00', icon: '💧' },
 
       // 3. Phân hệ Tập Luyện & Phục Hồi
       { id: 'c_1230', text: 'Nghỉ trưa phục hồi: Chợp mắt 20–30 phút', time: '12:30', icon: '😴' },
