@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Bell, Clock, Droplets, Utensils, CheckCircle, Volume2, ShieldCheck, Play, Flame, Dumbbell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, Clock, Droplets, Utensils, CheckCircle, Volume2, ShieldCheck, Play, Flame, Dumbbell, Mail, Loader2, AlertCircle, RotateCcw, ToggleLeft, ToggleRight } from 'lucide-react';
 import { MealOption } from '../types';
+
+const DEFAULT_ACTIVE_IDS = ['water_07','water_09','water_10','snack_morning','water_13','water_14','water_16','snack_afternoon'];
 
 interface RemindersViewProps {
   mealSchedule: MealOption[];
@@ -20,6 +22,42 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
   onUpdateReminders,
 }) => {
   const [testSuccess, setTestSuccess] = useState<string | null>(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [catchingUp, setCatchingUp] = useState(false);
+  const [emailResult, setEmailResult] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Per-event toggle state
+  const [activeEventIds, setActiveEventIds] = useState<string[]>(DEFAULT_ACTIVE_IDS);
+  const [savingToggle, setSavingToggle] = useState(false);
+  const [toggleResult, setToggleResult] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/user/active-events')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.activeEventIds) setActiveEventIds(data.activeEventIds); })
+      .catch(() => {});
+  }, []);
+
+  const handleToggleEvent = async (id: string) => {
+    const newIds = activeEventIds.includes(id)
+      ? activeEventIds.filter(x => x !== id)
+      : [...activeEventIds, id];
+    setActiveEventIds(newIds);
+    setSavingToggle(true);
+    try {
+      await fetch('/api/user/active-events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activeEventIds: newIds }),
+      });
+      setToggleResult('Đã lưu!');
+    } catch {
+      setToggleResult('Lỗi lưu cài đặt');
+    } finally {
+      setSavingToggle(false);
+      setTimeout(() => setToggleResult(null), 2000);
+    }
+  };
 
   const handleTestNotification = () => {
     if ('Notification' in window) {
@@ -48,6 +86,28 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
     setTimeout(() => setTestSuccess(null), 4000);
   };
 
+  const handleTestEmail = async () => {
+    setSendingEmail(true);
+    setEmailResult(null);
+    try {
+      const res = await fetch('/api/email/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'nguyentuanqnpc@gmail.com' })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEmailResult({ type: 'success', text: data.message || 'Đã gửi email thử nghiệm tới Gmail thành công!' });
+      } else {
+        setEmailResult({ type: 'error', text: data.error || 'Gửi email thất bại.' });
+      }
+    } catch (err: any) {
+      setEmailResult({ type: 'error', text: 'Lỗi kết nối server: ' + err.message });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -59,16 +119,26 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
               <span>Nhắc Nhở Lịch Ăn, Uống Nước & Tập Luyện</span>
             </h2>
             <p className="text-xs text-slate-300 mt-1">
-              Tự động phát âm thanh và hiển thị thông báo báo giờ ăn, giờ uống nước & giờ chơi thể thao tập luyện.
+              Tự động gửi thông báo Gmail (nguyentuanqnpc@gmail.com) và phát âm thanh báo giờ ăn, giờ uống nước & giờ chơi thể thao.
             </p>
           </div>
-          <button
-            onClick={handleTestNotification}
-            className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
-          >
-            <Play className="w-4 h-4 text-emerald-400" />
-            <span>Thử nghiệm thông báo</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleTestEmail}
+              disabled={sendingEmail}
+              className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              {sendingEmail ? <Loader2 className="w-4 h-4 text-blue-400 animate-spin" /> : <Mail className="w-4 h-4 text-blue-400" />}
+              <span>{sendingEmail ? 'Đang gửi...' : 'Gửi email thử (Gmail)'}</span>
+            </button>
+            <button
+              onClick={handleTestNotification}
+              className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+            >
+              <Play className="w-4 h-4 text-emerald-400" />
+              <span>Thông báo Web</span>
+            </button>
+          </div>
         </div>
 
         {testSuccess && (
@@ -77,7 +147,23 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
             <span>{testSuccess}</span>
           </div>
         )}
+
+        {emailResult && (
+          <div className={`mt-3 p-3 rounded-xl text-xs flex items-center gap-2 border ${
+            emailResult.type === 'success'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              : 'bg-red-500/10 border-red-500/30 text-red-300'
+          }`}>
+            {emailResult.type === 'success' ? (
+              <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+            )}
+            <span>{emailResult.text}</span>
+          </div>
+        )}
       </div>
+
 
       {/* Global Toggles */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -180,38 +266,118 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
         </div>
       </div>
 
-      {/* Schedule Timetable */}
+      {/* Per-event toggle section */}
       <div className="glass-card p-6 space-y-4">
-        <h3 className="font-bold text-white text-base flex items-center gap-2 border-b border-white/10 pb-3">
-          <Clock className="w-5 h-5 text-amber-400" />
-          <span>Danh Sách Khung Giờ Đã Lập Lịch Nhắc Nhở</span>
-        </h3>
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 className="font-bold text-white text-base flex items-center gap-2">
+            <Bell className="w-5 h-5 text-emerald-400" />
+            <span>Tùy Chỉnh Từng Loại Nhắc Nhở Email</span>
+          </h3>
+          <div className="flex items-center gap-2">
+            {savingToggle && <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />}
+            {toggleResult && (
+              <span className="text-xs text-emerald-300 font-semibold">{toggleResult}</span>
+            )}
+            <span className="text-xs text-slate-400">
+              {activeEventIds.length} / {mealSchedule.length} đang bật
+            </span>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {mealSchedule.map((meal) => (
-            <div
-              key={meal.id}
-              className="bg-slate-800/60 border border-white/10 rounded-xl p-4 flex items-center justify-between hover:border-emerald-500/40 transition-all"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{meal.icon}</span>
-                <div>
-                  <div className="font-bold text-white text-sm">{meal.name}</div>
-                  <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                    <Clock className="w-3 h-3 text-emerald-400" />
-                    <span>{meal.time}</span>
-                  </div>
-                </div>
+        <p className="text-xs text-slate-400">
+          Bật/tắt từng mục — thay đổi lưu ngay, không cần restart app. Lịch sinh hoạt vẫn giữ nguyên.
+        </p>
+
+        {/* Group by category */}
+        {(['morning', 'noon', 'afternoon', 'evening'] as const).map(cat => {
+          const catItems = mealSchedule.filter(m => m.category === cat);
+          if (catItems.length === 0) return null;
+          const catLabel: Record<string, string> = {
+            morning: '☀️ Buổi Sáng',
+            noon: '🌞 Buổi Trưa',
+            afternoon: '🌤️ Buổi Chiều',
+            evening: '🌙 Buổi Tối',
+          };
+          return (
+            <div key={cat} className="space-y-2">
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">
+                {catLabel[cat]}
               </div>
-              <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full ${
-                reminderEnabled 
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
-                  : 'bg-slate-700 text-slate-400'
-              }`}>
-                {reminderEnabled ? 'Đang bật' : 'Đã tắt'}
-              </span>
+              <div className="space-y-2">
+                {catItems.map(meal => {
+                  const isActive = activeEventIds.includes(meal.id);
+                  return (
+                    <div
+                      key={meal.id}
+                      onClick={() => handleToggleEvent(meal.id)}
+                      className={`flex items-center justify-between rounded-xl px-4 py-3 cursor-pointer transition-all border ${
+                        isActive
+                          ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400/50'
+                          : 'bg-slate-800/40 border-white/5 hover:border-white/20 opacity-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{meal.icon}</span>
+                        <div>
+                          <div className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-400'}`}>
+                            {meal.name}
+                          </div>
+                          <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                            <Clock className="w-3 h-3 text-slate-500" />
+                            <span>{meal.displayTime || meal.time}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={`flex-shrink-0 transition-colors ${isActive ? 'text-emerald-400' : 'text-slate-600'}`}>
+                        {isActive
+                          ? <ToggleRight className="w-7 h-7" />
+                          : <ToggleLeft className="w-7 h-7" />
+                        }
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          ))}
+          );
+        })}
+
+        {/* Quick presets */}
+        <div className="flex gap-2 pt-2 border-t border-white/10">
+          <button
+            onClick={async () => {
+              const ids = mealSchedule.map(m => m.id);
+              setActiveEventIds(ids);
+              await fetch('/api/user/active-events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activeEventIds: ids }) });
+              setToggleResult('Đã bật tất cả!');
+              setTimeout(() => setToggleResult(null), 2000);
+            }}
+            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
+          >
+            ✅ Bật tất cả
+          </button>
+          <button
+            onClick={async () => {
+              setActiveEventIds(DEFAULT_ACTIVE_IDS);
+              await fetch('/api/user/active-events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activeEventIds: DEFAULT_ACTIVE_IDS }) });
+              setToggleResult('Đã đặt lại mặc định!');
+              setTimeout(() => setToggleResult(null), 2000);
+            }}
+            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-500/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/30 transition-all"
+          >
+            🔄 Mặc định (nước + phụ sáng/chiều)
+          </button>
+          <button
+            onClick={async () => {
+              setActiveEventIds([]);
+              await fetch('/api/user/active-events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activeEventIds: [] }) });
+              setToggleResult('Đã tắt tất cả!');
+              setTimeout(() => setToggleResult(null), 2000);
+            }}
+            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30 transition-all"
+          >
+            🔕 Tắt tất cả
+          </button>
         </div>
       </div>
     </div>

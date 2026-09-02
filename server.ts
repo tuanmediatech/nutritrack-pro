@@ -7,11 +7,12 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import db from "./src/db.js";
-import { initScheduler } from "./src/mailer.js";
+import { initScheduler, sendTestEmail, checkAndSendReminders } from "./src/mailer.js";
 import { consultSymptoms } from "./src/medical.js";
 import { triggerSync, receiveDb, receiveCode, exportDb } from "./src/sync.js";
 
 dotenv.config();
+
 
 const _dirname = typeof __dirname !== "undefined" ? __dirname : process.cwd();
 
@@ -42,6 +43,35 @@ function getGenAI() {
 
 // ==================== HEALTH CHECK ====================
 app.get("/api/health", (_req, res) => res.json({ status: "ok", time: new Date().toISOString() }));
+
+// ==================== EMAIL TEST & CATCHUP ====================
+app.post("/api/email/test", authenticate, async (req: Request, res: Response) => {
+  try {
+    const targetEmail = req.body.email || process.env.RECIPIENT_EMAIL || process.env.GMAIL_USER || "nguyentuanqnpc@gmail.com";
+    const info = await sendTestEmail(targetEmail);
+    res.json({ success: true, message: `Đã gửi thành công email thử nghiệm tới ${targetEmail}!`, messageId: info.messageId });
+  } catch (error: any) {
+    console.error("[API Email Test Error]", error);
+    res.status(500).json({ error: "Lỗi gửi email: " + (error.message || error) });
+  }
+});
+
+app.post("/api/email/catchup", authenticate, async (_req: Request, res: Response) => {
+  try {
+    const result = await checkAndSendReminders(true);
+    res.json({
+      success: true,
+      message: result.sent > 0 
+        ? `Đã gửi bù thành công ${result.sent} thông báo qua Gmail: ${result.eventsSent.join(', ')}`
+        : `Tất cả các thông báo cho thời điểm hiện tại của ngày hôm nay đã được gửi đầy đủ trước đó!`,
+      result
+    });
+  } catch (error: any) {
+    console.error("[API Email Catchup Error]", error);
+    res.status(500).json({ error: "Lỗi kiểm tra gửi bù email: " + (error.message || error) });
+  }
+});
+
 
 // ==================== AUTH ====================
 app.post("/api/auth/login", (req, res) => {
@@ -116,6 +146,33 @@ app.post("/api/user/settings", authenticate, (req: any, res) => {
     (err: any) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ message: "Lưu cài đặt thành công!" });
+    });
+});
+
+// ── Active Event IDs (per-user reminder toggle) ──
+app.get("/api/user/active-events", authenticate, (req: any, res) => {
+  db.get("SELECT active_event_ids_json FROM app_settings WHERE user_id = ?", [req.userId], (err: any, row: any) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const raw = row?.active_event_ids_json;
+    if (raw) {
+      try { return res.json({ activeEventIds: JSON.parse(raw) }); } catch {}
+    }
+    // Default: water + snack sáng/chiều
+    res.json({ activeEventIds: ['water_07','water_09','water_10','snack_morning','water_13','water_14','water_16','snack_afternoon'] });
+  });
+});
+
+app.post("/api/user/active-events", authenticate, (req: any, res) => {
+  const { activeEventIds } = req.body;
+  if (!Array.isArray(activeEventIds)) return res.status(400).json({ error: "activeEventIds phải là mảng" });
+  const json = JSON.stringify(activeEventIds);
+  db.run(`INSERT INTO app_settings (user_id, active_event_ids_json)
+    VALUES (?, ?)
+    ON CONFLICT(user_id) DO UPDATE SET active_event_ids_json=excluded.active_event_ids_json`,
+    [req.userId, json],
+    (err: any) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Đã lưu cài đặt nhắc nhở!" });
     });
 });
 

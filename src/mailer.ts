@@ -322,7 +322,7 @@ export async function checkAndSendReminders(isCatchup: boolean = false, catchupW
 
   return new Promise<{ checked: number; sent: number; eventsSent: string[] }>((resolve) => {
     db.all(`
-      SELECT u.id, u.username, u.name, u.profile_type, s.reminder_enabled, s.water_reminder_enabled, s.reminder_advance, s.active_schedule_id
+      SELECT u.id, u.username, u.name, u.profile_type, s.reminder_enabled, s.water_reminder_enabled, s.reminder_advance, s.active_schedule_id, s.active_event_ids_json
       FROM users u
       JOIN app_settings s ON u.id = s.user_id
       WHERE s.reminder_enabled = 1
@@ -363,9 +363,15 @@ export async function checkAndSendReminders(isCatchup: boolean = false, catchupW
 
         const advance = user.reminder_advance ?? 5;
 
+        // Load per-user active event list (from DB), fallback to global default
+        let userActiveIds: string[] = ACTIVE_EVENT_IDS;
+        if (user.active_event_ids_json) {
+          try { userActiveIds = JSON.parse(user.active_event_ids_json); } catch {}
+        }
+
         for (const event of schedule) {
-          // Skip events not in the active list (tắt tạm thời)
-          if (!ACTIVE_EVENT_IDS.includes(event.id)) {
+          // Skip events not in the active list (người dùng tắt trên app)
+          if (!userActiveIds.includes(event.id)) {
             continue;
           }
           // Skip water reminder if water_reminder_enabled is turned off

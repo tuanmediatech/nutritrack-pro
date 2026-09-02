@@ -121,6 +121,7 @@ db.serialize(() => {
   db.run("ALTER TABLE app_settings ADD COLUMN active_schedule_id INTEGER", () => {});
   db.run("ALTER TABLE app_settings ADD COLUMN gemini_api_key TEXT", () => {});
   db.run("ALTER TABLE app_settings ADD COLUMN theme TEXT DEFAULT 'dark'", () => {});
+  db.run("ALTER TABLE app_settings ADD COLUMN active_event_ids_json TEXT", () => {});
   db.run("ALTER TABLE health_records ADD COLUMN file_name TEXT", () => {});
   db.run("ALTER TABLE health_records ADD COLUMN ai_advice TEXT", () => {});
 
@@ -170,7 +171,18 @@ db.serialize(() => {
     )
   `);
 
-  // Insert default admin user if table is empty
+  // 9. Sent Reminders Log Table (Prevent duplicate emails & enable catchup)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS sent_reminders_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      event_id TEXT NOT NULL,
+      sent_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(user_id, date, event_id),
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    )
+  `);
   db.get('SELECT COUNT(*) as count FROM users', (err, row: any) => {
     if (err) {
       console.error('Lỗi kiểm tra bảng users:', err);
