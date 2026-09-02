@@ -20,6 +20,25 @@ function getTransporter() {
   });
 }
 
+// ── ACTIVE REMINDERS ─────────────────────────────────────────────────────────
+// Chỉ những event_id có trong danh sách này mới được gửi email nhắc nhở.
+// Muốn tắt tạm: xóa id ra khỏi mảng.  Muốn bật lại: thêm id trở lại.
+const ACTIVE_EVENT_IDS: string[] = [
+  // 💧 Nước buổi SÁNG
+  'water_07',        // 07:30 - Sau ăn sáng
+  'water_09',        // 09:00 - Giữa ca sáng
+  'water_10',        // 10:30 - Trước nghỉ trưa
+  // 🥗 Bữa phụ SÁNG
+  'snack_morning',   // 09:30 - Bữa phụ sáng
+  // 💧 Nước buổi CHIỀU
+  'water_13',        // 13:00 - Sau bữa trưa
+  'water_14',        // 14:00 / 14:30 - Đầu ca chiều
+  'water_16',        // 16:00 / 16:30 - Cuối ca chiều
+  // 🥗 Bữa phụ CHIỀU
+  'snack_afternoon', // 15:30 - Bữa phụ chiều
+];
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Define meal and training schedules for both profiles
 const SCHEDULES: Record<string, Array<{ id: string; time: string; name: string; type: string; desc: string }>> = {
   tang_can: [
@@ -345,6 +364,10 @@ export async function checkAndSendReminders(isCatchup: boolean = false, catchupW
         const advance = user.reminder_advance ?? 5;
 
         for (const event of schedule) {
+          // Skip events not in the active list (tắt tạm thời)
+          if (!ACTIVE_EVENT_IDS.includes(event.id)) {
+            continue;
+          }
           // Skip water reminder if water_reminder_enabled is turned off
           if (event.type === 'water' && user.water_reminder_enabled === 0) {
             continue;
