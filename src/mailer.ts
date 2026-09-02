@@ -290,7 +290,7 @@ export async function sendWeeklySummaryEmail(toEmail: string, user: any, past7Da
   }
 }
 
-export async function checkAndSendReminders(isCatchup: boolean = false) {
+export async function checkAndSendReminders(isCatchup: boolean = false, catchupWindowMinutes: number = 0) {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -352,8 +352,13 @@ export async function checkAndSendReminders(isCatchup: boolean = false) {
 
           const notifyTime = subtractMinutes(event.time, advance);
 
+          // Catch-up có window: chỉ gửi trong N phút gần nhất (tránh gửi cả ngày)
+          let catchupFrom = '00:00';
+          if (isCatchup && catchupWindowMinutes > 0) {
+            catchupFrom = subtractMinutes(currentHHMM, catchupWindowMinutes);
+          }
           const shouldSend = isCatchup
-            ? notifyTime <= currentHHMM
+            ? (notifyTime <= currentHHMM && (catchupWindowMinutes === 0 || notifyTime >= catchupFrom))
             : notifyTime === currentHHMM;
 
           if (shouldSend) {
@@ -378,6 +383,8 @@ export async function checkAndSendReminders(isCatchup: boolean = false) {
                 );
                 sentCount++;
                 eventsSent.push(`${event.name} (${event.time})`);
+                // Delay nhỏ giữa các email khi catch-up — giải phóng event loop
+                if (isCatchup) await new Promise(r => setTimeout(r, 800));
               } catch (err: any) {
                 console.error(`[Scheduler] Lỗi khi gửi email event ${event.name}:`, err);
               }
@@ -445,28 +452,57 @@ export async function deleteExpiredNutritrackEmails() {
   }
 }
 
-export function initScheduler() {
-  console.log('[Scheduler] Đã kích hoạt hệ thống kiểm tra và gửi nhắc nhở qua Gmail (Auto Catch-up Enabled)');
+// ── Mutex flags — ngăn cron chạy chồng lên nhau ──
+let reminderRunning = false;
+let autoDeleteRunning = false;
 
-  // Run catch-up check on server boot to send any missed reminders for today
-  setTimeout(() => {
-    console.log('[Scheduler] Đang kiểm tra & gửi bù thông báo đã bỏ lỡ hôm nay...');
-    checkAndSendReminders(true);
+export function initScheduler() {
+  console.log('[Scheduler] Đã kích hoạt hệ thống kiểm tra và gửi nhắc nhở qua Gmail');
+
+  // Boot catch-up: chỉ gửi những event trong 30 phút gần nhất bị bỏ lỡ
+  // (tránh gửi ồ ạt cả ngày khi restart giữa chừng)
+  setTimeout(async () => {
+    if (reminderRunning) return;
+    reminderRunning = true;
+    console.log('[Scheduler] Đang kiểm tra & gửi bù thông báo đã bỏ lỡ (30 phút gần nhất)...');
+    try {
+      await checkAndSendReminders(true, 30);
+    } finally {
+      reminderRunning = false;
+    }
   }, 3000);
 
-  // Live minute check cron for reminders (and catch-up every 15 mins)
-  cron.schedule('* * * * *', () => {
-    checkAndSendReminders(false);
+  // Live check mỗi phút — có mutex, bỏ qua nếu lần trước chưa xong
+  cron.schedule('* * * * *', async () => {
+    if (reminderRunning) return;
+    reminderRunning = true;
+    try {
+      await checkAndSendReminders(false);
+    } finally {
+      reminderRunning = false;
+    }
   });
 
-  // Catch-up cron every 15 mins in case computer slept or process paused
-  cron.schedule('*/15 * * * *', () => {
-    checkAndSendReminders(true);
+  // Catch-up mỗi 30 phút — chỉ nhìn lại 35 phút để không bỏ sót
+  cron.schedule('*/30 * * * *', async () => {
+    if (reminderRunning) return;
+    reminderRunning = true;
+    try {
+      await checkAndSendReminders(true, 35);
+    } finally {
+      reminderRunning = false;
+    }
   });
 
-  // Auto-delete NutriTrack emails from Inbox after 10 minutes (runs every 5 min)
-  cron.schedule('*/5 * * * *', () => {
-    deleteExpiredNutritrackEmails();
+  // Auto-delete IMAP — mutex riêng, chạy mỗi 10 phút (giảm từ 5)
+  cron.schedule('*/10 * * * *', async () => {
+    if (autoDeleteRunning) return;
+    autoDeleteRunning = true;
+    try {
+      await deleteExpiredNutritrackEmails();
+    } finally {
+      autoDeleteRunning = false;
+    }
   });
 
   // Weekly summary EVERY SUNDAY AT 20:00 (8:00 PM)
