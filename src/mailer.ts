@@ -40,7 +40,7 @@ const ACTIVE_EVENT_IDS: string[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Define meal and training schedules for both profiles
-const SCHEDULES: Record<string, Array<{ id: string; time: string; name: string; type: string; desc: string }>> = {
+export const SCHEDULES: Record<string, Array<{ id: string; time: string; name: string; type: string; desc: string }>> = {
   tang_can: [
     // ── SÁNG SỚM ──
     { id: 'pre_morning',   time: '06:00', name: 'Thức dậy & Uống nước ấm 🥛',              type: 'water', desc: 'Uống 300ml nước ấm từng ngụm nhỏ — khởi động hệ tiêu hóa & bù nước sau giấc ngủ dài.' },

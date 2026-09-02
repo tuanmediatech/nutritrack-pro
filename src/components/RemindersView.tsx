@@ -4,6 +4,14 @@ import { MealOption } from '../types';
 
 const DEFAULT_ACTIVE_IDS = ['water_07','water_09','water_10','snack_morning','water_13','water_14','water_16','snack_afternoon'];
 
+interface BackendEvent {
+  id: string;
+  time: string;
+  name: string;
+  type: string;  // 'water' | 'eat' | 'workout'
+  desc: string;
+}
+
 interface RemindersViewProps {
   mealSchedule: MealOption[];
   reminderAdvance: number;
@@ -26,15 +34,22 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
   const [catchingUp, setCatchingUp] = useState(false);
   const [emailResult, setEmailResult] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Per-event toggle state
+  // Per-event toggle state — dùng lịch từ backend API
   const [activeEventIds, setActiveEventIds] = useState<string[]>(DEFAULT_ACTIVE_IDS);
+  const [backendEvents, setBackendEvents] = useState<BackendEvent[]>([]);
   const [savingToggle, setSavingToggle] = useState(false);
   const [toggleResult, setToggleResult] = useState<string | null>(null);
 
   useEffect(() => {
+    // Load active IDs
     fetch('/api/user/active-events')
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data?.activeEventIds) setActiveEventIds(data.activeEventIds); })
+      .catch(() => {});
+    // Load full backend schedule (source of truth)
+    fetch('/api/user/schedule-events')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.events) setBackendEvents(data.events); })
       .catch(() => {});
   }, []);
 
@@ -279,7 +294,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
               <span className="text-xs text-emerald-300 font-semibold">{toggleResult}</span>
             )}
             <span className="text-xs text-slate-400">
-              {activeEventIds.length} / {mealSchedule.length} đang bật
+              {activeEventIds.length} / {backendEvents.length} đang bật
             </span>
           </div>
         </div>
@@ -288,65 +303,76 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
           Bật/tắt từng mục — thay đổi lưu ngay, không cần restart app. Lịch sinh hoạt vẫn giữ nguyên.
         </p>
 
-        {/* Group by category */}
-        {(['morning', 'noon', 'afternoon', 'evening'] as const).map(cat => {
-          const catItems = mealSchedule.filter(m => m.category === cat);
-          if (catItems.length === 0) return null;
-          const catLabel: Record<string, string> = {
-            morning: '☀️ Buổi Sáng',
-            noon: '🌞 Buổi Trưa',
-            afternoon: '🌤️ Buổi Chiều',
-            evening: '🌙 Buổi Tối',
-          };
-          return (
-            <div key={cat} className="space-y-2">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">
-                {catLabel[cat]}
-              </div>
-              <div className="space-y-2">
-                {catItems.map(meal => {
-                  const isActive = activeEventIds.includes(meal.id);
-                  return (
-                    <div
-                      key={meal.id}
-                      onClick={() => handleToggleEvent(meal.id)}
-                      className={`flex items-center justify-between rounded-xl px-4 py-3 cursor-pointer transition-all border ${
-                        isActive
-                          ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400/50'
-                          : 'bg-slate-800/40 border-white/5 hover:border-white/20 opacity-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">{meal.icon}</span>
-                        <div>
-                          <div className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-400'}`}>
-                            {meal.name}
-                          </div>
-                          <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                            <Clock className="w-3 h-3 text-slate-500" />
-                            <span>{meal.displayTime || meal.time}</span>
+        {backendEvents.length === 0 && (
+          <div className="text-center py-6 text-slate-500 text-sm">Đang tải lịch...</div>
+        )}
+
+        {/* Group by type: water → eat → workout */}
+        {backendEvents.length > 0 && (
+          [
+            { key: 'water',   label: '💧 Uống Nước',   color: 'blue'   },
+            { key: 'eat',     label: '🍽️ Bữa Ăn & Phụ', color: 'emerald' },
+            { key: 'workout', label: '🏋️ Vận Động',     color: 'amber'  },
+          ].map(({ key, label, color }) => {
+            const items = backendEvents.filter(e => e.type === key);
+            if (items.length === 0) return null;
+            const activeColor = color === 'blue' ? 'bg-blue-500/10 border-blue-500/30 hover:border-blue-400/50'
+              : color === 'emerald' ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400/50'
+              : 'bg-amber-500/10 border-amber-500/30 hover:border-amber-400/50';
+            const toggleColor = color === 'blue' ? 'text-blue-400'
+              : color === 'emerald' ? 'text-emerald-400'
+              : 'text-amber-400';
+            const typeIcon = key === 'water' ? '💧' : key === 'eat' ? '🍽️' : '🏋️';
+            return (
+              <div key={key} className="space-y-2">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">
+                  {label}
+                </div>
+                <div className="space-y-1.5">
+                  {items.map(ev => {
+                    const isActive = activeEventIds.includes(ev.id);
+                    return (
+                      <div
+                        key={ev.id}
+                        onClick={() => handleToggleEvent(ev.id)}
+                        className={`flex items-center justify-between rounded-xl px-4 py-3 cursor-pointer transition-all border ${
+                          isActive
+                            ? activeColor
+                            : 'bg-slate-800/40 border-white/5 hover:border-white/20 opacity-40'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg w-6 text-center">{typeIcon}</span>
+                          <div>
+                            <div className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-400'}`}>
+                              {ev.name}
+                            </div>
+                            <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                              <Clock className="w-3 h-3 text-slate-500" />
+                              <span>{ev.time}</span>
+                            </div>
                           </div>
                         </div>
+                        <div className={`flex-shrink-0 transition-colors ${isActive ? toggleColor : 'text-slate-600'}`}>
+                          {isActive
+                            ? <ToggleRight className="w-7 h-7" />
+                            : <ToggleLeft className="w-7 h-7" />
+                          }
+                        </div>
                       </div>
-                      <div className={`flex-shrink-0 transition-colors ${isActive ? 'text-emerald-400' : 'text-slate-600'}`}>
-                        {isActive
-                          ? <ToggleRight className="w-7 h-7" />
-                          : <ToggleLeft className="w-7 h-7" />
-                        }
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
 
         {/* Quick presets */}
-        <div className="flex gap-2 pt-2 border-t border-white/10">
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
           <button
             onClick={async () => {
-              const ids = mealSchedule.map(m => m.id);
+              const ids = backendEvents.map(e => e.id);
               setActiveEventIds(ids);
               await fetch('/api/user/active-events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activeEventIds: ids }) });
               setToggleResult('Đã bật tất cả!');

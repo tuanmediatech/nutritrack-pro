@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import db from "./src/db.js";
-import { initScheduler, sendTestEmail, checkAndSendReminders } from "./src/mailer.js";
+import { initScheduler, sendTestEmail, checkAndSendReminders, SCHEDULES } from "./src/mailer.js";
 import { consultSymptoms } from "./src/medical.js";
 import { triggerSync, receiveDb, receiveCode, exportDb } from "./src/sync.js";
 
@@ -147,6 +147,16 @@ app.post("/api/user/settings", authenticate, (req: any, res) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ message: "Lưu cài đặt thành công!" });
     });
+});
+
+// ── Full backend schedule events (for toggle UI) ──
+app.get("/api/user/schedule-events", authenticate, (req: any, res) => {
+  db.get("SELECT profile_type FROM users WHERE id = ?", [req.userId], (err: any, row: any) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const profile = row?.profile_type || 'tang_can';
+    const events = SCHEDULES[profile] || SCHEDULES['tang_can'];
+    res.json({ events });
+  });
 });
 
 // ── Active Event IDs (per-user reminder toggle) ──
