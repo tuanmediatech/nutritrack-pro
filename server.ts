@@ -578,7 +578,13 @@ async function startServer() {
     console.log(`🚀 URL local: http://localhost:${PORT}`);
     console.log(`🔧 Chế độ máy: ${IS_LAPTOP ? "Laptop (Source)" : "PC (Target)"}`);
     console.log(`===============================================`);
-    initScheduler();
+    const schedulerEnabled = process.env.SCHEDULER_ENABLED !== 'false';
+    if (schedulerEnabled) {
+      initScheduler();
+      console.log('📅 Scheduler email: ĐANG CHẠY');
+    } else {
+      console.log('📅 Scheduler email: TẮT (SCHEDULER_ENABLED=false)');
+    }
   });
 }
 
