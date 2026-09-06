@@ -523,8 +523,8 @@ export function initScheduler() {
     }
   });
 
-  // Auto-delete IMAP — mutex riêng, chạy mỗi 10 phút (giảm từ 5)
-  cron.schedule('*/10 * * * *', async () => {
+  // Auto-delete IMAP — mutex riêng, chạy mỗi 2 phút (email xóa sau 1 phút)
+  cron.schedule('*/2 * * * *', async () => {
     if (autoDeleteRunning) return;
     autoDeleteRunning = true;
     try {
