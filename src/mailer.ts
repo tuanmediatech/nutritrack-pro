@@ -428,7 +428,7 @@ export async function checkAndSendReminders(isCatchup: boolean = false, catchupW
 }
 
 // ──────────────────────────────────────────────────────────────────
-// AUTO-DELETE: Xóa email NutriTrack khỏi Inbox sau 10 phút
+// AUTO-DELETE: Xóa email NutriTrack khỏi Inbox sau 1 phút
 // Kết nối qua IMAP (dùng lại App Password) — không cần OAuth mới
 // ──────────────────────────────────────────────────────────────────
 export async function deleteExpiredNutritrackEmails() {
@@ -454,8 +454,8 @@ export async function deleteExpiredNutritrackEmails() {
     // Tìm trong INBOX
     const lock = await client.getMailboxLock('INBOX');
     try {
-      // Email NutriTrack gửi trước (now - 10 phút)
-      const cutoffDate = new Date(Date.now() - 10 * 60 * 1000);
+      // Email NutriTrack gửi trước (now - 1 phút)
+      const cutoffDate = new Date(Date.now() - 1 * 60 * 1000);
 
       const uids = await client.search({
         from: user,               // gửi từ chính mình
@@ -466,7 +466,7 @@ export async function deleteExpiredNutritrackEmails() {
       if (uids && Array.isArray(uids) && uids.length > 0) {
         // Chuyển vào Trash (xóa mềm)
         await client.messageMove(uids as number[], '[Gmail]/Trash', { uid: true });
-        console.log(`[AutoDelete] Đã dọn ${uids.length} email NutriTrack cũ hơn 10 phút vào Thùng rác.`);
+        console.log(`[AutoDelete] Đã dọn ${uids.length} email NutriTrack cũ hơn 1 phút vào Thùng rác.`);
       } else {
         console.log('[AutoDelete] Không có email NutriTrack nào cần xóa.');
       }
