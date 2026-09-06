@@ -412,6 +412,10 @@ export async function checkAndSendReminders(isCatchup: boolean = false, catchupW
                 );
                 sentCount++;
                 eventsSent.push(`${event.name} (${event.time})`);
+                // Xóa email khỏi Gmail sau 65 giây (ngay sau khi gửi xong)
+                setTimeout(() => {
+                  deleteExpiredNutritrackEmails().catch(() => {});
+                }, 65 * 1000);
                 // Delay nhỏ giữa các email khi catch-up — giải phóng event loop
                 if (isCatchup) await new Promise(r => setTimeout(r, 800));
               } catch (err: any) {
